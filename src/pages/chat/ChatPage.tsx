@@ -1,12 +1,12 @@
-import Topbar from "@/components/ui/Topbar";
-import { useChatStore } from "@/stores/useChatStore";
-import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
-import UsersList from "./components/UsersList";
-import ChatHeader from "./components/ChatHeader";
+import { useUser } from "@clerk/clerk-react";
+import Topbar from "@/components/ui/Topbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import UsersList from "./components/UsersList";
+import ChatHeader from "./components/ChatHeader";
 import MessageInput from "./components/MessageInput";
+import { useChatStore } from "@/stores/useChatStore";
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString("en-US", {

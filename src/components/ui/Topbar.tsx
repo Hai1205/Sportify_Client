@@ -1,10 +1,10 @@
 import { SignedOut, UserButton } from "@clerk/clerk-react";
 import { LayoutDashboardIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CombineClassNames as ccn } from "@/utils/service/CombineClassNames ";
 import SignInOAuthButtons from "./SignInOAuthButtons";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { cn } from "@/utils/utils";
 import { buttonVariants } from "./button";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const Topbar = () => {
   const { isAdmin } = useAuthStore();
@@ -20,11 +20,12 @@ const Topbar = () => {
         <img src="/spotify.png" className="size-8" alt="Spotify logo" />
         Spotify
       </div>
+      
       <div className="flex items-center gap-4">
         {isAdmin && (
           <Link
             to={"/admin"}
-            className={cn(buttonVariants({ variant: "outline" }))}
+            className={ccn(buttonVariants({ variant: "outline" }))}
           >
             <LayoutDashboardIcon className="size-4  mr-2" />
             Admin Dashboard
@@ -40,4 +41,5 @@ const Topbar = () => {
     </div>
   );
 };
+
 export default Topbar;

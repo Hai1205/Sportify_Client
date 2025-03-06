@@ -1,14 +1,9 @@
+import { useEffect, useRef, useState } from "react";
+import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import formatTime from "@/utils/service/formatTime";
 import { usePlayerStore } from "@/stores/usePlayerStore";
-import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-
-const formatTime = (seconds: number) => {
-	const minutes = Math.floor(seconds / 60);
-	const remainingSeconds = Math.floor(seconds % 60);
-	return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
 
 export const PlaybackControls = () => {
 	const { currentSong, isPlaying, togglePlay, playNext, playPrevious } = usePlayerStore();
@@ -18,9 +13,9 @@ export const PlaybackControls = () => {
 	const [duration, setDuration] = useState(0);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 
+	// Synchronize with tag audio
 	useEffect(() => {
 		audioRef.current = document.querySelector("audio");
-
 		const audio = audioRef.current;
 		if (!audio) return;
 
@@ -61,10 +56,12 @@ export const PlaybackControls = () => {
 								alt={currentSong.title}
 								className='w-14 h-14 object-cover rounded-md'
 							/>
+							
 							<div className='flex-1 min-w-0'>
 								<div className='font-medium truncate hover:underline cursor-pointer'>
 									{currentSong.title}
 								</div>
+								
 								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
 									{currentSong.artist}
 								</div>
@@ -102,6 +99,7 @@ export const PlaybackControls = () => {
 						>
 							{isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
 						</Button>
+						
 						<Button
 							size='icon'
 							variant='ghost'
@@ -111,6 +109,7 @@ export const PlaybackControls = () => {
 						>
 							<SkipForward className='h-4 w-4' />
 						</Button>
+						
 						<Button
 							size='icon'
 							variant='ghost'
@@ -132,14 +131,17 @@ export const PlaybackControls = () => {
 						<div className='text-xs text-zinc-400'>{formatTime(duration)}</div>
 					</div>
 				</div>
+				
 				{/* volume controls */}
 				<div className='hidden sm:flex items-center gap-4 min-w-[180px] w-[30%] justify-end'>
 					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
 						<Mic2 className='h-4 w-4' />
 					</Button>
+					
 					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
 						<ListMusic className='h-4 w-4' />
 					</Button>
+					
 					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
 						<Laptop2 className='h-4 w-4' />
 					</Button>

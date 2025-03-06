@@ -1,8 +1,5 @@
 import axiosInstance from "../service/axiosInstance";
-
-interface FormData {
-  [key: string]: any; // Cho phép các field động khác nếu cần
-}
+import { FormData } from "../types";
 
 export const register = async (formData: FormData): Promise<any> => {
   return await axiosInstance.post("/api/auth/register/", formData);
@@ -22,3 +19,7 @@ export const login = async (formData: FormData): Promise<any> => {
 export const logout = async (): Promise<any> => {
   return await axiosInstance.post("/api/auth/logout/");
 };
+
+export const refreshToken = async (): Promise<any> => {
+  return await axiosInstance.post("/api/auth/refresh-token/")
+}

@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Music } from "lucide-react";
 import SongsTable from "./SongsTable";
 import AddSongDialog from "./AddSongDialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SongsTabContent = () => {
 	return (
@@ -18,10 +18,12 @@ const SongsTabContent = () => {
 					<AddSongDialog />
 				</div>
 			</CardHeader>
+			
 			<CardContent>
 				<SongsTable />
 			</CardContent>
 		</Card>
 	);
 };
+
 export default SongsTabContent;

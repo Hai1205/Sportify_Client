@@ -14,4 +14,5 @@ const SectionGridSkeleton = () => {
 		</div>
 	);
 };
+
 export default SectionGridSkeleton;

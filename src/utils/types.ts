@@ -41,3 +41,7 @@ export interface User {
 	fullName: string;
 	imageUrl: string;
 }
+
+export interface FormData {
+    [key: string]: any; // Cho phép các field động khác nếu cần
+}

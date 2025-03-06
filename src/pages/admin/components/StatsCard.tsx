@@ -16,8 +16,10 @@ const StatsCard = ({ bgColor, icon: Icon, iconColor, label, value }: StatsCardPr
 					<div className={`p-3 rounded-lg ${bgColor}`}>
 						<Icon className={`size-6 ${iconColor}`} />
 					</div>
+					
 					<div>
 						<p className='text-sm text-zinc-400'>{label}</p>
+						
 						<p className='text-2xl font-bold'>{value}</p>
 					</div>
 				</div>
@@ -25,4 +27,5 @@ const StatsCard = ({ bgColor, icon: Icon, iconColor, label, value }: StatsCardPr
 		</Card>
 	);
 };
+
 export default StatsCard;

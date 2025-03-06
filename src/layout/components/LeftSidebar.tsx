@@ -1,7 +1,7 @@
 import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
 import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/utils/utils";
+import { CombineClassNames as ccn } from "@/utils/service/CombineClassNames ";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { SignedIn } from "@clerk/clerk-react";
 import { HomeIcon, Library, MessageCircle } from "lucide-react";
@@ -19,13 +19,13 @@ const LeftSidebar = () => {
 
   return (
     <div className="h-full flex flex-col gap-2">
+    
       {/* Navigation menu */}
-
       <div className="rounded-lg bg-zinc-900 p-4">
         <div className="space-y-2">
           <Link
             to={"/"}
-            className={cn(
+            className={ccn(
               buttonVariants({
                 variant: "ghost",
                 className: "w-full justify-start text-white hover:bg-zinc-800",
@@ -39,7 +39,7 @@ const LeftSidebar = () => {
           <SignedIn>
             <Link
               to={"/chat"}
-              className={cn(
+              className={ccn(
                 buttonVariants({
                   variant: "ghost",
                   className:
@@ -95,4 +95,5 @@ const LeftSidebar = () => {
     </div>
   );
 };
+
 export default LeftSidebar;

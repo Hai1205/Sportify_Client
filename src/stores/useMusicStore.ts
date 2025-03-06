@@ -1,4 +1,4 @@
-import { Album, Song, Stats } from "@/types";
+import { Album, Song, Stats } from "@/utils/types";
 import { deleteAlbum, getAlbumById, getAlbums } from "@/utils/api/albumApi";
 import { deleteSong, getFeaturedSongs, getMadeForYouSongs, getSongs, getTrendingSongs } from "@/utils/api/songApi";
 import { getStats } from "@/utils/api/statsApi";

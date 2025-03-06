@@ -1,15 +1,16 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { callback } from "@/utils/api/authApi";
+import { useEffect, useRef } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Loader } from "lucide-react";
-import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { callback } from "@/utils/api/authApi";
 
 const AuthCallbackPage = () => {
   const { isLoaded, user } = useUser();
   const navigate = useNavigate();
   const syncAttempted = useRef(false);
 
+  // Synchronize user data
   useEffect(() => {
     const syncUser = async () => {
       if (!isLoaded || !user || syncAttempted.current) return;
@@ -22,7 +23,7 @@ const AuthCallbackPage = () => {
         formData.append("lastName", user.lastName || "");
         formData.append("imageUrl", user.imageUrl);
 
-		await callback(user.id, formData);
+        await callback(user.id, formData);
       } catch (error) {
         console.log("Error in auth callback", error);
       } finally {
@@ -38,11 +39,14 @@ const AuthCallbackPage = () => {
       <Card className="w-[90%] max-w-md bg-zinc-900 border-zinc-800">
         <CardContent className="flex flex-col items-center gap-4 pt-6">
           <Loader className="size-6 text-emerald-500 animate-spin" />
+          
           <h3 className="text-zinc-400 text-xl font-bold">Logging you in</h3>
+         
           <p className="text-zinc-400 text-sm">Redirecting...</p>
         </CardContent>
       </Card>
     </div>
   );
 };
+
 export default AuthCallbackPage;

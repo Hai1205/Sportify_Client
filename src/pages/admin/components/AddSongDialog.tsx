@@ -1,3 +1,6 @@
+import { useRef, useState } from "react";
+import { Plus, Upload } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,11 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMusicStore } from "@/stores/useMusicStore";
 import { uploadSong } from "@/utils/api/songApi";
-import { Plus, Upload } from "lucide-react";
-import { useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { useMusicStore } from "@/stores/useMusicStore";
 
 interface NewSong {
 	title: string;
@@ -214,4 +214,5 @@ const AddSongDialog = () => {
 		</Dialog>
 	);
 };
+
 export default AddSongDialog;

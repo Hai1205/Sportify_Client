@@ -1,4 +1,5 @@
 import axiosInstance from "../service/axiosInstance";
+import { FormData } from "../types";
 
 export const uploadSong = async (
     userId: string,

@@ -1,8 +1,5 @@
 import axiosInstance from "../service/axiosInstance";
-
-interface FormData {
-    [key: string]: any; // Cho phép các field động khác nếu cần
-}
+import { FormData } from "../types";
 
 export const uploadAlbum = async (
     userId: string,

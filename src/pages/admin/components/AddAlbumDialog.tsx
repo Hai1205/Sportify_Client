@@ -1,3 +1,6 @@
+import { useRef, useState } from "react";
+import { Plus, Upload } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,9 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { uploadAlbum } from "@/utils/api/albumApi";
-import { Plus, Upload } from "lucide-react";
-import { useRef, useState } from "react";
-import toast from "react-hot-toast";
 
 const AddAlbumDialog = () => {
 	const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
@@ -74,11 +74,14 @@ const AddAlbumDialog = () => {
 					Add Album
 				</Button>
 			</DialogTrigger>
+			
 			<DialogContent className='bg-zinc-900 border-zinc-700'>
 				<DialogHeader>
 					<DialogTitle>Add New Album</DialogTitle>
+					
 					<DialogDescription>Add a new album to your collection</DialogDescription>
 				</DialogHeader>
+				
 				<div className='space-y-4 py-4'>
 					<input
 						type='file'
@@ -87,6 +90,7 @@ const AddAlbumDialog = () => {
 						accept='image/*'
 						className='hidden'
 					/>
+					
 					<div
 						className='flex items-center justify-center p-6 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer'
 						onClick={() => fileInputRef.current?.click()}
@@ -95,14 +99,17 @@ const AddAlbumDialog = () => {
 							<div className='p-3 bg-zinc-800 rounded-full inline-block mb-2'>
 								<Upload className='h-6 w-6 text-zinc-400' />
 							</div>
+							
 							<div className='text-sm text-zinc-400 mb-2'>
 								{imageFile ? imageFile.name : "Upload album artwork"}
 							</div>
+						
 							<Button variant='outline' size='sm' className='text-xs'>
 								Choose File
 							</Button>
 						</div>
 					</div>
+					
 					<div className='space-y-2'>
 						<label className='text-sm font-medium'>Album Title</label>
 						<Input
@@ -112,8 +119,10 @@ const AddAlbumDialog = () => {
 							placeholder='Enter album title'
 						/>
 					</div>
+					
 					<div className='space-y-2'>
 						<label className='text-sm font-medium'>Artist</label>
+						
 						<Input
 							value={newAlbum.artist}
 							onChange={(e) => setNewAlbum({ ...newAlbum, artist: e.target.value })}
@@ -121,8 +130,10 @@ const AddAlbumDialog = () => {
 							placeholder='Enter artist name'
 						/>
 					</div>
+					
 					<div className='space-y-2'>
 						<label className='text-sm font-medium'>Release Year</label>
+						
 						<Input
 							type='number'
 							value={newAlbum.releaseYear}
@@ -134,10 +145,12 @@ const AddAlbumDialog = () => {
 						/>
 					</div>
 				</div>
+				
 				<DialogFooter>
 					<Button variant='outline' onClick={() => setAlbumDialogOpen(false)} disabled={isLoading}>
 						Cancel
 					</Button>
+					
 					<Button
 						onClick={handleSubmit}
 						className='bg-violet-500 hover:bg-violet-600'
@@ -150,4 +163,5 @@ const AddAlbumDialog = () => {
 		</Dialog>
 	);
 };
+
 export default AddAlbumDialog;

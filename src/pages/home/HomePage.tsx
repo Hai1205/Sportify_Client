@@ -1,9 +1,9 @@
-import Topbar from "@/components/ui/Topbar";
-import { useMusicStore } from "@/stores/useMusicStore";
 import { useEffect } from "react";
+import Topbar from "@/components/ui/Topbar";
 import FeaturedSection from "./components/FeaturedSection";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import SectionGrid from "./components/SectionGrid";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 
 const HomePage = () => {
@@ -19,12 +19,15 @@ const HomePage = () => {
 
   const { initializeQueue } = usePlayerStore();
 
+  // Call API when component mount
   useEffect(() => {
     fetchFeaturedSongs();
     fetchMadeForYouSongs();
     fetchTrendingSongs();
   }, [fetchFeaturedSongs, fetchMadeForYouSongs, fetchTrendingSongs]);
 
+
+  // Initialize the queue when has data
   useEffect(() => {
     if (
       madeForYouSongs.length > 0 &&
@@ -39,11 +42,13 @@ const HomePage = () => {
   return (
     <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900">
       <Topbar />
+      
       <ScrollArea className="h-[calc(100vh-180px)]">
         <div className="p-4 sm:p-6">
           <h1 className="text-2xl sm:text-3xl font-bold mb-6">
             Good afternoon
           </h1>
+          
           <FeaturedSection />
 
           <div className="space-y-8">
@@ -52,6 +57,7 @@ const HomePage = () => {
               songs={madeForYouSongs}
               isLoading={isLoading}
             />
+           
             <SectionGrid
               title="Trending"
               songs={trendingSongs}
@@ -63,4 +69,5 @@ const HomePage = () => {
     </main>
   );
 };
+
 export default HomePage;

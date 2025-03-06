@@ -9,4 +9,5 @@ const UsersListSkeleton = () => {
 		</div>
 	));
 };
+
 export default UsersListSkeleton;

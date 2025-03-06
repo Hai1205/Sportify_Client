@@ -1,5 +1,5 @@
-import { usePlayerStore } from "@/stores/usePlayerStore";
 import { useEffect, useRef } from "react";
+import { usePlayerStore } from "@/stores/usePlayerStore";
 
 const AudioPlayer = () => {
 	const audioRef = useRef<HTMLAudioElement>(null);
@@ -47,4 +47,5 @@ const AudioPlayer = () => {
 
 	return <audio ref={audioRef} />;
 };
+
 export default AudioPlayer;

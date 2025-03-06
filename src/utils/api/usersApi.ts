@@ -1,8 +1,5 @@
 import axiosInstance from "../service/axiosInstance";
-
-interface FormData {
-  [key: string]: any; // Cho phép các field động khác nếu cần
-}
+// import { FormData } from "../types";
 
 // export const followUser = async (currentUserId: string, userToModifyId: string): Promise<any> => {
 //   return await axiosInstance.post(`/api/users/follow/${currentUserId}/${userToModifyId}`);

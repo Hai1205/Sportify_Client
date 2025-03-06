@@ -1,4 +1,4 @@
-import { Message, User } from "@/types";
+import { Message, User } from "@/utils/types";
 import { create } from "zustand";
 import { io } from "socket.io-client";
 import { getUsers, userMessages } from "@/utils/api/usersApi";

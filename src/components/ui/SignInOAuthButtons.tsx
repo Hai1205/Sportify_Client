@@ -27,4 +27,5 @@ const SignInOAuthButtons = () => {
     </Button>
   );
 };
+
 export default SignInOAuthButtons;

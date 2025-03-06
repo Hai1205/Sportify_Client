@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Song } from "@/types";
+import { Song } from "@/utils/types";
 import { useChatStore } from "./useChatStore";
 
 interface PlayerStore {
