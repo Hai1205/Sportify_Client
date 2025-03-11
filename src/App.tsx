@@ -1,30 +1,46 @@
+import { useCallback, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 import MainLayout from "@/layout/MainLayout";
 import HomePage from "@/pages/home/HomePage";
-import AuthCallbackPage from "@/pages/auth-callback/AuthCallbackPage";
 import ChatPage from "@/pages/chat/ChatPage";
 import AlbumPage from "@/pages/album/AlbumPage";
 import AdminPage from "@/pages/admin/AdminPage";
 import NotFoundPage from "@/pages/404/NotFoundPage";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
+  const { isAuth, isAdmin, refreshTokenUser } = useAuthStore();
+
+  const stableRefreshToken = useCallback(() => {
+    refreshTokenUser();
+  }, [refreshTokenUser]);
+
+  useEffect(() => {
+    const fourMinutes = 240000;
+
+    const intervalId = setInterval(stableRefreshToken, fourMinutes);
+
+    return () => clearInterval(intervalId);
+  }, [stableRefreshToken]);
+
   return (
     <BrowserRouter>
       <Routes>
+        {/* <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} /> */}
+        <Route path="/login" element={isAuth ? <MainLayout /> : <Login />} />
         <Route
-          path="/sso-callback"
-          element={
-            <AuthenticateWithRedirectCallback
-              signUpForceRedirectUrl={"/auth-callback"}
-            />
-          }
+          path="/register"
+          element={isAuth ? <MainLayout /> : <Register />}
         />
 
-        <Route path="/auth-callback" element={<AuthCallbackPage />} />
-
-        <Route path="/admin" element={<AdminPage />} />
+        <Route
+          path="/admin"
+          element={isAdmin ? <AdminPage /> : <MainLayout />}
+        />
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />

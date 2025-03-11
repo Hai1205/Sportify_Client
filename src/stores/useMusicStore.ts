@@ -1,6 +1,6 @@
 import { Album, Song, Stats } from "@/utils/types";
-import { deleteAlbum, getAlbumById, getAlbums } from "@/utils/api/albumApi";
-import { deleteSong, getFeaturedSongs, getMadeForYouSongs, getSongs, getTrendingSongs } from "@/utils/api/songApi";
+import { deleteAlbum, getAlbum, getAllAlbum } from "@/utils/api/albumApi";
+import { deleteSong, getFeaturedSongs, getMadeForYouSongs, getAllSong, getTrendingSongs } from "@/utils/api/songApi";
 import { getStats } from "@/utils/api/statsApi";
 import toast from "react-hot-toast";
 import { create } from "zustand";
@@ -81,7 +81,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 	fetchSongs: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await getSongs();
+			const response = await getAllSong();
 			set({ songs: response.data });
 		} catch (error: any) {
 			set({ error: error.message });
@@ -106,7 +106,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 		set({ isLoading: true, error: null });
 
 		try {
-			const response = await getAlbums();
+			const response = await getAllAlbum();
 			set({ albums: response.data });
 		} catch (error: any) {
 			set({ error: error.response.data.message });
@@ -118,7 +118,7 @@ export const useMusicStore = create<MusicStore>((set) => ({
 	fetchAlbumById: async (id) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await getAlbumById(id);
+			const response = await getAlbum(id);
 			set({ currentAlbum: response.data });
 		} catch (error: any) {
 			set({ error: error.response.data.message });

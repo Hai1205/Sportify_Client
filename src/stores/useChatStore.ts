@@ -1,7 +1,8 @@
 import { Message, User } from "@/utils/types";
 import { create } from "zustand";
 import { io } from "socket.io-client";
-import { getUsers, userMessages } from "@/utils/api/usersApi";
+import { getAllUsers } from "@/utils/api/usersApi";
+import { getMessage } from "@/utils/api/chatApi";
 
 interface ChatStore {
 	users: User[];
@@ -45,7 +46,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	fetchUsers: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await getUsers();
+			const response = await getAllUsers();
 			set({ users: response.data });
 		} catch (error: any) {
 			set({ error: error.response.data.message });
@@ -124,8 +125,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	fetchMessages: async (userId: string) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await userMessages(userId);
-			set({ messages: response.data });
+			const receiverId = "";
+			const response = await getMessage(userId, receiverId);
+			const data = response.data.Message;
+			set({ messages: data });
 		} catch (error: any) {
 			set({ error: error.response.data.message });
 		} finally {

@@ -1,11 +1,15 @@
 import axiosInstance from "../service/axiosInstance";
 import { FormData } from "../types";
 
+export const getAllAlbum = async (): Promise<any> => {
+    return await axiosInstance.get(`/api/albums/`)
+}
+
 export const uploadAlbum = async (
     userId: string,
     formData: FormData
 ): Promise<any> => {
-    return await axiosInstance.put(`/api/albums/upload/${userId}/`, formData, {
+    return await axiosInstance.put(`/api/albums/upload-album/${userId}/`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -13,13 +17,9 @@ export const uploadAlbum = async (
 };
 
 export const deleteAlbum = async (albumId: string): Promise<any> => {
-    return await axiosInstance.delete(`/api/albums/delete/${albumId}/`)
+    return await axiosInstance.delete(`/api/albums/delete-album/${albumId}/`)
 }
 
-export const getAlbumById = async (albumId: string): Promise<any> => {
-    return await axiosInstance.get(`/api/albums/get-by-id/${albumId}/`)
-}
-
-export const getAlbums = async (): Promise<any> => {
-    return await axiosInstance.get(`/api/albums/`)
+export const getAlbum = async (albumId: string): Promise<any> => {
+    return await axiosInstance.get(`/api/albums/get-album/${albumId}/`)
 }

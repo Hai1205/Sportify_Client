@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.auth-input {
+	@apply w-full p-3 bg-gray-800 rounded-md border border-gray-700 focus:outline-none focus:border-gray-500;
+  }
+
 @layer base {
 	:root {
 		--background: 0 0% 100%;
