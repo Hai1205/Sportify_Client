@@ -10,13 +10,14 @@ import NotFoundPage from "@/pages/404/NotFoundPage";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import { useAuthStore } from "./stores/useAuthStore";
+import Profile from "./pages/profile/Profile";
 
 function App() {
-  const { isAuth, isAdmin, refreshTokenUser } = useAuthStore();
+  const { isAuth, isAdmin, refreshToken } = useAuthStore();
 
   const stableRefreshToken = useCallback(() => {
-    refreshTokenUser();
-  }, [refreshTokenUser]);
+    refreshToken();
+  }, [refreshToken]);
 
   useEffect(() => {
     const fourMinutes = 240000;
@@ -29,17 +30,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> */}
         <Route path="/login" element={isAuth ? <MainLayout /> : <Login />} />
+
         <Route
           path="/register"
           element={isAuth ? <MainLayout /> : <Register />}
-        />
-
-        <Route
-          path="/admin"
-          element={isAdmin ? <AdminPage /> : <MainLayout />}
         />
 
         <Route element={<MainLayout />}>
@@ -51,6 +46,14 @@ function App() {
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+
+        <Route path="/profile/:userId" element={!isAuth ? <Login /> : <Profile />} />
+
+        <Route
+          path="/admin"
+          element={isAuth && isAdmin ? <AdminPage /> : <MainLayout />}
+        />
+
       </Routes>
 
       <Toaster />

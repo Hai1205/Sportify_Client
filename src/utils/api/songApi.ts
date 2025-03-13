@@ -1,5 +1,4 @@
 import axiosInstance from "../service/axiosInstance";
-import { FormData } from "../types";
 
 export const getAllSong = async(): Promise<any> => {
     return await axiosInstance.get(`/api/songs/`)

@@ -1,5 +1,4 @@
 import axiosInstance from "../service/axiosInstance";
-import { FormData } from "../types";
 
 export const getAllAlbum = async (): Promise<any> => {
     return await axiosInstance.get(`/api/albums/`)
@@ -22,4 +21,8 @@ export const deleteAlbum = async (albumId: string): Promise<any> => {
 
 export const getAlbum = async (albumId: string): Promise<any> => {
     return await axiosInstance.get(`/api/albums/get-album/${albumId}/`)
+}
+
+export const getUserAlbums = async (userId: string): Promise<any> => {
+    return await axiosInstance.get(`/api/albums/get-user-albums/${userId}/`)
 }

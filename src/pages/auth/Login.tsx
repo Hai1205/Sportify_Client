@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Login = () => {
-  const {isLoading, loginUser}= useAuthStore();
+  const { isLoading, login } = useAuthStore();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -11,7 +11,11 @@ const Login = () => {
   const submitHandler = async (e: any) => {
     e.preventDefault();
 
-    await loginUser({ username, password });
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("password", password);
+
+    await login(formData);
   };
 
   return (
@@ -48,10 +52,7 @@ const Login = () => {
             />
           </div>
 
-          <button
-              disabled={isLoading}
-            className="auth-btn"
-          >
+          <button disabled={isLoading} className="auth-btn">
             {isLoading ? "Please Wait..." : "Login"}
           </button>
         </form>

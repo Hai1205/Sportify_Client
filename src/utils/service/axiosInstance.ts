@@ -1,11 +1,4 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from "axios";
-// import NProgress from "nprogress";
-
-// Cấu hình NProgress
-// NProgress.configure({
-//   showSpinner: false,
-//   trickleSpeed: 100,
-// });
 
 // Hàm lấy JWT token từ cookies
 const getCookie = (name: string): string | null => {
@@ -23,19 +16,23 @@ const axiosInstance = axios.create({
 });
 
 // Hàm lấy JWT từ cookies, localStorage hoặc sessionStorage
-const getToken = (item: string): string | null => {
+const getAccessToken = (item: string): string | null => {
   return getCookie(item) || localStorage.getItem(item) || sessionStorage.getItem(item);
 };
+
+// Số lần thử lại tối đa
+const MAX_RETRIES = 3;
 
 // Thêm request interceptor
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // NProgress.start();
-
-    const token = getToken("JWT_TOKEN");
+    const token = getAccessToken("access_token");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Thêm biến retryCount vào config để theo dõi số lần thử lại
+    (config as any).retryCount = (config as any).retryCount || 0;
 
     return config;
   },
@@ -45,11 +42,17 @@ axiosInstance.interceptors.request.use(
 // Thêm response interceptor
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
-    // NProgress.done();
     return response;
   },
-  (error) => {
-    // NProgress.done();
+  async (error) => {
+    const config = error.config;
+    
+    // Kiểm tra số lần thử lại
+    if ((config as any).retryCount < MAX_RETRIES) {
+      (config as any).retryCount += 1;
+      return axiosInstance(config); // Gửi lại request
+    }
+
     return error?.response?.data?.message
       ? Promise.reject(error.response.data.message)
       : Promise.reject(error);

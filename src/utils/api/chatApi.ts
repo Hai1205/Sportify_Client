@@ -4,6 +4,6 @@ export const getAllMessage = async (): Promise<any> => {
     return await axiosInstance.get(`/api/messages/`)
 }
 
-export const getMessage = async (senderId: string, receiverId: string): Promise<any> => {
-    return await axiosInstance.get(`/api/messages/get-message/${senderId}/${receiverId}/`)
+export const getMessages = async (myId: string, opponentId: string): Promise<any> => {
+    return await axiosInstance.get(`/api/messages/get-message/${myId}/${opponentId}/`)
 }

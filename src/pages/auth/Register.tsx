@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Register = () => {
-  const { isLoading, registerUser } = useAuthStore();
+  const { isLoading, register } = useAuthStore();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -12,9 +12,14 @@ const Register = () => {
   const submitHandler = async (e: any) => {
     e.preventDefault();
 
-    await registerUser({ username, email, password });
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("password", password);
+
+    await register(formData);
   };
-  
+
   return (
     <div className="flex items-center justify-center h-screen max-h-screen">
       <div className="bg-black text-white p-8 rounded-lg shadow-lg max-w-md w-full">

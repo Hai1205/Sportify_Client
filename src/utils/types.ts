@@ -1,22 +1,33 @@
-export interface Song {
-	_id: string;
+export interface User {
+	id: string;
+	albums: Album[];
+	followers: User[];
+	following: User[];
+	username: string;
+	email: string;
+	fullName: string;
+	avatarUrl: string;
+}
+
+export interface Album {
+	id: string;
+	user: User;
 	title: string;
-	artist: string;
-	albumId: string | null;
-	imageUrl: string;
+	thumbnailUrl: string;
+	releaseDate: number;
+	songs: Song[];
+}
+
+export interface Song {
+	id: string;
+	title: string;
+	user: User;
+	album: Album | null;
+	thumbnailUrl: string;
 	audioUrl: string;
 	duration: number;
 	createdAt: string;
 	updatedAt: string;
-}
-
-export interface Album {
-	_id: string;
-	title: string;
-	artist: string;
-	imageUrl: string;
-	releaseYear: number;
-	songs: Song[];
 }
 
 export interface Stats {
@@ -27,21 +38,10 @@ export interface Stats {
 }
 
 export interface Message {
-	_id: string;
+	id: string;
 	senderId: string;
 	receiverId: string;
 	content: string;
 	createdAt: string;
 	updatedAt: string;
-}
-
-export interface User {
-	_id: string;
-	clerkId: string;
-	fullName: string;
-	imageUrl: string;
-}
-
-export interface FormData {
-    [key: string]: any; // Cho phép các field động khác nếu cần
 }

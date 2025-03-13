@@ -1,5 +1,4 @@
 import axiosInstance from "../service/axiosInstance";
-import { FormData } from "../types";
 
 export const register = async (formData: FormData): Promise<any> => {
   return await axiosInstance.post("/api/auth/register/", formData);
@@ -30,4 +29,8 @@ export const refreshToken = async (): Promise<any> => {
 
 export const checkAdmin = async (): Promise<any> => {
   return await axiosInstance.post("/api/auth/check-admin/")
+}
+
+export const checkArtist = async (): Promise<any> => {
+  return await axiosInstance.post("/api/auth/check-artist/")
 }

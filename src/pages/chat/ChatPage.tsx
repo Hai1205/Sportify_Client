@@ -1,12 +1,13 @@
 import { useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
-import Topbar from "@/components/ui/Topbar";
+import Topbar from "@/pages/home/components/Topbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import UsersList from "./components/UsersList";
 import ChatHeader from "./components/ChatHeader";
 import MessageInput from "./components/MessageInput";
 import { useChatStore } from "@/stores/useChatStore";
+import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString("en-US", {
@@ -17,16 +18,21 @@ const formatTime = (date: string) => {
 };
 
 const ChatPage = () => {
-  const { user } = useUser();
-  const { messages, selectedUser, fetchUsers, fetchMessages } = useChatStore();
+  const {user: userAuth} = useAuthStore();
+  const { user, getAllUsers } = useUserStore();
+  const { messages, selectedUser, getMessages } = useChatStore();
 
   useEffect(() => {
-    if (user) fetchUsers();
-  }, [fetchUsers, user]);
+    if (user) getAllUsers();
+  }, [getAllUsers, user]);
 
   useEffect(() => {
-    if (selectedUser) fetchMessages(selectedUser.clerkId);
-  }, [selectedUser, fetchMessages]);
+    if (!userAuth?.id) {
+      throw new Error("User ID is undefined");
+    }
+    
+    if (selectedUser) getMessages(userAuth?.id, selectedUser.id);
+  }, [getMessages, userAuth, selectedUser]);
 
   console.log({ messages });
 
@@ -48,24 +54,24 @@ const ChatPage = () => {
                 <div className="p-4 space-y-4">
                   {messages.map((message) => (
                     <div
-                      key={message._id}
+                      key={message.id}
                       className={`flex items-start gap-3 ${
-                        message.senderId === user?.id ? "flex-row-reverse" : ""
+                        message.senderId === userAuth?.id ? "flex-row-reverse" : ""
                       }`}
                     >
                       <Avatar className="size-8">
                         <AvatarImage
                           src={
-                            message.senderId === user?.id
-                              ? user.imageUrl
-                              : selectedUser.imageUrl
+                            message.senderId === userAuth?.id
+                              ? userAuth.avatarUrl
+                              : selectedUser.avatarUrl
                           }
                         />
                       </Avatar>
 
                       <div
                         className={`rounded-lg p-3 max-w-[70%]
-													${message.senderId === user?.id ? "bg-green-500" : "bg-zinc-800"}
+													${message.senderId === userAuth?.id ? "bg-green-500" : "bg-zinc-800"}
 												`}
                       >
                         <p className="text-sm">{message.content}</p>

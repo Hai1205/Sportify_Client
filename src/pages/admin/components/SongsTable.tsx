@@ -40,14 +40,14 @@ const SongsTable = () => {
 
 			<TableBody>
 				{songs.map((song) => (
-					<TableRow key={song._id} className='hover:bg-zinc-800/50'>
+					<TableRow key={song.id} className='hover:bg-zinc-800/50'>
 						<TableCell>
-							<img src={song.imageUrl} alt={song.title} className='size-10 rounded object-cover' />
+							<img src={song.thumbnailUrl} alt={song.title} className='size-10 rounded object-cover' />
 						</TableCell>
 					
 						<TableCell className='font-medium'>{song.title}</TableCell>
 					
-						<TableCell>{song.artist}</TableCell>
+						<TableCell>{song.user.fullName}</TableCell>
 					
 						<TableCell>
 							<span className='inline-flex items-center gap-1 text-zinc-400'>
@@ -62,7 +62,7 @@ const SongsTable = () => {
 									variant={"ghost"}
 									size={"sm"}
 									className='text-red-400 hover:text-red-300 hover:bg-red-400/10'
-									onClick={() => deleteSong(song._id)}
+									onClick={() => deleteSong(song.id)}
 								>
 									<Trash2 className='size-4' />
 								</Button>
