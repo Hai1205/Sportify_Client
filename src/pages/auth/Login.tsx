@@ -1,3 +1,4 @@
+import { GoogleLoginButton } from "@/components/ui/0auth";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -52,10 +53,16 @@ const Login = () => {
             />
           </div>
 
-          <button disabled={isLoading} className="auth-btn">
-            {isLoading ? "Please Wait..." : "Login"}
-          </button>
+          <div className="flex justify-center">
+            <button disabled={isLoading} className="auth-btn w-full max-w-xs">
+              {isLoading ? "Please Wait..." : "Login"}
+            </button>
+          </div>
         </form>
+      
+        <div className="flex justify-center mt-4">
+          <GoogleLoginButton />
+        </div>
 
         <div className="text-center mt-6">
           <Link

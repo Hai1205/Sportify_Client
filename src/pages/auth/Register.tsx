@@ -64,9 +64,11 @@ const Register = () => {
             />
           </div>
 
-          <button disabled={isLoading} className="auth-btn">
-            {isLoading ? "Please Wait..." : "Register"}
-          </button>
+          <div className="flex justify-center mt-4">
+            <button disabled={isLoading} className="auth-btn">
+              {isLoading ? "Please Wait..." : "Register"}
+            </button>
+          </div>
         </form>
 
         <div className="text-center mt-6">

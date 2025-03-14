@@ -26,7 +26,7 @@ export interface Song {
 	thumbnailUrl: string;
 	audioUrl: string;
 	duration: number;
-	createdAt: string;
+	releaseDate: string;
 	updatedAt: string;
 }
 

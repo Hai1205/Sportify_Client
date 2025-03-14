@@ -18,6 +18,8 @@ const AlbumPage = () => {
 
   if (isLoading) return null;
 
+  const songsLength = currentAlbum?.songs?.length ?? 0;
+
   const handlePlayAlbum = () => {
     if (!currentAlbum) return;
 
@@ -70,7 +72,10 @@ const AlbumPage = () => {
                     {currentAlbum?.user?.fullName}
                   </span>
 
-                  <span>• {currentAlbum?.songs.length} songs</span>
+                  <span>
+                    • {songsLength ?? 0}
+                    {songsLength && songsLength > 1 ? " songs" : " song"}
+                  </span>
 
                   <span>• {currentAlbum?.releaseDate}</span>
                 </div>
@@ -157,7 +162,7 @@ const AlbumPage = () => {
                         </div>
 
                         <div className="flex items-center">
-                          {song.createdAt}
+                          {song.releaseDate}
                         </div>
 
                         <div className="flex items-center">

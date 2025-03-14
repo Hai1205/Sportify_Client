@@ -45,9 +45,9 @@ function App() {
           <Route path="/albums/:albumId" element={<AlbumPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
+          
+          <Route path="/profile/:userId" element={!isAuth ? <Login /> : <Profile />} />
         </Route>
-
-        <Route path="/profile/:userId" element={!isAuth ? <Login /> : <Profile />} />
 
         <Route
           path="/admin"
