@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input, Textarea } from "@/components/ui/input"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export function CreateAlbumModal() {
@@ -43,7 +43,7 @@ export function CreateAlbumModal() {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="album-cover" className="text-white">
-              Album Cover
+              Album thumbnail
             </Label>
             <div className="flex items-center justify-center h-40 bg-gray-800 rounded-md border border-dashed border-gray-700 cursor-pointer hover:bg-gray-750">
               <div className="flex flex-col items-center gap-2 text-gray-400">
@@ -54,7 +54,7 @@ export function CreateAlbumModal() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="album-name" className="text-white">
-              Album Name
+              Album title
             </Label>
             <Input
               id="album-name"
@@ -64,10 +64,11 @@ export function CreateAlbumModal() {
               placeholder="My New Album"
             />
           </div>
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label htmlFor="album-description" className="text-white">
               Description
             </Label>
+
             <Textarea
               id="album-description"
               value={albumDescription}
@@ -75,7 +76,7 @@ export function CreateAlbumModal() {
               className="bg-gray-800 border-gray-700 text-white"
               placeholder="Write a description for your album..."
             />
-          </div>
+          </div> */}
         </div>
         <DialogFooter>
           <Button

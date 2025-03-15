@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CreateAlbumModal } from "./components/CreateAlbumModal";
-import { EditProfileModal } from "./components/UpdateUserModal";
 import { AlbumCardSkeleton } from "./components/AlbumCardSkeleton";
 import { UserAlbumCard } from "./components/UserAlbumCard";
 import { useParams } from "react-router-dom";
@@ -18,9 +17,9 @@ import { useMusicStore } from "@/stores/useMusicStore";
 
 export default function SpotifyProfile() {
   const { userId } = useParams();
-  const { user: userAuth, isLoading: userLoading, isArtist } = useAuthStore();
+  const { user: userAuth, isLoading: userLoading, isArtist, isAdmin } = useAuthStore();
   const { albums, isLoading: albumLoading, getUserAlbums } = useMusicStore();
-  const { user: currentUser, getUser, updateUser, followUser } = useUserStore();
+  const { user: currentUser, getUser, followUser } = useUserStore();
   const [activeTab, setActiveTab] = useState("albums");
 
   useEffect(() => {
@@ -114,10 +113,6 @@ export default function SpotifyProfile() {
             </Avatar>
 
             <div className="flex-1 text-center md:text-left">
-              <div className="text-sm font-medium uppercase tracking-wider mb-2">
-                Profile
-              </div>
-
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <h1 className="text-4xl md:text-6xl font-bold">
                   {currentUser?.fullName || "Unknown User"}
@@ -125,12 +120,7 @@ export default function SpotifyProfile() {
 
                 {isMyProfile ? (
                   <div className="flex gap-2">
-                    {isArtist && <CreateAlbumModal />}
-
-                    <EditProfileModal
-                      currentProfile={currentUser}
-                      onProfileUpdate={updateUser}
-                    />
+                    {isArtist || isAdmin && <CreateAlbumModal />}
                   </div>
                 ) : (
                   isArtist && (

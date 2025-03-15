@@ -4,7 +4,7 @@ export const followUser = async (currentUserId: string, opponentId: string): Pro
   return await axiosInstance.post(`/api/users/follow/${currentUserId}/${opponentId}`);
 };
 
-export const getAllUsers = async (): Promise<any> => {
+export const getAllUser = async (): Promise<any> => {
   return await axiosInstance.get(`/api/users/`);
 };
 
@@ -18,20 +18,20 @@ export const getUser = async (userId: string): Promise<any> => {
 
 export const updateUser = async (
   userId: string,
-  avatarUrl: File | null,
+  // avatarUrl: File | null,
   formData: FormData
 ): Promise<any> => {
-  const data = new FormData();
+  // const data = new FormData();
 
-  if (avatarUrl) {
-    data.append("avatarUrl", avatarUrl);
-  }
+  // if (avatarUrl) {
+  //   data.append("avatarUrl", avatarUrl);
+  // }
 
-  if (formData) {
-    data.append("formData", JSON.stringify(formData)); // Chuyển formData thành chuỗi JSON
-  }
+  // if (formData) {
+  //   data.append("formData", JSON.stringify(formData)); // Chuyển formData thành chuỗi JSON
+  // }
 
-  return await axiosInstance.put(`/api/users/update/${userId}/`, data, {
+  return await axiosInstance.put(`/api/users/update/${userId}/`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -49,3 +49,7 @@ export const requireUpdateUserToArtist = async (userId: string): Promise<any> =>
 export const responseUpdateUserToArtist = async (userId: string): Promise<any> => {
   return await axiosInstance.get(`/api/users/response-update-user-to-artist/${userId}/`);
 };
+
+export const searchUsers = async (query: string): Promise<any> => {
+  return await axiosInstance.get(`api/users/search-users?${query}`);
+}

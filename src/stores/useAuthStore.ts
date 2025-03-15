@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { checkArtist, login, logout, refreshToken, register, registerAdmin } from './../utils/api/authApi';
+import { checkArtist, login, logout, refreshToken, register, registerAdmin, changePassword } from './../utils/api/authApi';
 import { checkAdmin } from "@/utils/api/authApi";
 import { User } from "../utils/types";
 
@@ -18,6 +18,7 @@ interface AuthStore {
 	registerAdmin: (formData: FormData) => Promise<void>;
 	login: (formData: FormData) => Promise<void>;
 	logout: () => Promise<void>;
+	changePassword: (userId: string, formData: FormData) => Promise<void>;
 	refreshToken: () => Promise<void>;
 	setUserAuth: (user: User | null) => void;
 	reset: () => void;
@@ -111,6 +112,18 @@ export const useAuthStore = create<AuthStore>()(
 					await logout();
 
 					set({ isAuth: false, isAdmin: false, user: null });
+				} catch (error: any) {
+					set({ error: error.response.data.message });
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
+			changePassword: async (userId, formData) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					await changePassword(userId, formData);
 				} catch (error: any) {
 					set({ error: error.response.data.message });
 				} finally {

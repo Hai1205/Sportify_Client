@@ -1,3 +1,4 @@
+import { Header } from "@/layout/components/Header";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -21,6 +22,9 @@ const Register = () => {
   };
 
   return (
+    <>
+    <Header />
+    
     <div className="flex items-center justify-center h-screen max-h-screen">
       <div className="bg-black text-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-3xl font-semibold text-center mb-8">
@@ -81,6 +85,7 @@ const Register = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -5,15 +5,17 @@ import MainLayout from "@/layout/MainLayout";
 import HomePage from "@/pages/home/HomePage";
 import ChatPage from "@/pages/chat/ChatPage";
 import AlbumPage from "@/pages/album/AlbumPage";
-import AdminPage from "@/pages/admin/AdminPage";
 import NotFoundPage from "@/pages/404/NotFoundPage";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import { useAuthStore } from "./stores/useAuthStore";
 import Profile from "./pages/profile/Profile";
+import Settings from "./pages/settings/Settings";
+import { SearchResult } from "./pages/search/SearchResults";
 
 function App() {
-  const { isAuth, isAdmin, refreshToken } = useAuthStore();
+  const { isAuth, refreshToken } = useAuthStore();
+  // const { isAuth, isAdmin, refreshToken } = useAuthStore();
 
   const stableRefreshToken = useCallback(() => {
     refreshToken();
@@ -40,20 +42,29 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
 
+          <Route path="/search" element={<SearchResult />} />
+
           <Route path="/chat" element={<ChatPage />} />
 
           <Route path="/albums/:albumId" element={<AlbumPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
-          
-          <Route path="/profile/:userId" element={!isAuth ? <Login /> : <Profile />} />
+
+          <Route
+            path="/profile/:userId"
+            element={!isAuth ? <Profile /> : <Login />}
+          />
+
+          <Route
+            path="/settings"
+            element={!isAuth ? <Settings /> : <Login />}
+          />
         </Route>
 
-        <Route
+        {/* <Route
           path="/admin"
           element={isAuth && isAdmin ? <AdminPage /> : <MainLayout />}
-        />
-
+        /> */}
       </Routes>
 
       <Toaster />

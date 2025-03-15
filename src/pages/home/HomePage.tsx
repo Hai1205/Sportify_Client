@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import Topbar from "@/pages/home/components/Topbar";
+// import Topbar from "@/pages/home/components/Topbar";
 import FeaturedSection from "./components/FeaturedSection";
 import SectionGrid from "./components/SectionGrid";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,7 +40,7 @@ const HomePage = () => {
 
   return (
     <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900">
-      <Topbar />
+      {/* <Topbar /> */}
 
       <ScrollArea className="h-[calc(100vh-180px)]">
         <div className="p-4 sm:p-6">

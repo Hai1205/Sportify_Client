@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { followUser, suggestedUser } from './../utils/api/usersApi';
+import { followUser, searchUsers, suggestedUser } from './../utils/api/usersApi';
 import { User } from "../utils/types";
 import {
-    getAllUsers,
+    getAllUser,
     getUser,
     deleteUser,
     updateUser,
@@ -18,14 +18,15 @@ interface UserStore {
     isLoading: boolean;
     error: string | null;
 
-    getAllUsers: () => Promise<void>;
+    getAllUser: () => Promise<void>;
     getUser: (userId: string) => Promise<void>;
-    updateUser: (userId: string, avatarFile: File | null, formData: FormData) => Promise<void>;
+    updateUser: (userId: string, formData: FormData) => Promise<void>;
     deleteUser: (userId: string) => Promise<void>;
     followUser: (currentUserId: string, opponentId: string) => Promise<void>;
     suggestedUser: (userId: string) => Promise<void>;
     requireUpdateUserToArtist: (userId: string) => Promise<void>;
     responseUpdateUserToArtist: (userId: string) => Promise<void>;
+    searchUsers: (query: string) => Promise<void>;
     reset: () => void;
 }
 
@@ -37,11 +38,11 @@ export const useUserStore = create<UserStore>()(
             isLoading: false,
             error: null,
 
-            getAllUsers: async () => {
+            getAllUser: async () => {
                 set({ isLoading: true, error: null });
 
                 try {
-                    const response = await getAllUsers();
+                    const response = await getAllUser();
                     const data: User[] = response.data.users;
 
                     set({ users: data });
@@ -97,11 +98,11 @@ export const useUserStore = create<UserStore>()(
                 }
             },
 
-            updateUser: async (userId, avatarFile, formData) => {
+            updateUser: async (userId, formData) => {
                 set({ isLoading: true, error: null });
 
                 try {
-                    const response = await updateUser(userId, avatarFile, formData);
+                    const response = await updateUser(userId, formData);
                     const data: User = response.data.user;
 
                     useAuthStore.getState().setUserAuth(data)
@@ -143,6 +144,21 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     await responseUpdateUserToArtist(userId);
+                } catch (error: any) {
+                    set({ error: error.response.data.message });
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
+            searchUsers: async (query) => {
+                set({ isLoading: true, error: null });
+
+                try {
+                    const response = await searchUsers(query);
+                    const data: User[] = response.data.users;
+
+                    set({ users: data });
                 } catch (error: any) {
                     set({ error: error.response.data.message });
                 } finally {

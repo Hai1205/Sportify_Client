@@ -7,12 +7,12 @@ import { useChatStore } from "@/stores/useChatStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const FriendsActivity = () => {
-  const { users, getAllUsers, onlineUsers, userActivities } = useChatStore();
+  const { users, getAllUser, onlineUsers, userActivities } = useChatStore();
   const { user } = useAuthStore();
 
   useEffect(() => {
-    if (user) getAllUsers();
-  }, [getAllUsers, user]);
+    if (user) getAllUser();
+  }, [getAllUser, user]);
 
   return (
     <div className="h-full bg-zinc-900 rounded-lg flex flex-col">

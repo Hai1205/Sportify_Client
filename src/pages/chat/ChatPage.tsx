@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import Topbar from "@/pages/home/components/Topbar";
+// import Topbar from "@/pages/home/components/Topbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import UsersList from "./components/UsersList";
@@ -18,19 +18,19 @@ const formatTime = (date: string) => {
 };
 
 const ChatPage = () => {
-  const {user: userAuth} = useAuthStore();
-  const { user, getAllUsers } = useUserStore();
+  const { user: userAuth } = useAuthStore();
+  const { user, getAllUser } = useUserStore();
   const { messages, selectedUser, getMessages } = useChatStore();
 
   useEffect(() => {
-    if (user) getAllUsers();
-  }, [getAllUsers, user]);
+    if (user) getAllUser();
+  }, [getAllUser, user]);
 
   useEffect(() => {
     if (!userAuth?.id) {
       throw new Error("User ID is undefined");
     }
-    
+
     if (selectedUser) getMessages(userAuth?.id, selectedUser.id);
   }, [getMessages, userAuth, selectedUser]);
 
@@ -38,7 +38,7 @@ const ChatPage = () => {
 
   return (
     <main className="h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden">
-      <Topbar />
+      {/* <Topbar /> */}
 
       <div className="grid lg:grid-cols-[300px_1fr] grid-cols-[80px_1fr] h-[calc(100vh-180px)]">
         <UsersList />
@@ -56,7 +56,9 @@ const ChatPage = () => {
                     <div
                       key={message.id}
                       className={`flex items-start gap-3 ${
-                        message.senderId === userAuth?.id ? "flex-row-reverse" : ""
+                        message.senderId === userAuth?.id
+                          ? "flex-row-reverse"
+                          : ""
                       }`}
                     >
                       <Avatar className="size-8">

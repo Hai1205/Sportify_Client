@@ -34,3 +34,8 @@ export const checkAdmin = async (): Promise<any> => {
 export const checkArtist = async (): Promise<any> => {
   return await axiosInstance.post("/api/auth/check-artist/")
 }
+
+
+export const changePassword = async (userId: string, formData: FormData): Promise<any> => {
+  return await axiosInstance.put(`/api/auth/change-password/${userId}/`, formData);
+};

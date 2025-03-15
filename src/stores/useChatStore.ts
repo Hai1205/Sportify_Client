@@ -2,7 +2,7 @@ import { Message, User } from "@/utils/types";
 import { create } from "zustand";
 import { io } from "socket.io-client";
 import { getMessages } from "@/utils/api/chatApi";
-import { getAllUsers } from "@/utils/api/usersApi";
+import { getAllUser } from "@/utils/api/usersApi";
 
 interface ChatStore {
 	users: User[];
@@ -15,7 +15,7 @@ interface ChatStore {
 	isLoading: boolean;
 	error: string | null;
 
-	getAllUsers: () => Promise<void>;
+	getAllUser: () => Promise<void>;
 	initSocket: (userId: string) => void;
 	disconnectSocket: () => void;
 	sendMessage: (receiverId: string, senderId: string, content: string) => void;
@@ -43,10 +43,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	setSelectedUser: (user) => set({ selectedUser: user }),
 
-	getAllUsers: async () => {
+	getAllUser: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await getAllUsers();
+			const response = await getAllUser();
 			const data: User[] = response.data.users;
 
 			set({ users: data });

@@ -9,6 +9,7 @@ import LeftSidebar from "./components/LeftSidebar";
 import FriendsActivity from "./components/FriendsActivity";
 import AudioPlayer from "./components/AudioPlayer";
 import { PlaybackControls } from "./components/PlaybackControls";
+import { Header } from "./components/Header";
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -27,6 +28,8 @@ const MainLayout = () => {
 
   return (
     <div className="h-screen bg-black text-white flex flex-col">
+      <Header />
+
       <ResizablePanelGroup
         direction="horizontal"
         className="flex-1 flex h-full overflow-hidden p-2"

@@ -26,3 +26,15 @@ export const getAlbum = async (albumId: string): Promise<any> => {
 export const getUserAlbums = async (userId: string): Promise<any> => {
     return await axiosInstance.get(`/api/albums/get-user-albums/${userId}/`)
 }
+
+export const updateAlbum = async (updateId: string, formData: FormData): Promise<any> => {
+    return await axiosInstance.put(`/api/albums/update-albums/${updateId}/`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    })
+}
+
+export const searchAlbums = async (query: string): Promise<any> => {
+    return await axiosInstance.get(`api/albums/search-albums?${query}`);
+  }
