@@ -1,43 +1,30 @@
 import toast from "react-hot-toast";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { Album, Song, Stats } from "@/utils/types";
-import { deleteAlbum, getAlbum, getAllAlbum, getUserAlbums, uploadAlbum, updateAlbum, searchAlbums } from "@/utils/api/albumApi";
-import { deleteSong, getFeaturedSongs, getMadeForYouSongs, getAllSong, getTrendingSongs, getSong, updateSong, addSongToAlbum, downloadSong, searchSongs } from "@/utils/api/songApi";
-import { getStats } from "@/utils/api/statsApi";
-
-interface MusicStore {
-	songs: Song[];
-	albums: Album[];
-	currentAlbum: Album | null;
-	song: Song | null;
-	featuredSongs: Song[];
-	madeForYouSongs: Song[];
-	trendingSongs: Song[];
-	stats: Stats;
-	isLoading: boolean;
-	error: string | null;
-
-	getAllAlbum: () => Promise<void>;
-	uploadAlbum: (userId: string, formData: FormData) => Promise<void>;
-	getAlbum: (id: string) => Promise<void>;
-	updateAlbum: (id: string, formData: FormData) => Promise<void>;
-	deleteAlbum: (id: string) => Promise<void>;
-	getUserAlbums: (userId: string) => Promise<void>;
-	searchAlbums: (query: string) => Promise<void>;
-	getFeaturedSongs: () => Promise<void>;
-	getMadeForYouSongs: () => Promise<void>;
-	getTrendingSongs: () => Promise<void>;
-	getStats: () => Promise<void>;
-	getAllSong: () => Promise<void>;
-	getSong: (id: string) => Promise<void>;
-	updateSong(id: string, formData: FormData): Promise<void>;
-	addSongToAlbum(id: string, albumIds: string[]): Promise<void>;
-	downloadSong: (id: string) => Promise<void>;
-	deleteSong: (id: string) => Promise<void>;
-	searchSongs: (query: string) => Promise<void>;
-	reset: () => void;
-}
+import { Album, MusicStore, Song } from "@/utils/types";
+import {
+	deleteAlbum,
+	getAlbum,
+	getAllAlbum,
+	getUserAlbums,
+	uploadAlbum,
+	updateAlbum,
+	searchAlbums
+} from "@/utils/api/albumApi";
+import {
+	deleteSong,
+	getFeaturedSongs,
+	getMadeForYouSongs,
+	getAllSong,
+	getTrendingSongs,
+	getSong,
+	updateSong,
+	addSongToAlbum,
+	downloadSong,
+	searchSongs,
+	increaseSongView,
+	uploadSong
+} from "@/utils/api/songApi";
 
 export const useMusicStore = create<MusicStore>()(
 	persist(
@@ -51,12 +38,6 @@ export const useMusicStore = create<MusicStore>()(
 			madeForYouSongs: [],
 			featuredSongs: [],
 			trendingSongs: [],
-			stats: {
-				totalSongs: 0,
-				totalAlbums: 0,
-				totalUsers: 0,
-				totalArtists: 0,
-			},
 
 			deleteSong: async (id) => {
 				set({ isLoading: true, error: null });
@@ -103,7 +84,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getAllSong();
-					const data = response.data.songs;
+					const data: Song[] = response.data.songs;
 
 					set({ songs: data });
 				} catch (error: any) {
@@ -125,12 +106,24 @@ export const useMusicStore = create<MusicStore>()(
 				}
 			},
 
+			uploadSong: async (userId, formData) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					await uploadSong(userId, formData);
+				} catch (error: any) {
+					set({ error: error.message });
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
 			updateAlbum: async (id, formData) => {
 				set({ isLoading: true, error: null });
 
 				try {
 					const response = await updateAlbum(id, formData);
-					const data = response.data.album;
+					const data: Album = response.data.album;
 
 					set({ currentAlbum: data });
 				} catch (error: any) {
@@ -145,24 +138,9 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await searchAlbums(query);
-					const data = response.data.albums;
+					const data: Album[] = response.data.albums;
 
 					set({ albums: data });
-				} catch (error: any) {
-					set({ error: error.message });
-				} finally {
-					set({ isLoading: false });
-				}
-			},
-
-			getStats: async () => {
-				set({ isLoading: true, error: null });
-
-				try {
-					const response = await getStats();
-					const data = response.data;
-
-					set({ stats: data });
 				} catch (error: any) {
 					set({ error: error.message });
 				} finally {
@@ -175,7 +153,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getAllAlbum();
-					const data = response.data.albums;
+					const data: Album[] = response.data.albums;
 
 					set({ albums: data });
 				} catch (error: any) {
@@ -190,7 +168,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getAlbum(id);
-					const data = response.data.album;
+					const data: Album = response.data.album;
 
 					set({ currentAlbum: data });
 				} catch (error: any) {
@@ -205,7 +183,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getUserAlbums(userId);
-					const data = response.data.album;
+					const data: Album = response.data.album;
 
 					set({ currentAlbum: data });
 				} catch (error: any) {
@@ -220,7 +198,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getFeaturedSongs();
-					const data = response.data.songs;
+					const data: Song[] = response.data.songs;
 
 					set({ featuredSongs: data });
 				} catch (error: any) {
@@ -235,7 +213,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getMadeForYouSongs();
-					const data = response.data.songs;
+					const data: Song[] = response.data.songs;
 
 					set({ madeForYouSongs: data });
 				} catch (error: any) {
@@ -250,7 +228,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getTrendingSongs();
-					const data = response.data.songs;
+					const data: Song[] = response.data.songs;
 
 					set({ trendingSongs: data });
 				} catch (error: any) {
@@ -265,7 +243,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await updateSong(songId, formData);
-					const data = response.data.song;
+					const data: Song = response.data.song;
 
 					set({ song: data });
 				} catch (error: any) {
@@ -275,11 +253,11 @@ export const useMusicStore = create<MusicStore>()(
 				}
 			},
 
-			addSongToAlbum: async (id, albumIds) => {
+			addSongToAlbum: async (id, albumId) => {
 				set({ isLoading: true, error: null });
 
 				try {
-					await addSongToAlbum(id, albumIds);
+					await addSongToAlbum(id, albumId);
 				} catch (error: any) {
 					set({ error: error.response.data.message });
 				} finally {
@@ -304,7 +282,7 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getSong(id);
-					const data = response.data.song;
+					const data: Song = response.data.song;
 
 					set({ song: data });
 				} catch (error: any) {
@@ -319,9 +297,21 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await searchSongs(query);
-					const data = response.data.songs;
+					const data: Song[] = response.data.songs;
 
 					set({ songs: data });
+				} catch (error: any) {
+					set({ error: error.message });
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
+			increaseSongView: async (songId) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					await increaseSongView(songId);
 				} catch (error: any) {
 					set({ error: error.message });
 				} finally {
@@ -338,12 +328,6 @@ export const useMusicStore = create<MusicStore>()(
 					madeForYouSongs: [],
 					featuredSongs: [],
 					trendingSongs: [],
-					stats: {
-						totalSongs: 0,
-						totalAlbums: 0,
-						totalUsers: 0,
-						totalArtists: 0,
-					},
 					isLoading: false,
 					error: null,
 				})

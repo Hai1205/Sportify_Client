@@ -1,16 +1,11 @@
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { UserProfile } from "@/utils/types";
 
 declare global {
   interface Window {
     google: any;
   }
-}
-
-interface UserProfile {
-  name?: string;
-  email?: string;
-  picture?: string;
 }
 
 const GoogleLoginButton = () => {

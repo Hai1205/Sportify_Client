@@ -36,5 +36,5 @@ export const updateAlbum = async (updateId: string, formData: FormData): Promise
 }
 
 export const searchAlbums = async (query: string): Promise<any> => {
-    return await axiosInstance.get(`api/albums/search-albums?${query}`);
+    return await axiosInstance.get(`api/albums/search-albums?${query}/`);
   }

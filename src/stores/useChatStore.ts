@@ -1,27 +1,8 @@
-import { Message, User } from "@/utils/types";
+import { ChatStore, Message, User } from "@/utils/types";
 import { create } from "zustand";
 import { io } from "socket.io-client";
 import { getMessages } from "@/utils/api/chatApi";
 import { getAllUser } from "@/utils/api/usersApi";
-
-interface ChatStore {
-	users: User[];
-	socket: any;
-	isConnected: boolean;
-	onlineUsers: Set<string>;
-	userActivities: Map<string, string>;
-	messages: Message[];
-	selectedUser: User | null;
-	isLoading: boolean;
-	error: string | null;
-
-	getAllUser: () => Promise<void>;
-	initSocket: (userId: string) => void;
-	disconnectSocket: () => void;
-	sendMessage: (receiverId: string, senderId: string, content: string) => void;
-	getMessages: (currentUserId: string, opponentId: string) => Promise<void>;
-	setSelectedUser: (user: User | null) => void;
-}
 
 const baseURL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
 
@@ -129,7 +110,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 		try {
 			const response = await getMessages(currentUserId, opponentId);
-			const data = response.data.Message;
+			const data: Message[] = response.data.Message;
 
 			set({ messages: data });
 		} catch (error: any) {

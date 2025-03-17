@@ -6,10 +6,9 @@ export const getAllSong = async (): Promise<any> => {
 
 export const uploadSong = async (
     userId: string,
-    albumId: string,
     formData: FormData
 ): Promise<any> => {
-    return await axiosInstance.put(`/api/songs/upload-song/${userId}/${albumId}/`, formData, {
+    return await axiosInstance.put(`/api/songs/upload-song/${userId}/`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -44,8 +43,8 @@ export const updateSong = async (songId: string, formData: FormData): Promise<an
     });
 }
 
-export const addSongToAlbum = async (songId: string, albumIds: string[]): Promise<any> => {
-    return await axiosInstance.put(`/api/songs/add-song-to-album/${songId}/`, albumIds);
+export const addSongToAlbum = async (songId: string, albumId: string): Promise<any> => {
+    return await axiosInstance.put(`/api/songs/add-song-to-album/${songId}/${albumId}/`);
 }
 
 export const downloadSong = async (songId: string): Promise<any> => {
@@ -53,5 +52,9 @@ export const downloadSong = async (songId: string): Promise<any> => {
 }
 
 export const searchSongs = async (query: string): Promise<any> => {
-  return await axiosInstance.get(`api/songs/search-songs?${query}`);
+  return await axiosInstance.get(`api/songs/search-songs?${query}/`);
+}
+
+export const increaseSongView = async (songId: string): Promise<any> => {
+  return await axiosInstance.get(`api/songs/increase-song-view/${songId}/`);
 }

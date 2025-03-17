@@ -1,24 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { Song } from "@/utils/types";
+import { PlayerStore, Song } from "@/utils/types";
 import { useChatStore } from "./useChatStore";
-
-interface PlayerStore {
-	currentSong: Song | null;
-	isPlaying: boolean;
-	queue: Song[];
-	currentIndex: number;
-	isLoading: boolean;
-	error: string | null;
-
-	initializeQueue: (songs: Song[]) => void;
-	playAlbum: (songs: Song[], startIndex?: number) => void;
-	setCurrentSong: (song: Song | null) => void;
-	togglePlay: () => void;
-	playNext: () => void;
-	playPrevious: () => void;
-	reset: () => void;
-}
 
 export const usePlayerStore = create<PlayerStore>()(
 	persist(

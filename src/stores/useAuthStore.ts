@@ -2,27 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { checkArtist, login, logout, refreshToken, register, registerAdmin, changePassword } from './../utils/api/authApi';
 import { checkAdmin } from "@/utils/api/authApi";
-import { User } from "../utils/types";
-
-interface AuthStore {
-	user: User | null;
-	isAuth: boolean;
-	isArtist: boolean;
-	isAdmin: boolean;
-	isLoading: boolean;
-	error: string | null;
-
-	checkAdmin: () => Promise<void>;
-	checkArtist: () => Promise<void>;
-	register: (formData: FormData) => Promise<void>;
-	registerAdmin: (formData: FormData) => Promise<void>;
-	login: (formData: FormData) => Promise<void>;
-	logout: () => Promise<void>;
-	changePassword: (userId: string, formData: FormData) => Promise<void>;
-	refreshToken: () => Promise<void>;
-	setUserAuth: (user: User | null) => void;
-	reset: () => void;
-}
+import { AuthStore, User } from "../utils/types";
 
 export const useAuthStore = create<AuthStore>()(
 	persist(
@@ -148,12 +128,12 @@ export const useAuthStore = create<AuthStore>()(
 			},
 
 			reset: () => {
-				set({ 
-					user: null, 
-					isAdmin: false, 
-					isArtist: false, 
-					isLoading: false, 
-					error: null 
+				set({
+					user: null,
+					isAdmin: false,
+					isArtist: false,
+					isLoading: false,
+					error: null
 				});
 			},
 		}),

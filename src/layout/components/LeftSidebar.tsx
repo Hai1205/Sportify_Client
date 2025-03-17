@@ -31,6 +31,7 @@ const LeftSidebar = () => {
             )}
           >
             <HomeIcon className="mr-2 size-5" />
+           
             <span className="hidden md:inline">Home</span>
           </Link>
 
@@ -44,6 +45,7 @@ const LeftSidebar = () => {
             )}
           >
             <Search className="mr-2 size-5" />
+          
             <span className="hidden md:inline">Search</span>
           </Link>
 

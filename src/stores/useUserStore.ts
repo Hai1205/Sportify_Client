@@ -1,7 +1,13 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { followUser, searchUsers, suggestedUser } from './../utils/api/usersApi';
-import { User } from "../utils/types";
+import {
+    followUser,
+    searchUsers,
+    suggestedUser,
+    getArtistApplicatioins,
+    deleteArtistApplicatioin
+} from './../utils/api/usersApi';
+import { ArtistApplication, User, UserStore } from "../utils/types";
 import {
     getAllUser,
     getUser,
@@ -12,29 +18,12 @@ import {
 } from '@/utils/api/usersApi';
 import { useAuthStore } from "./useAuthStore";
 
-interface UserStore {
-    user: User | null;
-    users: User[];
-    isLoading: boolean;
-    error: string | null;
-
-    getAllUser: () => Promise<void>;
-    getUser: (userId: string) => Promise<void>;
-    updateUser: (userId: string, formData: FormData) => Promise<void>;
-    deleteUser: (userId: string) => Promise<void>;
-    followUser: (currentUserId: string, opponentId: string) => Promise<void>;
-    suggestedUser: (userId: string) => Promise<void>;
-    requireUpdateUserToArtist: (userId: string) => Promise<void>;
-    responseUpdateUserToArtist: (userId: string) => Promise<void>;
-    searchUsers: (query: string) => Promise<void>;
-    reset: () => void;
-}
-
 export const useUserStore = create<UserStore>()(
     persist(
         (set) => ({
             user: null,
             users: [],
+            artistApplications: [],
             isLoading: false,
             error: null,
 
@@ -166,8 +155,35 @@ export const useUserStore = create<UserStore>()(
                 }
             },
 
+            getArtistApplicatioins: async (status) => {
+                set({ isLoading: true, error: null });
+
+                try {
+                    const response = await getArtistApplicatioins(status);
+                    const data: ArtistApplication[] = response.data.artistApplications;
+
+                    set({ artistApplications: data });
+                } catch (error: any) {
+                    set({ users: [], error: error.response.data.message });
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
+            deleteArtistApplicatioin: async (applicationId) => {
+                set({ isLoading: true, error: null });
+
+                try {
+                    await deleteArtistApplicatioin(applicationId);
+                } catch (error: any) {
+                    set({ users: [], error: error.response.data.message });
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
             reset: () => {
-                set({ user: null, users: [], isLoading: false, error: null });
+                set({ user: null, users: [], artistApplications: [], isLoading: false, error: null });
             },
         }),
         {
