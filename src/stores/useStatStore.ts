@@ -3,7 +3,6 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import {
     GeneralStat,
     Song,
-    StatStore,
     User,
     // UserActivityStat
 } from "@/utils/types";
@@ -14,7 +13,24 @@ import {
     // getUserActivityStat
 } from "@/utils/api/statsApi";
 
-export const useMusicStore = create<StatStore>()(
+interface StatStore {
+    generalStat: GeneralStat;
+    // userActivityStats: UserActivityStat[];
+    isLoading: boolean;
+    error: string | null;
+    status: number;
+    message: string | null;
+    songs: Song[];
+    users: User[];
+
+    getGeneralStat: () => Promise<void>;
+    // getUserActivityStat: (days: number) => Promise<void>;
+    getPopularSongsStat: () => Promise<void>;
+    getTopArtistsStat: () => Promise<void>;
+    reset: () => void;
+}
+
+export const useStatStore = create<StatStore>()(
     persist(
         (set) => ({
             isLoading: false,
@@ -28,6 +44,8 @@ export const useMusicStore = create<StatStore>()(
                 totalUsers: 0,
                 totalArtists: 0,
             },
+            status: 0,
+            message: null,
 
             getGeneralStat: async () => {
                 set({ isLoading: true, error: null });
@@ -38,7 +56,11 @@ export const useMusicStore = create<StatStore>()(
 
                     set({ generalStat: data });
                 } catch (error: any) {
-                    set({ error: error.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -68,7 +90,11 @@ export const useMusicStore = create<StatStore>()(
 
                     set({ songs: data });
                 } catch (error: any) {
-                    set({ error: error.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -83,7 +109,11 @@ export const useMusicStore = create<StatStore>()(
 
                     set({ users: data });
                 } catch (error: any) {
-                    set({ error: error.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -102,6 +132,8 @@ export const useMusicStore = create<StatStore>()(
                     },
                     isLoading: false,
                     error: null,
+                    status: 0,
+                    message: null,
                 })
             },
         }),

@@ -1,5 +1,10 @@
+import { User } from "@/utils/types"
 import { CircleUserRound } from "lucide-react"
-import { UserResultsProps } from "@/utils/types"
+
+interface UserResultsProps {
+	users: User[]
+	query: string
+}
 
 export function UserResults({ users, query }: UserResultsProps) {
   if (users.length === 0) {

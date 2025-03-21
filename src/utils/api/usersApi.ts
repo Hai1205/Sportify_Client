@@ -8,6 +8,10 @@ export const getAllUser = async (): Promise<any> => {
   return await axiosInstance.get(`/api/users/`);
 };
 
+export const getUserByRole = async (role: string): Promise<any> => {
+  return await axiosInstance.get(`/api/users/get-user-by-role/?role=${role}`);
+};
+
 export const suggestedUser = async (userId: string): Promise<any> => {
   return await axiosInstance.get(`/api/users/get-user-suggested/${userId}/`);
 };
@@ -16,22 +20,21 @@ export const getUser = async (userId: string): Promise<any> => {
   return await axiosInstance.get(`/api/users/get-user/${userId}/`);
 };
 
-export const updateUser = async (
-  userId: string,
-  // avatarUrl: File | null,
+export const createUser = async (
   formData: FormData
 ): Promise<any> => {
-  // const data = new FormData();
+  return await axiosInstance.post(`/api/users/create-user/`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 
-  // if (avatarUrl) {
-  //   data.append("avatarUrl", avatarUrl);
-  // }
-
-  // if (formData) {
-  //   data.append("formData", JSON.stringify(formData)); // Chuyển formData thành chuỗi JSON
-  // }
-
-  return await axiosInstance.put(`/api/users/update/${userId}/`, formData, {
+export const updateUser = async (
+  userId: string,
+  formData: FormData
+): Promise<any> => {
+  return await axiosInstance.put(`/api/users/update-user/${userId}/`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -51,7 +54,7 @@ export const responseUpdateUserToArtist = async (userId: string): Promise<any> =
 };
 
 export const searchUsers = async (query: string): Promise<any> => {
-  return await axiosInstance.get(`api/users/search-users?${query}/`);
+  return await axiosInstance.get(`api/users/search-users/?query=${query}`);
 }
 
 export const getArtistApplicatioins = async (status: string): Promise<any> => {

@@ -48,7 +48,7 @@ const GoogleLoginButton = () => {
   };
 
   return (
-      <div id="google-login-button" className="mb-4"></div>
+      <div id="google-login-button" className="mb-4  flex justify-center"></div>
   );
 };
 

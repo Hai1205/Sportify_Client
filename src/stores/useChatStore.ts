@@ -1,4 +1,4 @@
-import { ChatStore, Message, User } from "@/utils/types";
+import { Message, User } from "@/utils/types";
 import { create } from "zustand";
 import { io } from "socket.io-client";
 import { getMessages } from "@/utils/api/chatApi";
@@ -11,6 +11,27 @@ const socket = io(baseURL, {
 	withCredentials: true,
 });
 
+interface ChatStore {
+	isLoading: boolean;
+	error: string | null;
+	status: number;
+	message: string | null;
+	users: User[];
+	socket: any;
+	isConnected: boolean;
+	onlineUsers: Set<string>;
+	userActivities: Map<string, string>;
+	messages: Message[];
+	selectedUser: User | null;
+
+	getAllUser: () => Promise<void>;
+	initSocket: (userId: string) => void;
+	disconnectSocket: () => void;
+	sendMessage: (receiverId: string, senderId: string, content: string) => void;
+	getMessages: (currentUserId: string, opponentId: string) => Promise<void>;
+	setSelectedUser: (user: User | null) => void;
+}
+
 export const useChatStore = create<ChatStore>((set, get) => ({
 	users: [],
 	isLoading: false,
@@ -21,6 +42,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	userActivities: new Map(),
 	messages: [],
 	selectedUser: null,
+	status: 0,
+	message: null,
 
 	setSelectedUser: (user) => set({ selectedUser: user }),
 
@@ -32,7 +55,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 			set({ users: data });
 		} catch (error: any) {
-			set({ error: error.response.data.message });
+			console.log(error)
+			const message = error.response.data.message;
+			set({ error: message });
+
+			return message;
 		} finally {
 			set({ isLoading: false });
 		}
@@ -114,7 +141,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 			set({ messages: data });
 		} catch (error: any) {
-			set({ error: error.response.data.message });
+			console.log(error)
+			const message = error.response.data.message;
+			set({ error: message });
+
+			return message;
 		} finally {
 			set({ isLoading: false });
 		}
@@ -131,6 +162,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 			selectedUser: null,
 			isLoading: false,
 			error: null,
+			status: 0,
+			message: null,
 		});
 	},
 }));

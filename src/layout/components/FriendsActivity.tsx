@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { Music, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import LoginPrompt from "@/pages/auth/components/LoginPrompt";
 import { useChatStore } from "@/stores/useChatStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import LoginPrompt from "@/pages/auth/components/LoginPrompt";
 
 const FriendsActivity = () => {
   const { users, getAllUser, onlineUsers, userActivities } = useChatStore();

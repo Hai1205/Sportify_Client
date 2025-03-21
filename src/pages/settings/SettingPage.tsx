@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUserStore } from "@/stores/useUserStore";
 
-const Settings = () => {
+const SettingPage = () => {
   const {
     user: userAuth,
     isLoading: isAuthLoading,
@@ -211,4 +211,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default SettingPage;

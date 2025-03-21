@@ -45,16 +45,15 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const config = error.config;
-    
     // Kiểm tra số lần thử lại
+    const config = error.config;
     if ((config as any).retryCount < MAX_RETRIES) {
       (config as any).retryCount += 1;
       return axiosInstance(config); // Gửi lại request
     }
 
     return error?.response?.data?.message
-      ? Promise.reject(error.response.data.message)
+      ? Promise.reject(error)
       : Promise.reject(error);
   }
 );

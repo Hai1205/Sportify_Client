@@ -35,7 +35,24 @@ export const checkArtist = async (): Promise<any> => {
   return await axiosInstance.post("/api/auth/check-artist/")
 }
 
+export const sendOTP = async (email: string): Promise<any> => {
+  return await axiosInstance.post(`/api/auth/send-otp/${email}/`)
+}
+
+export const checkOTP = async (email: string, OTP: string): Promise<any> => {
+  const data = new FormData();
+    data.append("OTP", OTP);
+  return await axiosInstance.post(`/api/auth/check-otp/${email}/`, data)
+}
 
 export const changePassword = async (userId: string, formData: FormData): Promise<any> => {
   return await axiosInstance.put(`/api/auth/change-password/${userId}/`, formData);
+};
+
+export const forgotPassword = async (userId: string, formData: FormData): Promise<any> => {
+  return await axiosInstance.put(`/api/auth/forgot-password/${userId}/`, formData);
+};
+
+export const resetPassword = async (userId: string): Promise<any> => {
+  return await axiosInstance.post(`/api/auth/reset-password/${userId}/`);
 };

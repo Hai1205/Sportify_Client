@@ -5,9 +5,11 @@ import {
     searchUsers,
     suggestedUser,
     getArtistApplicatioins,
-    deleteArtistApplicatioin
+    deleteArtistApplicatioin,
+    getUserByRole,
+    createUser
 } from './../utils/api/usersApi';
-import { ArtistApplication, User, UserStore } from "../utils/types";
+import { ArtistApplication, User } from "../utils/types";
 import {
     getAllUser,
     getUser,
@@ -18,6 +20,31 @@ import {
 } from '@/utils/api/usersApi';
 import { useAuthStore } from "./useAuthStore";
 
+interface UserStore {
+	isLoading: boolean;
+	error: string | null;
+	status: number;
+	message: string | null;
+	user: User | null;
+	users: User[];
+	artistApplications: ArtistApplication[];
+
+	getAllUser: () => Promise<any>;
+	getUserByRole: (role: string) => Promise<any>;
+	getUser: (userId: string) => Promise<any>;
+	createUser: (formData: FormData) => Promise<any>;
+	updateUser: (userId: string, formData: FormData) => Promise<any>;
+	deleteUser: (userId: string) => Promise<any>;
+	followUser: (currentUserId: string, opponentId: string) => Promise<any>;
+	suggestedUser: (userId: string) => Promise<any>;
+	requireUpdateUserToArtist: (userId: string) => Promise<any>;
+	responseUpdateUserToArtist: (userId: string) => Promise<any>;
+	searchUsers: (query: string) => Promise<any>;
+	getArtistApplicatioins: (status: string) => Promise<any>;
+	deleteArtistApplicatioin: (applicationId: string) => Promise<any>;
+	reset: () => any;
+}
+
 export const useUserStore = create<UserStore>()(
     persist(
         (set) => ({
@@ -26,6 +53,8 @@ export const useUserStore = create<UserStore>()(
             artistApplications: [],
             isLoading: false,
             error: null,
+            status: 0,
+            message: null,
 
             getAllUser: async () => {
                 set({ isLoading: true, error: null });
@@ -36,7 +65,32 @@ export const useUserStore = create<UserStore>()(
 
                     set({ users: data });
                 } catch (error: any) {
-                    set({ users: [], error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ users: [], error: message });
+
+					return message;
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
+            getUserByRole: async (role) => {
+                set({ isLoading: true, error: null });
+
+                try {
+                    const response = await getUserByRole(role);
+                    const data: User[] = response.data.users;
+                    console.log(data)
+                    return data;
+
+                    set({ users: data });
+                } catch (error: any) {
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ users: [], error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -51,7 +105,11 @@ export const useUserStore = create<UserStore>()(
 
                     set({ user: data });
                 } catch (error: any) {
-                    set({ error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -66,7 +124,11 @@ export const useUserStore = create<UserStore>()(
 
                     set({ user: data });
                 } catch (error: any) {
-                    set({ error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -81,7 +143,27 @@ export const useUserStore = create<UserStore>()(
 
                     set({ user: data });
                 } catch (error: any) {
-                    set({ error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
+            createUser: async (formData) => {
+                set({ isLoading: true, error: null });
+
+                try {
+                    await createUser(formData);
+                } catch (error: any) {
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+                    
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -94,9 +176,15 @@ export const useUserStore = create<UserStore>()(
                     const response = await updateUser(userId, formData);
                     const data: User = response.data.user;
 
-                    useAuthStore.getState().setUserAuth(data)
+                    if (userId === useAuthStore.getState().user?.id) {
+                        useAuthStore.getState().setUserAuth(data);
+                    }
                 } catch (error: any) {
-                    set({ error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -110,7 +198,11 @@ export const useUserStore = create<UserStore>()(
 
                     useAuthStore.getState().setUserAuth(null)
                 } catch (error: any) {
-                    set({ user: null, error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ user: null, error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -122,7 +214,11 @@ export const useUserStore = create<UserStore>()(
                 try {
                     await requireUpdateUserToArtist(userId);
                 } catch (error: any) {
-                    set({ error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -134,7 +230,11 @@ export const useUserStore = create<UserStore>()(
                 try {
                     await responseUpdateUserToArtist(userId);
                 } catch (error: any) {
-                    set({ error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -149,7 +249,11 @@ export const useUserStore = create<UserStore>()(
 
                     set({ users: data });
                 } catch (error: any) {
-                    set({ error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -164,7 +268,11 @@ export const useUserStore = create<UserStore>()(
 
                     set({ artistApplications: data });
                 } catch (error: any) {
-                    set({ users: [], error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ users: [], error: message });
+
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -176,14 +284,26 @@ export const useUserStore = create<UserStore>()(
                 try {
                     await deleteArtistApplicatioin(applicationId);
                 } catch (error: any) {
-                    set({ users: [], error: error.response.data.message });
+                    console.log(error)
+					const message = error.response.data.message;
+                    set({ users: [], error: message });
+                    
+					return message;
                 } finally {
                     set({ isLoading: false });
                 }
             },
 
             reset: () => {
-                set({ user: null, users: [], artistApplications: [], isLoading: false, error: null });
+                set({
+                    user: null,
+                    users: [],
+                    artistApplications: [],
+                    isLoading: false,
+                    error: null,
+                    status: 0,
+                    message: null,
+                });
             },
         }),
         {

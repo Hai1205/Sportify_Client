@@ -52,7 +52,7 @@ export const downloadSong = async (songId: string): Promise<any> => {
 }
 
 export const searchSongs = async (query: string): Promise<any> => {
-  return await axiosInstance.get(`api/songs/search-songs?${query}/`);
+  return await axiosInstance.get(`api/songs/search-songs/?query=${query}`);
 }
 
 export const increaseSongView = async (songId: string): Promise<any> => {

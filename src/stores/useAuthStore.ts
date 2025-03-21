@@ -1,8 +1,48 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { checkArtist, login, logout, refreshToken, register, registerAdmin, changePassword } from './../utils/api/authApi';
+import {
+	checkArtist,
+	login,
+	logout,
+	refreshToken,
+	register,
+	changePassword,
+	resetPassword,
+	sendOTP,
+	checkOTP,
+	forgotPassword
+} from './../utils/api/authApi';
 import { checkAdmin } from "@/utils/api/authApi";
-import { AuthStore, User } from "../utils/types";
+import { useUserStore } from "./useUserStore";
+import { useMusicStore } from "./useMusicStore";
+import { usePlayerStore } from "./usePlayerStore";
+import { useStatStore } from "./useStatStore";
+import { User } from "@/utils/types";
+
+export interface AuthStore {
+	status: number;
+	message: string | null;
+	isLoading: boolean;
+	error: string | null;
+	user: User | null;
+	isAuth: boolean;
+	isArtist: boolean;
+	isAdmin: boolean;
+
+	checkAdmin: () => Promise<any>;
+	checkArtist: () => Promise<any>;
+	sendOTP: (email: string) => Promise<any>;
+	checkOTP: (email: string, OTP: string) => Promise<any>;
+	register: (formData: FormData) => Promise<any>;
+	login: (formData: FormData) => Promise<any>;
+	logout: () => Promise<any>;
+	forgotPassword: (userId: string, formData: FormData) => Promise<any>;
+	changePassword: (userId: string, formData: FormData) => Promise<any>;
+	resetPassword: (userId: string) => Promise<any>;
+	refreshToken: () => Promise<any>;
+	setUserAuth: (user: User | null) => any;
+	reset: () => any;
+}
 
 export const useAuthStore = create<AuthStore>()(
 	persist(
@@ -13,6 +53,8 @@ export const useAuthStore = create<AuthStore>()(
 			isAdmin: false,
 			isLoading: false,
 			error: null,
+			status: 0,
+			message: null,
 
 			checkAdmin: async () => {
 				set({ isLoading: true, error: null });
@@ -23,7 +65,11 @@ export const useAuthStore = create<AuthStore>()(
 
 					set({ isAdmin: data });
 				} catch (error: any) {
-					set({ isAdmin: false, error: error.response.data.message });
+					console.log(error)
+					const message = error.response.data.message;
+					set({ isAdmin: false, error: message });
+					
+					return message;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -38,7 +84,43 @@ export const useAuthStore = create<AuthStore>()(
 
 					set({ isArtist: data });
 				} catch (error: any) {
-					set({ isArtist: false, error: error.response.data.message });
+					console.log(error)
+					const message = error.response.data.message;
+					set({ isArtist: false, error: message });
+
+					return message;
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
+			sendOTP: async (email) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					await sendOTP(email);
+				} catch (error: any) {
+					console.log(error)
+					const message = error.response.data.message;
+					set({ isArtist: false, error: message });
+
+					return message;
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
+			checkOTP: async (email, OTP) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					await checkOTP(email, OTP);
+				} catch (error: any) {
+					console.log(error)
+					const message = error.response.data.message;
+					set({ isArtist: false, error: message });
+
+					return message;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -48,21 +130,13 @@ export const useAuthStore = create<AuthStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await register(formData);
+					return await register(formData);
 				} catch (error: any) {
-					set({ error: error.response.data.message });
-				} finally {
-					set({ isLoading: false });
-				}
-			},
+					console.log(error)
+					const message = error.response.data.message;
+					set({ error: message });
 
-			registerAdmin: async (formData) => {
-				set({ isLoading: true, error: null });
-
-				try {
-					await registerAdmin(formData);
-				} catch (error: any) {
-					set({ error: error.response.data.message });
+					return message;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -73,13 +147,20 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					const response = await login(formData);
-					const data: User = response.data.user;
+					const { user, isVerified } = response.data;
 
-					set({ user: data, isAuth: true });
-
-					await get().checkAdmin();
+					if (isVerified) {
+						set({ user, isAuth: true })
+						await get().checkAdmin();
+					}
+					
+					return {user: user, isVerified};
 				} catch (error: any) {
-					set({ user: null, error: error.response.data.message });
+					console.log(error)
+					const message = error.response.data.message;
+					set({ user: null, error: message });
+
+					return message;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -91,9 +172,13 @@ export const useAuthStore = create<AuthStore>()(
 				try {
 					await logout();
 
-					set({ isAuth: false, isAdmin: false, user: null });
+					get().reset();
 				} catch (error: any) {
-					set({ error: error.response.data.message });
+					console.log(error)
+					const message = error.response.data.message;
+					set({ error: message });
+
+					return message;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -105,7 +190,43 @@ export const useAuthStore = create<AuthStore>()(
 				try {
 					await changePassword(userId, formData);
 				} catch (error: any) {
-					set({ error: error.response.data.message });
+					console.log(error)
+					const message = error.response.data.message;
+					set({ error: message });
+
+					return message;
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
+			forgotPassword: async (userId, formData) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					await forgotPassword(userId, formData);
+				} catch (error: any) {
+					set({ error: error });
+					console.log(error)
+					const message = error.response.data.message;
+
+					return message;
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
+			resetPassword: async (userId) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					await resetPassword(userId);
+				} catch (error: any) {
+					console.log(error)
+					const message = error.response.data.message;
+					set({ error: message });
+
+					return message;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -117,7 +238,11 @@ export const useAuthStore = create<AuthStore>()(
 				try {
 					await refreshToken();
 				} catch (error: any) {
-					set({ error: error.response.data.message });
+					console.log(error)
+					const message = error.response.data.message;
+					set({ error: message });
+
+					return message;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -130,11 +255,20 @@ export const useAuthStore = create<AuthStore>()(
 			reset: () => {
 				set({
 					user: null,
+					status: 0,
+					message: null,
 					isAdmin: false,
 					isArtist: false,
+					isAuth: false,
 					isLoading: false,
 					error: null
 				});
+
+				useUserStore.getState().reset();
+				useMusicStore.getState().reset();
+				usePlayerStore.getState().reset();
+				useStatStore.getState().reset();
+				useUserStore.getState().reset();
 			},
 		}),
 

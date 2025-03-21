@@ -13,12 +13,10 @@ import { useUserStore } from "@/stores/useUserStore";
 import { AlbumsEmptyState, UserNotFoundState } from "./components/EmptyState";
 import { UserSkeleton } from "./components/UserSkeleton";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useMusicStore } from "@/stores/useMusicStore";
 
-export default function SpotifyProfile() {
+export default function ProfilePage() {
   const { userId } = useParams();
   const { user: userAuth, isLoading: userLoading, isArtist, isAdmin } = useAuthStore();
-  const { albums, isLoading: albumLoading, getUserAlbums } = useMusicStore();
   const { user: currentUser, getUser, followUser } = useUserStore();
   const [activeTab, setActiveTab] = useState("albums");
 
@@ -37,22 +35,6 @@ export default function SpotifyProfile() {
 
     fetchUser();
   }, [getUser, userId]);
-
-  useEffect(() => {
-    const fetchUserAlbums = async () => {
-      try {
-        if (!userId) {
-          throw new Error("User ID is undefined");
-        }
-
-        getUserAlbums(userId);
-      } catch (error) {
-        console.error("Failed to load currentUser:", error);
-      }
-    };
-
-    fetchUserAlbums();
-  }, [getUserAlbums, userId]);
 
   const follow = (e: any) => {
     e.preventDefault();
@@ -171,7 +153,7 @@ export default function SpotifyProfile() {
             className="w-full"
           >
             <TabsContent value="albums" className="pt-6">
-              {albumLoading ? (
+              {userLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {Array(8)
                     .fill(0)
@@ -179,9 +161,9 @@ export default function SpotifyProfile() {
                       <AlbumCardSkeleton key={index} />
                     ))}
                 </div>
-              ) : albums.length > 0 ? (
+              ) : currentUser.albums.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {albums.map((album) => (
+                  {currentUser.albums.map((album) => (
                     <UserAlbumCard key={album.id} {...album} />
                   ))}
                 </div>

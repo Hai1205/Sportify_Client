@@ -11,7 +11,7 @@ import AudioPlayer from "./components/AudioPlayer";
 import { PlaybackControls } from "./components/PlaybackControls";
 import { Header } from "./components/Header";
 
-const MainLayout = () => {
+const UserLayout = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   //   Track screen size
@@ -74,4 +74,4 @@ const MainLayout = () => {
   );
 };
 
-export default MainLayout;
+export default UserLayout;

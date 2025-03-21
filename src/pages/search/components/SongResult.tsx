@@ -1,6 +1,11 @@
 import { Play, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SongResultsProps } from "@/utils/types";
+import { Song } from "@/utils/types";
+
+interface SongResultsProps {
+  songs: Song[];
+  query: string;
+}
 
 export function SongResults({ songs, query }: SongResultsProps) {
   if (songs.length === 0) {
@@ -37,7 +42,7 @@ export function SongResults({ songs, query }: SongResultsProps) {
             >
               {/* <Link to={`/songs/${song.id}`}>
               </Link> */}
-                <Play className="h-5 w-5" />
+              <Play className="h-5 w-5" />
             </Button>
           </div>
 

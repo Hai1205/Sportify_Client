@@ -19,6 +19,9 @@ export function SearchResult() {
 
   const { songs, albums, searchSongs, searchAlbums, getAllAlbum, getAllSong } =
     useMusicStore();
+  console.log(albums);
+//   console.log("Type of albums:", typeof albums);
+// console.log("Instance check:", Array.isArray(albums));
   const { users, searchUsers, getAllUser } = useUserStore();
 
   const fetchData = useCallback(() => {
@@ -27,23 +30,6 @@ export function SearchResult() {
       getAllAlbum();
       getAllUser();
     } else {
-      // const songResults = songs.filter(
-      //   (song) =>
-      //     song.title.toLowerCase().includes(query.toLowerCase()) ||
-      //     song.user.fullName.toLowerCase().includes(query.toLowerCase()) ||
-      //     song?.album?.title.toLowerCase().includes(query.toLowerCase())
-      // );
-
-      // const albumResults = albums.filter(
-      //   (album) =>
-      //     album.title.toLowerCase().includes(query.toLowerCase()) ||
-      //     album.user.fullName.toLowerCase().includes(query.toLowerCase())
-      // );
-
-      // const userResults = users.filter((user) =>
-      //   user.fullName.toLowerCase().includes(query.toLowerCase())
-      // );
-
       searchSongs(query);
       searchAlbums(query);
       searchUsers(query);
@@ -106,7 +92,7 @@ export function SearchResult() {
             <TabsList>
               <TabsTrigger value="songs">Songs ({songs.length})</TabsTrigger>
 
-              <TabsTrigger value="albums">Albums ({albums.length})</TabsTrigger>
+              {/* <TabsTrigger value="albums">Albums ({albums.length})</TabsTrigger> */}
 
               <TabsTrigger value="users">Users ({users.length})</TabsTrigger>
             </TabsList>

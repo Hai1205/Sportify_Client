@@ -1,9 +1,15 @@
 import { Play, Disc } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AlbumResultsProps } from "@/utils/types";
+import { Album } from "@/utils/types";
 import { Link } from "react-router-dom";
 
+interface AlbumResultsProps {
+	albums: Album[];
+	query: string;
+}
+
 export function AlbumResults({ albums, query }: AlbumResultsProps) {
+  console.log(albums)
   if (albums.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
