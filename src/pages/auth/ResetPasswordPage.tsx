@@ -16,7 +16,7 @@ const ResetPasswordPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { user: userAuth, forgotPassword } = useAuthStore();
+  const { isLoading, user: userAuth, forgotPassword } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,7 +55,7 @@ const ResetPasswordPage: React.FC = () => {
     const data = new FormData();
     data.append("newPassword", formData.newPassword);
     data.append("rePassword", formData.rePassword);
-    
+
     forgotPassword(userAuth?.id, data);
 
     if (!validate()) {
@@ -88,7 +88,13 @@ const ResetPasswordPage: React.FC = () => {
           error={errors.rePassword}
         />
 
-        <Button type="submit" variant="primary" fullWidth className="mt-6 mb-4">
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          className="mt-6 mb-4"
+          isLoading={isLoading}
+        >
           RESET PASSWORD
         </Button>
       </form>

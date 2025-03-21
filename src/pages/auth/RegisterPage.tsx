@@ -17,7 +17,7 @@ const RegisterPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { error, register } = useAuthStore();
+  const { isLoading, error, register } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,7 +70,7 @@ const RegisterPage: React.FC = () => {
 
     await register(data);
 
-    if(error){
+    if (error) {
       return;
     }
 
@@ -81,18 +81,8 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Sign up for Spotify">
+    <AuthLayout title="Register for Spotify">
       <form onSubmit={handleSubmit}>
-        {/* <Input
-          label="What should we call you?"
-          type="text"
-          name="fullName"
-          placeholder="Enter your full name"
-          value={formData.fullName}
-          onChange={handleChange}
-          error={errors.fullName}
-        /> */}
-
         <Input
           label="Username"
           type="text"
@@ -123,14 +113,20 @@ const RegisterPage: React.FC = () => {
           error={errors.password}
         />
 
-        <Button type="submit" variant="primary" fullWidth className="mt-2">
-          SIGN UP
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          className="mt-4"
+          isLoading={isLoading}
+        >
+          Register
         </Button>
       </form>
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-600"></div>
+          <div className="w-full border-t border-gray-600" />
         </div>
 
         <div className="relative flex justify-center">
@@ -142,10 +138,15 @@ const RegisterPage: React.FC = () => {
 
       <div className="text-center">
         <p className="text-white text-sm">
-          Already have an account?{" "}
+          Already have an account? {" "}
+         
           <a
-            onClick={() => navigate("/login")}
-            className="text-white hover:text-[#1DB954] underline cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+
+              if (!isLoading) navigate("/login");
+            }}
+            className={`text-white hover:text-[#1DB954] underline cursor-pointer ${isLoading ? "pointer-events-none opacity-70" : ""}`}
           >
             Log in
           </a>

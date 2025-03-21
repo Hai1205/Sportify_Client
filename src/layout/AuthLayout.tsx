@@ -11,12 +11,13 @@ const AuthLayout = ({ children, title }: AuthLayoutProps) => {
     <>
       <Header />
 
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center ">
+      <div className="h-[calc(100vh-4rem)] bg-black flex flex-col items-center justify-center">
         <div className="w-full max-w-md">
           <div className="bg-[#121212] p-8 rounded-lg">
-            <h1 className="text-white text-2xl font-bold text-center mb-8">
+            <h1 className="text-[#1DB954] text-2xl font-bold text-center mb-8">
               {title}
             </h1>
+
             {children}
           </div>
         </div>

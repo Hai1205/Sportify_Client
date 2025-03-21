@@ -15,7 +15,7 @@ const LoginPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { login } = useAuthStore();
+  const { isLoading, login } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,7 +54,7 @@ const LoginPage: React.FC = () => {
     data.append("password", formData.password);
 
     const { user, isVerified } = await login(data);
-    
+
     if (!user) {
       return;
     }
@@ -72,7 +72,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <AuthLayout title="Log in to Spotify">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto">
         <Input
           label="Username"
           type="text"
@@ -95,19 +95,27 @@ const LoginPage: React.FC = () => {
 
         <div className="mb-6">
           <a
-            href="#"
-            onClick={() => navigate("/forgot-password")}
-            className="text-white hover:text-[#1DB954] text-sm underline"
+            onClick={(e) => {
+              e.preventDefault();
+
+              if (!isLoading) navigate("/forgot-password");
+            }}
+            className={`text-white hover:text-[#1DB954] text-sm underline cursor-pointer ${
+              isLoading ? "pointer-events-none opacity-70" : ""
+            }`}
           >
             Forgot your password?
           </a>
         </div>
 
-        <div className="flex items-center justify-between mb-6">
-          <Button type="submit" variant="primary" className="w-full">
-            LOG IN
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          variant="primary"
+          isLoading={isLoading}
+          className="w-full"
+        >
+          LOG IN
+        </Button>
       </form>
 
       <div className="relative my-6">
@@ -120,22 +128,6 @@ const LoginPage: React.FC = () => {
         </div>
       </div>
 
-      {/* <Button
-        variant="outline"
-        fullWidth
-        className="mb-6"
-        onClick={() => console.log("Google login")}
-      >
-        <div className="flex items-center justify-center">
-          <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
-            <path
-              fill="currentColor"
-              d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"
-            />
-          </svg>
-          Continue with Google
-        </div>
-      </Button> */}
       <GoogleLoginButton />
 
       <div className="text-center">
@@ -145,7 +137,7 @@ const LoginPage: React.FC = () => {
             onClick={() => navigate("/register")}
             className="text-white hover:text-[#1DB954] underline cursor-pointer"
           >
-            Sign up for Spotify
+            Register for Spotify
           </a>
         </p>
       </div>

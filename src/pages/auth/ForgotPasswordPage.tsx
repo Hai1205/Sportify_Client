@@ -11,7 +11,7 @@ const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
 
-  const { sendOTP } = useAuthStore();
+  const { isLoading, sendOTP } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -58,15 +58,24 @@ const ForgotPasswordPage: React.FC = () => {
           error={error}
         />
 
-        <Button type="submit" variant="primary" fullWidth className="mt-6 mb-4">
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          className="mt-6 mb-4"
+          isLoading={isLoading}
+        >
           SEND CODE
         </Button>
 
         <div className="text-center">
           <a
-            href="#"
-            onClick={() => navigate("/login")}
-            className="text-white hover:text-[#1DB954] text-sm underline"
+            onClick={(e) => {
+              e.preventDefault();
+
+              if (!isLoading) navigate("/login");
+            }}
+            className={`text-white hover:text-[#1DB954] text-sm underline cursor-pointer ${isLoading ? "pointer-events-none opacity-70" : ""}`}
           >
             Back to login
           </a>

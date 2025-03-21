@@ -40,7 +40,7 @@ const OTPVerificationPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  const { error: errorAuth, checkOTP, sendOTP } = useAuthStore();
+  const { isLoading, error: errorAuth, checkOTP, sendOTP } = useAuthStore();
 
   const handleChange = (index: number, value: string) => {
     if (error) setError("");
@@ -70,6 +70,7 @@ const OTPVerificationPage: React.FC = () => {
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+
     const pastedData = e.clipboardData.getData("text/plain").trim();
 
     // Check if pasted content is a 6-digit number
@@ -197,13 +198,17 @@ const OTPVerificationPage: React.FC = () => {
         <div className="text-center mb-4">
           <p className="text-gray-400 text-sm">
             {isExpired ? "Code expired. " : "Didn't receive a code? "}
+            
             <a
-  onClick={handleResendCode}
-  className="text-white hover:text-[#1DB954] underline cursor-pointer"
->
-  Resend code
-</a>
+              onClick={(e) => {
+                e.preventDefault();
 
+                if (!isLoading) handleResendCode();
+              }}
+              className={`text-white hover:text-[#1DB954] underline cursor-pointer ${isLoading ? "pointer-events-none opacity-70" : ""}`}
+            >
+              Resend code
+            </a>
           </p>
         </div>
       </form>
