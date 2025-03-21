@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
-  Filter,
+  // Filter,
   MoreHorizontal,
   Pencil,
   Search,
@@ -105,17 +105,17 @@ export function ArtistManagementPage() {
 
   // Add these state variables at the beginning of the ArtistsPage component, after the existing state declarations
   // const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<{
-    verified: boolean | null;
-    genres: string[];
-    followers: string[];
-    joinDate: string[];
-  }>({
-    verified: null,
-    genres: [],
-    followers: [],
-    joinDate: [],
-  });
+  // const [activeFilters, setActiveFilters] = useState<{
+  //   verified: boolean | null;
+  //   genres: string[];
+  //   followers: string[];
+  //   joinDate: string[];
+  // }>({
+  //   verified: null,
+  //   genres: [],
+  //   followers: [],
+  //   joinDate: [],
+  // });
 
   const [artists, setArtists] = useState<User[] | []>([]);
   const [isViewAlbumOpen, setIsViewAlbumOpen] = useState(false);
@@ -253,38 +253,38 @@ export function ArtistManagementPage() {
   };
 
   // Function to toggle a filter value
-  const toggleFilter = (category: keyof typeof activeFilters, value: any) => {
-    setActiveFilters((prev) => {
-      const updated = { ...prev };
-      if (category === "verified") {
-        updated.verified = value;
-        return updated;
-      }
+  // const toggleFilter = (category: keyof typeof activeFilters, value: any) => {
+  //   setActiveFilters((prev) => {
+  //     const updated = { ...prev };
+  //     if (category === "verified") {
+  //       updated.verified = value;
+  //       return updated;
+  //     }
 
-      if ((updated[category] as string[]).includes(value)) {
-        (updated[category] as string[]) = (
-          updated[category] as string[]
-        ).filter((item) => item !== value);
-      } else {
-        (updated[category] as string[]) = [
-          ...(updated[category] as string[]),
-          value,
-        ];
-      }
-      return updated;
-    });
-  };
+  //     if ((updated[category] as string[]).includes(value)) {
+  //       (updated[category] as string[]) = (
+  //         updated[category] as string[]
+  //       ).filter((item) => item !== value);
+  //     } else {
+  //       (updated[category] as string[]) = [
+  //         ...(updated[category] as string[]),
+  //         value,
+  //       ];
+  //     }
+  //     return updated;
+  //   });
+  // };
 
   // Function to clear all filters
-  const clearFilters = () => {
-    setActiveFilters({
-      verified: null,
-      genres: [],
-      followers: [],
-      joinDate: [],
-    });
-    setSearchQuery("");
-  };
+  // const clearFilters = () => {
+  //   setActiveFilters({
+  //     verified: null,
+  //     genres: [],
+  //     followers: [],
+  //     joinDate: [],
+  //   });
+  //   setSearchQuery("");
+  // };
 
   return (
     <div className="space-y-4">
@@ -423,7 +423,7 @@ export function ArtistManagementPage() {
                 </div>
               </form>
 
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 gap-1">
                     <Filter className="h-4 w-4" />
@@ -541,7 +541,7 @@ export function ArtistManagementPage() {
                     <Button size="sm">Apply Filters</Button>
                   </div>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
             </div>
           </div>
         </CardHeader>

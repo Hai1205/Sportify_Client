@@ -33,7 +33,8 @@ export function UserManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
-
+  const queryString = location.search;
+  console.log(">>>> " + queryString);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
@@ -42,6 +43,10 @@ export function UserManagementPage() {
   const [users, setUsers] = useState<User[] | []>([]);
   const { getUserByRole, searchUsers, deleteUser } = useUserStore();
   const { resetPassword } = useAuthStore();
+
+  const [openMenuFilters, setOpenMenuFilters] = useState(false);
+
+  const closeMenuMenuFilters = () => setOpenMenuFilters(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -60,6 +65,7 @@ export function UserManagementPage() {
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
+
       setSearchParams({ query: searchQuery.trim() });
     },
     [searchQuery, setSearchParams]
@@ -129,21 +135,46 @@ export function UserManagementPage() {
   ) => {
     setActiveFilters((prev) => {
       const updated = { ...prev };
+
       if (updated[category].includes(value)) {
         updated[category] = updated[category].filter((item) => item !== value);
       } else {
         updated[category] = [...updated[category], value];
       }
+
       return updated;
     });
   };
 
   // Function to clear all filters
   const clearFilters = () => {
-    setActiveFilters({
-      status: [],
-    });
+    setActiveFilters({ status: [] });
     setSearchQuery("");
+    setSearchParams({});
+
+    getUserByRole("user").then(setUsers);
+
+    closeMenuMenuFilters();
+  };
+
+  // Function to apply all filters
+  const applyFilters = () => {
+    const params = new URLSearchParams(searchParams);
+
+    Object.keys(activeFilters).forEach((key) => {
+      const values = activeFilters[key as keyof typeof activeFilters];
+      if (values.length > 0) {
+        params.set(key, values.join(","));
+      } else {
+        params.delete(key);
+      }
+    });
+
+    setSearchParams(params);
+
+    // searchUsers(searchQuery);
+
+    closeMenuMenuFilters();
   };
 
   return (
@@ -192,9 +223,17 @@ export function UserManagementPage() {
                     </div>
                   </form>
 
-                  <DropdownMenu>
+                  <DropdownMenu
+                    open={openMenuFilters}
+                    onOpenChange={closeMenuMenuFilters}
+                  >
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1"
+                        onClick={() => setOpenMenuFilters((prev) => !prev)}
+                      >
                         <Filter className="h-4 w-4" />
                         Filter
                       </Button>
@@ -240,12 +279,12 @@ export function UserManagementPage() {
                               id="status-lock"
                               checked={activeFilters.status.includes("locked")}
                               onCheckedChange={() =>
-                                toggleFilter("status", "lock")
+                                toggleFilter("status", "locked")
                               }
                               className="mr-2"
                             />
 
-                            <label htmlFor="status-lock">Lock</label>
+                            <label htmlFor="status-lock">Locked</label>
                           </div>
                         </div>
                       </div>
@@ -261,7 +300,9 @@ export function UserManagementPage() {
                           Clear Filters
                         </Button>
 
-                        <Button size="sm">Apply Filters</Button>
+                        <Button size="sm" onClick={applyFilters}>
+                          Apply Filters
+                        </Button>
                       </div>
                     </DropdownMenuContent>
                   </DropdownMenu>

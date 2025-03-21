@@ -51,8 +51,8 @@ export const downloadSong = async (songId: string): Promise<any> => {
     return await axiosInstance.get(`/api/songs/download-song/${songId}/`);
 }
 
-export const searchSongs = async (query: string): Promise<any> => {
-  return await axiosInstance.get(`api/songs/search-songs/?query=${query}`);
+export const searchSongs = async (queryString: string): Promise<any> => {
+  return await axiosInstance.get(`api/songs/search-songs/${queryString}`);
 }
 
 export const increaseSongView = async (songId: string): Promise<any> => {

@@ -10,7 +10,8 @@ import {
 	resetPassword,
 	sendOTP,
 	checkOTP,
-	forgotPassword
+	forgotPassword,
+	loginWithGoogle
 } from './../utils/api/authApi';
 import { checkAdmin } from "@/utils/api/authApi";
 import { useUserStore } from "./useUserStore";
@@ -35,6 +36,7 @@ export interface AuthStore {
 	checkOTP: (email: string, OTP: string) => Promise<any>;
 	register: (formData: FormData) => Promise<any>;
 	login: (formData: FormData) => Promise<any>;
+	loginWithGoogle: (formData: FormData) => Promise<any>;
 	logout: () => Promise<any>;
 	forgotPassword: (userId: string, formData: FormData) => Promise<any>;
 	changePassword: (userId: string, formData: FormData) => Promise<any>;
@@ -155,6 +157,28 @@ export const useAuthStore = create<AuthStore>()(
 					}
 					
 					return {user: user, isVerified};
+				} catch (error: any) {
+					console.log(error)
+					const message = error.response.data.message;
+					set({ user: null, error: message });
+
+					return message;
+				} finally {
+					set({ isLoading: false });
+				}
+			},
+
+			loginWithGoogle: async (formData) => {
+				set({ isLoading: true, error: null });
+
+				try {
+					const response = await loginWithGoogle(formData);
+					const { user } = response.data;
+
+					set({ user, isAuth: true })
+					await get().checkAdmin();
+					
+					return {user: user};
 				} catch (error: any) {
 					console.log(error)
 					const message = error.response.data.message;

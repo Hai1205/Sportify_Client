@@ -5,7 +5,7 @@ import AuthLayout from "../../layout/AuthLayout";
 import Input from "./components/Input";
 import Button from "./components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { GoogleLoginButton } from "@/components/ui/0auth";
+import { GoogleLoginButton } from "@/pages/auth/components/Oauth";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -138,15 +138,16 @@ const RegisterPage: React.FC = () => {
 
       <div className="text-center">
         <p className="text-white text-sm">
-          Already have an account? {" "}
-         
+          Already have an account?{" "}
           <a
             onClick={(e) => {
               e.preventDefault();
 
               if (!isLoading) navigate("/login");
             }}
-            className={`text-white hover:text-[#1DB954] underline cursor-pointer ${isLoading ? "pointer-events-none opacity-70" : ""}`}
+            className={`text-white hover:text-[#1DB954] underline cursor-pointer ${
+              isLoading ? "pointer-events-none opacity-70" : ""
+            }`}
           >
             Log in
           </a>

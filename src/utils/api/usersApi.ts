@@ -53,8 +53,8 @@ export const responseUpdateUserToArtist = async (userId: string): Promise<any> =
   return await axiosInstance.post(`/api/users/response-update-user-to-artist/${userId}/`);
 };
 
-export const searchUsers = async (query: string): Promise<any> => {
-  return await axiosInstance.get(`api/users/search-users/?query=${query}`);
+export const searchUsers = async (queryString: string): Promise<any> => {
+  return await axiosInstance.get(`api/users/search-users/${queryString}`);
 }
 
 export const getArtistApplicatioins = async (status: string): Promise<any> => {

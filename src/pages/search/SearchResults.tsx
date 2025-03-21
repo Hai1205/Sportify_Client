@@ -19,9 +19,9 @@ export function SearchResult() {
 
   const { songs, albums, searchSongs, searchAlbums, getAllAlbum, getAllSong } =
     useMusicStore();
-  console.log(albums);
-//   console.log("Type of albums:", typeof albums);
-// console.log("Instance check:", Array.isArray(albums));
+  // console.log(albums);
+  //   console.log("Type of albums:", typeof albums);
+  // console.log("Instance check:", Array.isArray(albums));
   const { users, searchUsers, getAllUser } = useUserStore();
 
   const fetchData = useCallback(() => {

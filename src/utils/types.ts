@@ -78,12 +78,6 @@ export interface Message {
 	updatedAt: string;
 }
 
-export interface UserProfile {
-	name?: string;
-	email?: string;
-	picture?: string;
-}
-
 export interface FileState {
 	thumbnail: File | null;
 	audio: File | null;

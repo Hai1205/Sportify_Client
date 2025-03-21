@@ -5,7 +5,7 @@ import AuthLayout from "../../layout/AuthLayout";
 import Input from "./components/Input";
 import Button from "./components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { GoogleLoginButton } from "@/components/ui/0auth";
+import { GoogleLoginButton } from "@/pages/auth/components/Oauth";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();

@@ -22,9 +22,12 @@ import { ArtistApplicationManagementPage } from "./pages/admin/artistApplication
 import { ArtistManagementPage } from "./pages/admin/artistManagement/ArtistManagementPage";
 import { SongManagementPage } from "./pages/admin/songManagement/SongManagementPage";
 import { UserManagementPage } from "./pages/admin/userManagement/UserManagementPage";
+import PrivateRoute from "./pages/auth/components/PrivateRoute";
+import AuthRoute from "./pages/auth/components/AuthRoute";
+import AdminRoute from "./pages/auth/components/AdminRoute";
 
 function App() {
-  const { isAuth, isAdmin, refreshToken } = useAuthStore();
+  const { isAuth, refreshToken } = useAuthStore();
 
   const stableRefreshToken = useCallback(() => {
     refreshToken();
@@ -43,75 +46,60 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/login"
-          element={isAuth ? <UserLayout /> : <LoginPage />}
-        />
+        <Route element={<AuthRoute />}>
+          <Route path="/login" element={<LoginPage />} />
 
-        <Route
-          path="/register"
-          element={isAuth ? <UserLayout /> : <RegisterPage />}
-        />
+          <Route path="/register" element={<RegisterPage />} />
 
-        <Route
-          path="/forgot-password"
-          element={isAuth ? <UserLayout /> : <ForgotPasswordPage />}
-        />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-        <Route
-          path="/verify-otp"
-          element={isAuth ? <UserLayout /> : <OTPVerificationPage />}
-        />
+          <Route path="/verify-otp" element={<OTPVerificationPage />} />
 
-        <Route
-          path="/reset-password"
-          element={isAuth ? <UserLayout /> : <ResetPasswordPage />}
-        />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Route>
 
         <Route element={<UserLayout />}>
           <Route path="/" element={<HomePage />} />
 
           <Route path="/search" element={<SearchResult />} />
 
-          <Route path="/chat" element={<ChatPage />} />
+          <Route element={<PrivateRoute />}>
+            <Route path="/chat" element={<ChatPage />} />
 
-          <Route path="/albums/:albumId" element={<AlbumPage />} />
+            <Route path="/albums/:albumId" element={<AlbumPage />} />
 
-          <Route
-            path="/profile/:userId"
-            element={isAuth ? <ProfilePage /> : <LoginPage />}
-          />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
 
-          <Route
-            path="/settings"
-            element={isAuth ? <SettingPage /> : <LoginPage />}
-          />
+            <Route path="/settings" element={<SettingPage />} />
+          </Route>
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        <Route
-          path="/admin"
-          element={isAuth && isAdmin ? <AdminLayout /> : <UserLayout />}
-        >
-          <Route index element={<AdminDashboardPage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route element={<AdminRoute />}>
+            <Route index element={<AdminDashboardPage />} />
 
-          <Route path="user-management" element={<UserManagementPage />} />
+            <Route path="user-management" element={<UserManagementPage />} />
 
-          <Route path="search" element={<SearchResult />} />
+            <Route path="search" element={<SearchResult />} />
 
-          <Route path="artist-management" element={<ArtistManagementPage />} />
+            <Route
+              path="artist-management"
+              element={<ArtistManagementPage />}
+            />
 
-          <Route path="song-management" element={<SongManagementPage />} />
+            <Route path="song-management" element={<SongManagementPage />} />
 
-          <Route path="album-management" element={<AlbumManagementPage />} />
+            <Route path="album-management" element={<AlbumManagementPage />} />
 
-          <Route
-            path="artist-application-management"
-            element={<ArtistApplicationManagementPage />}
-          />
-
-          <Route path="*" element={<NotFoundPage />} />
+            <Route
+              path="artist-application-management"
+              element={<ArtistApplicationManagementPage />}
+            />
+            
+            {/* <Route path="*" element={<NotFoundPage />} /> */}
+          </Route>
         </Route>
       </Routes>
 

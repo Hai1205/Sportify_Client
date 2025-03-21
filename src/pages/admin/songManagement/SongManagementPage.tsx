@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Clock,
-  Filter,
+  // Filter,
   MoreHorizontal,
   Music,
   Pause,
@@ -355,7 +355,7 @@ export function SongManagementPage() {
                     </div>
                   </form>
 
-                  <DropdownMenu>
+                  {/* <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="h-8 gap-1">
                         <Filter className="h-4 w-4" />
@@ -392,7 +392,7 @@ export function SongManagementPage() {
                         <label htmlFor="explicit-filter">Explicit</label>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
-                  </DropdownMenu>
+                  </DropdownMenu> */}
                 </div>
               </div>
             </CardHeader>

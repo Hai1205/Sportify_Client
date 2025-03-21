@@ -80,11 +80,8 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await getUserByRole(role);
-                    const data: User[] = response.data.users;
-                    console.log(data)
-                    return data;
-
-                    set({ users: data });
+                    
+                    return response.data.users;
                 } catch (error: any) {
                     console.log(error)
 					const message = error.response.data.message;
