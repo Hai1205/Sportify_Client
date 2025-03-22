@@ -1,6 +1,6 @@
 import { HeadphonesIcon } from "lucide-react";
 
-const LoginPrompt = () => (
+const FriendPrompt = ({ title }: { title: string }) => (
 	<div className='h-full flex flex-col items-center justify-center p-6 text-center space-y-4'>
 		<div className='relative'>
 			<div
@@ -16,9 +16,9 @@ const LoginPrompt = () => (
 		<div className='space-y-2 max-w-[250px]'>
 			<h3 className='text-lg font-semibold text-white'>See What Friends Are Playing</h3>
 		
-			<p className='text-sm text-zinc-400'>Login to discover what music your friends are enjoying right now</p>
+			<p className='text-sm text-zinc-400'>{title} to discover what music your friends are enjoying right now</p>
 		</div>
 	</div>
 );
 
-export default LoginPrompt
+export default FriendPrompt

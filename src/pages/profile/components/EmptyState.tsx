@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Music, AlertCircle } from "lucide-react";
+import { Music, AlertCircle, Album } from "lucide-react";
 
 interface EmptyStateProps {
   title: string;
@@ -22,18 +22,31 @@ export function EmptyState({ title, description, icon }: EmptyStateProps) {
 export function AlbumsEmptyState() {
   return (
     <EmptyState
-      icon={<Music className="h-8 w-8 text-gray-400" />}
+      icon={<Album className="h-8 w-8 text-gray-400" />}
       title="No Albums Found"
       description="This user hasn't created any albums yet. Albums will appear here once they're created."
     />
   );
 }
 
-export function UserNotFoundState() {
+export function SongsEmptyState() {
   return (
     <EmptyState
-      title="User Not Found"
-      description="We couldn't find the user you're looking for. They may have deleted their account or the URL might be incorrect."
+      icon={<Music className="h-8 w-8 text-gray-400" />}
+      title="No Songs Found"
+      description="This user hasn't created any songs yet. Songs will appear here once they're created."
     />
+  );
+}
+
+export function UserNotFoundState() {
+  return (
+    <div className=" h-[calc(100vh-420px)]">
+      <EmptyState
+        title="User Not Found"
+        description="We couldn't find the user you're looking for. They may have deleted their account or the URL might be incorrect."
+        
+      />
+    </div>
   );
 }

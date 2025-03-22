@@ -31,10 +31,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-2">
-        <Link to={"/"} className="flex gap-2 items-center">
-          <img src="/spotify.png" className="size-8" alt="Spotify logo" />
-
-          <span>Spotify</span>
+        <Link to={"/"} className="flex gap-2 items-center cursor-pointer">
+          <img
+            src="/spotify.png"
+            className="size-8"
+            alt="Spotify logo"
+          />
+          Spotify
         </Link>
       </div>
 
@@ -43,6 +46,7 @@ export function Header() {
         className="relative ml-auto flex-1 md:grow-0 md:w-80"
       >
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+
         <Input
           type="search"
           placeholder="Search..."
@@ -58,9 +62,8 @@ export function Header() {
             to={"/admin"}
             className={cn(buttonVariants({ variant: "outline" }))}
           >
-            <LayoutDashboardIcon className="size-4  mr-2" />
-
-            <span>Admin Dashboard</span>
+            <LayoutDashboardIcon className="size-4 mr-2 cursor-pointer" />
+            Admin Dashboard
           </Link>
         )}
       </div>
@@ -93,23 +96,23 @@ export function Header() {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link to={`profile/${authUser?.id}`}>
-                  <span>Profile</span>
+              <DropdownMenuItem asChild>
+                <Link to={`profile/${authUser?.id}`} className="cursor-pointer">
+                  Profile
                 </Link>
               </DropdownMenuItem>
 
-              <DropdownMenuItem>
-                <Link to={"/settings"}>
-                  <span>Settings</span>
+              <DropdownMenuItem asChild>
+                <Link to={"/settings"} className="cursor-pointer">
+                  Settings
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem onClick={logout}>
-                <Link to={"/login"}>
-                  <span>Logout</span>
+              <DropdownMenuItem onClick={logout} asChild>
+                <Link to={"/login"} className="cursor-pointer">
+                  Logout
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -1,29 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Music, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import FriendPrompt from "@/layout/components/FriendPrompt";
+import { User } from "@/utils/types";
 import { useChatStore } from "@/stores/useChatStore";
 import { useAuthStore } from "@/stores/useAuthStore";
-import LoginPrompt from "@/pages/auth/components/LoginPrompt";
 
 const FriendsActivity = () => {
-  const { users, getAllUser, onlineUsers, userActivities } = useChatStore();
+  const { onlineUsers, userActivities } = useChatStore(); 
   const { user } = useAuthStore();
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    if (user) getAllUser();
-  }, [getAllUser, user]);
+    if (user) setUsers(user?.following);
+  }, [user]);
+
+  if(users.length === 0) {
+    return (
+      <FriendPrompt title="Follow your friends" />
+    )
+  }
 
   return (
     <div className="h-full bg-zinc-900 rounded-lg flex flex-col">
       <div className="p-4 flex justify-between items-center border-b border-zinc-800">
         <div className="flex items-center gap-2">
           <Users className="size-5 shrink-0" />
+
           <h2 className="font-semibold">What they're listening to</h2>
         </div>
       </div>
 
-      {!user && <LoginPrompt />}
+      {!user && <FriendPrompt title="Login" />}
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">

@@ -88,13 +88,13 @@ const SettingPage = () => {
               <div className="space-y-1">
                 <Label htmlFor="username">Username</Label>
 
-                <Input id="username" defaultValue={userAuth?.username} />
+                <Input id="username" defaultValue={userAuth?.username} readOnly />
               </div>
 
               <div className="space-y-1">
                 <Label htmlFor="email">Email</Label>
 
-                <Input id="email" defaultValue={userAuth?.email} />
+                <Input id="email" defaultValue={userAuth?.email} readOnly />
               </div>
 
               <div className="space-y-1">

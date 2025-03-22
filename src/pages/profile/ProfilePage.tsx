@@ -1,24 +1,17 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Music, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { CreateAlbumModal } from "./components/CreateAlbumModal";
-import { AlbumCardSkeleton } from "./components/AlbumCardSkeleton";
-import { UserAlbumCard } from "./components/UserAlbumCard";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import ProfileHeader from "./components/ProfileHeader";
+import ProfileContentTabs from "./components/ProfileContentTabs";
 import { useUserStore } from "@/stores/useUserStore";
-import { AlbumsEmptyState, UserNotFoundState } from "./components/EmptyState";
+import { useParams } from "react-router-dom";
+import { UserNotFoundState } from "./components/EmptyState";
 import { UserSkeleton } from "./components/UserSkeleton";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-export default function ProfilePage() {
+const ProfilePage = () => {
+  const [activeTab, setActiveTab] = useState<"albums" | "songs">("albums");
   const { userId } = useParams();
-  const { user: userAuth, isLoading: userLoading, isArtist, isAdmin } = useAuthStore();
+  const { user: userAuth, isLoading: userLoading } = useAuthStore();
   const { user: currentUser, getUser, followUser } = useUserStore();
-  const [activeTab, setActiveTab] = useState("albums");
 
   useEffect(() => {
     const fetchUser = () => {
@@ -36,19 +29,134 @@ export default function ProfilePage() {
     fetchUser();
   }, [getUser, userId]);
 
-  const follow = (e: any) => {
-    e.preventDefault();
+  // const user = {
+  //   fullName: "Jane Doe",
+  //   avatarUrl: "/placeholder.svg?height=150&width=150",
+  //   username: "janedoe",
+  //   followers: ["a", "b", "c", "d", "e", "f", "g"],
+  //   following: ["a", "b", "c", "d", "e", "f", "g"],
+  // };
 
-    if (!userId) {
-      throw new Error("User ID is undefined");
-    }
+  const albums = [
+    {
+      id: "1",
+      title: "Midnight Memories",
+      artist: "Jane Doe",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2023",
+    },
+    {
+      id: "2",
+      title: "Summer Vibes",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2022",
+    },
+    {
+      id: "3",
+      title: "Acoustic Sessions",
+      artist: "Jane Doe",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2021",
+    },
+    {
+      id: "4",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "5",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "6",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "7",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "8",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "9",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "10",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "11",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "12",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "13",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "14",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "15",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "16",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+    {
+      id: "17",
+      title: "First Light",
+      thumbailUrl: "/placeholder.svg?height=200&width=200",
+      releaseDate: "2020-01-01",
+    },
+  ];
 
-    if (!userAuth?.id) {
-      throw new Error("Current user ID is undefined");
-    }
-
-    followUser(userAuth?.id, userId);
-  };
+  const songs = [
+    {
+      id: "1",
+      title: "Dancing in the Rain",
+      album: "Midnight Memories",
+      duration: 300,
+    },
+    { id: "2", title: "Starlight", album: "Midnight Memories", duration: 300 },
+    { id: "3", title: "Ocean Waves", album: "Summer Vibes", duration: 300 },
+    { id: "4", title: "Sunset Dreams", album: "Summer Vibes", duration: 300 },
+    { id: "5", title: "Whispers", album: "Acoustic Sessions", duration: 300 },
+    { id: "6", title: "Mountain High", album: "First Light", duration: 300 },
+  ];
 
   // Show loading state while currentUser data is being fetched
   if (userLoading) {
@@ -72,108 +180,23 @@ export default function ProfilePage() {
     );
   }
 
-  const isMyProfile = userId === userAuth?.id;
-  const amIFollowing = currentUser?.following.includes(userAuth);
-
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <div className="bg-gradient-to-b from-emerald-900 to-black p-8">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
-            <Avatar className="h-40 w-40 md:h-52 md:w-52 rounded-full border-4 border-black shadow-xl">
-              <AvatarImage src={currentUser?.avatarUrl} alt="User profile" />
+    <div className="relative pb-20">
+      <ProfileHeader
+        currentUser={currentUser}
+        userAuth={userAuth}
+        userLoading={userLoading}
+        followUser={followUser}
+      />
 
-              <AvatarFallback className="bg-emerald-900 text-4xl">
-                {currentUser?.fullName
-                  ? currentUser.fullName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                  : "?"}
-              </AvatarFallback>
-            </Avatar>
-
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-col md:flex-row md:items-center gap-4">
-                <h1 className="text-4xl md:text-6xl font-bold">
-                  {currentUser?.fullName || "Unknown User"}
-                </h1>
-
-                {isMyProfile ? (
-                  <div className="flex gap-2">
-                    {isArtist || isAdmin && <CreateAlbumModal />}
-                  </div>
-                ) : (
-                  isArtist && (
-                    <Button
-                      onClick={follow}
-                      className="bg-emerald-500 hover:bg-emerald-600 text-black font-bold px-8"
-                    >
-                      {userLoading && "Loading..."}
-
-                      {!userLoading && amIFollowing && "Unfollow"}
-
-                      {!userLoading && !amIFollowing && "Follow"}
-                    </Button>
-                  )
-                )}
-              </div>
-
-              <div className="flex flex-col md:flex-row gap-2 md:gap-6 text-sm text-gray-300 mt-4">
-                <div className="flex items-center justify-center md:justify-start gap-1">
-                  <Music className="h-4 w-4" />
-
-                  <span>{currentUser?.albums?.length || 0} Public Albums</span>
-                </div>
-
-                <div className="flex items-center justify-center md:justify-start gap-1">
-                  <Users className="h-4 w-4" />
-
-                  <span>{currentUser?.followers?.length || 0} Followers</span>
-                </div>
-
-                <div className="flex items-center justify-center md:justify-start gap-1">
-                  <Users className="h-4 w-4" />
-
-                  <span>{currentUser?.following?.length || 0} Following</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="container mx-auto p-6">
-        <div className="flex justify-between items-center mb-6">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsContent value="albums" className="pt-6">
-              {userLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {Array(8)
-                    .fill(0)
-                    .map((_, index) => (
-                      <AlbumCardSkeleton key={index} />
-                    ))}
-                </div>
-              ) : currentUser.albums.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {currentUser.albums.map((album) => (
-                    <UserAlbumCard key={album.id} {...album} />
-                  ))}
-                </div>
-              ) : (
-                <AlbumsEmptyState />
-              )}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+      <ProfileContentTabs
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        albums={albums}
+        songs={songs}
+      />
     </div>
   );
-}
+};
+
+export default ProfilePage;

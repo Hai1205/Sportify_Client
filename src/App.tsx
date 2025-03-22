@@ -12,7 +12,6 @@ import ChatPage from "@/pages/chat/ChatPage";
 import AlbumPage from "@/pages/album/AlbumPage";
 import NotFoundPage from "@/pages/404/NotFoundPage";
 import { useAuthStore } from "./stores/useAuthStore";
-import ProfilePage from "./pages/profile/ProfilePage";
 import SettingPage from "./pages/settings/SettingPage";
 import { SearchResult } from "./pages/search/SearchResults";
 import AdminDashboardPage from "./pages/admin/adminDashboard/AdminDashboardPage";
@@ -25,6 +24,7 @@ import { UserManagementPage } from "./pages/admin/userManagement/UserManagementP
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import AuthRoute from "./pages/auth/components/AuthRoute";
 import AdminRoute from "./pages/auth/components/AdminRoute";
+import ProfilePage from "./pages/profile/ProfilePage";
 
 function App() {
   const { isAuth, refreshToken } = useAuthStore();
@@ -58,8 +58,8 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
-        <Route element={<UserLayout />}>
-          <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<UserLayout />}>
+          <Route index element={<HomePage />} />
 
           <Route path="/search" element={<SearchResult />} />
 
