@@ -12,12 +12,16 @@ export const getUserByRole = async (role: string): Promise<any> => {
   return await axiosInstance.get(`/api/users/get-user-by-role/?role=${role}`);
 };
 
-export const suggestedUser = async (userId: string): Promise<any> => {
+export const getSuggestedUsers = async (userId: string): Promise<any> => {
   return await axiosInstance.get(`/api/users/get-user-suggested/${userId}/`);
 };
 
 export const getUser = async (userId: string): Promise<any> => {
   return await axiosInstance.get(`/api/users/get-user/${userId}/`);
+};
+
+export const getFollowings = async (userId: string): Promise<any> => {
+  return await axiosInstance.get(`/api/users/get-followers/${userId}/`);
 };
 
 export const createUser = async (
@@ -57,8 +61,8 @@ export const searchUsers = async (queryString: string): Promise<any> => {
   return await axiosInstance.get(`api/users/search-users/${queryString}`);
 }
 
-export const getArtistApplicatioins = async (status: string): Promise<any> => {
-  return await axiosInstance.get(`api/users/get-artist-applications?${status}/`);
+export const getArtistApplicatioins = async (queryString: string): Promise<any> => {
+  return await axiosInstance.get(`api/users/get-artist-applications/${queryString}`);
 }
 
 export const deleteArtistApplicatioin = async (applicationId: string): Promise<any> => {

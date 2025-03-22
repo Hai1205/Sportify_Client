@@ -1,4 +1,4 @@
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, UserPlus, Loader2, UserCheck } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@/utils/types";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ const ProfileHeader = ({
   const amIFollowing = currentUser?.following.includes(userAuth);
 
   return (
-    <div className="bg-gradient-to-b from-purple-900 to-black p-6">
+    <div className="bg-gradient-to-b from-green-800 to-black p-6">
       <div className="flex flex-col md:flex-row items-center gap-6">
         <Avatar className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-white/10">
           <AvatarImage src={currentUser.avatarUrl} alt={currentUser.fullName} />
@@ -69,12 +69,24 @@ const ProfileHeader = ({
               <Button
                 onClick={follow}
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors"
+                disabled={userLoading}
               >
-                {userLoading && "Loading..."}
-
-                {!userLoading && amIFollowing && "Unfollow"}
-
-                {!userLoading && !amIFollowing && "Follow"}
+                {userLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : amIFollowing ? (
+                  <>
+                    <UserCheck size={18} />
+                    <span>Following</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus size={18} />
+                    <span>Follow</span>
+                  </>
+                )}
               </Button>
 
               <Link
@@ -82,8 +94,6 @@ const ProfileHeader = ({
                 className="bg-transparent border border-gray-400 hover:border-white text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors"
               >
                 <MessageSquare size={18} />
-                
-                <span>Message</span>
               </Link>
             </div>
           )}

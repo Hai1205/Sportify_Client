@@ -1,16 +1,23 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { HomeIcon, Library, MessageCircle, Search } from "lucide-react";
-import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
+import {
+  Disc3,
+  HomeIcon,
+  Library,
+  MessageCircle,
+  Music,
+  Search,
+} from "lucide-react";
+// import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
 import { buttonVariants } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useMusicStore } from "@/stores/useMusicStore";
 
 const LeftSidebar = () => {
   const { albums, getAllAlbum, isLoading } = useMusicStore();
-  const { user: userAuth } = useAuthStore();
+  const { isAuth, isArtist } = useAuthStore();
 
   useEffect(() => {
     getAllAlbum();
@@ -31,7 +38,7 @@ const LeftSidebar = () => {
             )}
           >
             <HomeIcon className="mr-2 size-5" />
-           
+
             <span className="hidden md:inline">Home</span>
           </Link>
 
@@ -45,11 +52,11 @@ const LeftSidebar = () => {
             )}
           >
             <Search className="mr-2 size-5" />
-          
+
             <span className="hidden md:inline">Search</span>
           </Link>
 
-          {userAuth && (
+          {isAuth && (
             <Link
               to={"/chat"}
               className={cn(
@@ -64,6 +71,40 @@ const LeftSidebar = () => {
 
               <span className="hidden md:inline">Messages</span>
             </Link>
+          )}
+
+          {isArtist && (
+            <>
+              <Link
+                to={"/create-album"}
+                className={cn(
+                  buttonVariants({
+                    variant: "ghost",
+                    className:
+                      "w-full justify-start text-white hover:bg-zinc-800",
+                  })
+                )}
+              >
+                <Music className="mr-2 size-5" />
+
+                <span className="hidden md:inline">Create album</span>
+              </Link>
+
+              <Link
+                to={"/create-song"}
+                className={cn(
+                  buttonVariants({
+                    variant: "ghost",
+                    className:
+                      "w-full justify-start text-white hover:bg-zinc-800",
+                  })
+                )}
+              >
+                <Disc3 className="mr-2 size-5" />
+
+                <span className="hidden md:inline">Create song</span>
+              </Link>
+            </>
           )}
         </div>
       </div>
@@ -99,7 +140,7 @@ const LeftSidebar = () => {
                     <p className="font-medium truncate">{album.title}</p>
 
                     <p className="text-sm text-zinc-400 truncate">
-                      Album • {album.user.fullName}
+                      Disc3 • {album.user.fullName}
                     </p>
                   </div>
                 </Link>

@@ -1,13 +1,14 @@
+import { toast } from "react-toastify";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
     followUser,
     searchUsers,
-    suggestedUser,
+    getSuggestedUsers,
     getArtistApplicatioins,
     deleteArtistApplicatioin,
     getUserByRole,
-    createUser
+    createUser,
 } from './../utils/api/usersApi';
 import { ArtistApplication, User } from "../utils/types";
 import {
@@ -21,28 +22,28 @@ import {
 import { useAuthStore } from "./useAuthStore";
 
 interface UserStore {
-	isLoading: boolean;
-	error: string | null;
-	status: number;
-	message: string | null;
-	user: User | null;
-	users: User[];
-	artistApplications: ArtistApplication[];
+    isLoading: boolean;
+    error: string | null;
+    status: number;
+    message: string | null;
+    user: User | null;
+    users: User[];
+    artistApplications: ArtistApplication[];
 
-	getAllUser: () => Promise<any>;
-	getUserByRole: (role: string) => Promise<any>;
-	getUser: (userId: string) => Promise<any>;
-	createUser: (formData: FormData) => Promise<any>;
-	updateUser: (userId: string, formData: FormData) => Promise<any>;
-	deleteUser: (userId: string) => Promise<any>;
-	followUser: (currentUserId: string, opponentId: string) => Promise<any>;
-	suggestedUser: (userId: string) => Promise<any>;
-	requireUpdateUserToArtist: (userId: string) => Promise<any>;
-	responseUpdateUserToArtist: (userId: string) => Promise<any>;
-	searchUsers: (query: string) => Promise<any>;
-	getArtistApplicatioins: (status: string) => Promise<any>;
-	deleteArtistApplicatioin: (applicationId: string) => Promise<any>;
-	reset: () => any;
+    getAllUser: () => Promise<any>;
+    getUserByRole: (role: string) => Promise<any>;
+    getUser: (userId: string) => Promise<any>;
+    createUser: (formData: FormData) => Promise<any>;
+    updateUser: (userId: string, formData: FormData) => Promise<any>;
+    deleteUser: (userId: string) => Promise<any>;
+    followUser: (currentUserId: string, opponentId: string) => Promise<any>;
+    getSuggestedUsers: (userId: string) => Promise<any>;
+    requireUpdateUserToArtist: (userId: string) => Promise<any>;
+    responseUpdateUserToArtist: (userId: string) => Promise<any>;
+    searchUsers: (query: string) => Promise<any>;
+    getArtistApplicatioins: (status: string) => Promise<any>;
+    deleteArtistApplicatioin: (applicationId: string) => Promise<any>;
+    reset: () => any;
 }
 
 export const useUserStore = create<UserStore>()(
@@ -61,15 +62,16 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await getAllUser();
-                    const data: User[] = response.data.users;
+                    const { users } = response.data;
 
-                    set({ users: data });
+                    set({ users: users });
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ users: [], error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -80,14 +82,16 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await getUserByRole(role);
-                    
-                    return response.data.users;
+                    const { users } = response.data
+
+                    return users;
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ users: [], error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -98,15 +102,16 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await getUser(userId);
-                    const data: User = response.data.user;
+                    const { user } = response.data;
 
-                    set({ user: data });
+                    set({ user: user });
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -117,34 +122,38 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await followUser(currentUserId, opponentId);
-                    const data: User = response.data.user;
+                    const { user, message } = response.data;
 
-                    set({ user: data });
+                    set({ user: user });
+                    toast.success(message);
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
             },
 
-            suggestedUser: async (userId) => {
+            getSuggestedUsers: async (userId) => {
                 set({ isLoading: true, error: null });
 
                 try {
-                    const response = await suggestedUser(userId);
-                    const data: User = response.data.user;
+                    const response = await getSuggestedUsers(userId);
+                    const { users } = response.data;
 
-                    set({ user: data });
+                    // set({ users: users });
+                    return users;
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -154,13 +163,17 @@ export const useUserStore = create<UserStore>()(
                 set({ isLoading: true, error: null });
 
                 try {
-                    await createUser(formData);
+                    const response = await createUser(formData);
+                    const { message } = response.data;
+
+                    toast.success(message);
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
-                    
-					return message;
+
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -171,17 +184,22 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await updateUser(userId, formData);
-                    const data: User = response.data.user;
+                    const { user, message } = response.data;
 
-                    if (userId === useAuthStore.getState().user?.id) {
-                        useAuthStore.getState().setUserAuth(data);
+                    const userAuthId = useAuthStore.getState().user?.id;
+                    if (userId === userAuthId) {
+                        useAuthStore.getState().setUserAuth(user);
                     }
+
+                    toast.success(message);
+                    return user;
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -191,15 +209,17 @@ export const useUserStore = create<UserStore>()(
                 set({ isLoading: true, error: null });
 
                 try {
-                    await deleteUser(userId);
+                    const response = await deleteUser(userId);
+                    const { message } = response.data;
 
-                    useAuthStore.getState().setUserAuth(null)
+                    toast.success(message);
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ user: null, error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -209,13 +229,17 @@ export const useUserStore = create<UserStore>()(
                 set({ isLoading: true, error: null });
 
                 try {
-                    await requireUpdateUserToArtist(userId);
+                    const response = await requireUpdateUserToArtist(userId);
+                    const { message } = response.data;
+
+                    toast.success(message);
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -225,13 +249,17 @@ export const useUserStore = create<UserStore>()(
                 set({ isLoading: true, error: null });
 
                 try {
-                    await responseUpdateUserToArtist(userId);
+                    const response = await responseUpdateUserToArtist(userId);
+                    const { message } = response.data;
+
+                    toast.success(message);
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -242,15 +270,16 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await searchUsers(query);
-                    const data: User[] = response.data.users;
+                    const { users } = response.data;
 
-                    set({ users: data });
+                    return users;
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -261,15 +290,16 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await getArtistApplicatioins(status);
-                    const data: ArtistApplication[] = response.data.artistApplications;
+                    const { artistApplications } = response.data;
 
-                    set({ artistApplications: data });
+                    return artistApplications;
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ users: [], error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -279,13 +309,17 @@ export const useUserStore = create<UserStore>()(
                 set({ isLoading: true, error: null });
 
                 try {
-                    await deleteArtistApplicatioin(applicationId);
+                    const response = await deleteArtistApplicatioin(applicationId);
+                    const { message } = response.data;
+
+                    toast.success(message);
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ users: [], error: message });
-                    
-					return message;
+
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }

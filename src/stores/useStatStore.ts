@@ -1,21 +1,19 @@
+import { toast } from "react-toastify";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
     GeneralStat,
     Song,
     User,
-    // UserActivityStat
 } from "@/utils/types";
 import {
     getGeneralStat,
     getPopularSongsStat,
     getTopArtistsStat,
-    // getUserActivityStat
 } from "@/utils/api/statsApi";
 
 interface StatStore {
     generalStat: GeneralStat;
-    // userActivityStats: UserActivityStat[];
     isLoading: boolean;
     error: string | null;
     status: number;
@@ -24,7 +22,6 @@ interface StatStore {
     users: User[];
 
     getGeneralStat: () => Promise<void>;
-    // getUserActivityStat: (days: number) => Promise<void>;
     getPopularSongsStat: () => Promise<void>;
     getTopArtistsStat: () => Promise<void>;
     reset: () => void;
@@ -37,7 +34,6 @@ export const useStatStore = create<StatStore>()(
             error: null,
             songs: [],
             users: [],
-            // userActivityStats: [],
             generalStat: {
                 totalSongs: 0,
                 totalAlbums: 0,
@@ -52,49 +48,36 @@ export const useStatStore = create<StatStore>()(
 
                 try {
                     const response = await getGeneralStat();
-                    const data: GeneralStat = response.data.generalStat;
+                    const { generalStat } = response.data;
 
-                    set({ generalStat: data });
+                    set({ generalStat: generalStat });
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
             },
-
-            // getUserActivityStat: async (days) => {
-            //     set({ isLoading: true, error: null });
-
-            //     try {
-            //         const response = await getUserActivityStat(days);
-            //         const data: UserActivityStat[] = response.data.userActivityStats;
-
-            //         set({ userActivityStats: data });
-            //     } catch (error: any) {
-            //         set({ error: error.message });
-            //     } finally {
-            //         set({ isLoading: false });
-            //     }
-            // },
 
             getPopularSongsStat: async () => {
                 set({ isLoading: true, error: null });
 
                 try {
                     const response = await getPopularSongsStat();
-                    const data: Song[] = response.data.songs;
+                    const {songs} = response.data;
 
-                    set({ songs: data });
+                    set({ songs: songs });
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -105,15 +88,16 @@ export const useStatStore = create<StatStore>()(
 
                 try {
                     const response = await getTopArtistsStat();
-                    const data: User[] = response.data.users;
+                    const {users} = response.data;
 
-                    set({ users: data });
+                    set({ users: users });
                 } catch (error: any) {
                     console.log(error)
-					const message = error.response.data.message;
+                    const { message } = error.response.data;
                     set({ error: message });
 
-					return message;
+                    toast.error(message);
+                    return message;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -123,7 +107,6 @@ export const useStatStore = create<StatStore>()(
                 set({
                     songs: [],
                     users: [],
-                    // userActivityStats: [],
                     generalStat: {
                         totalSongs: 0,
                         totalAlbums: 0,

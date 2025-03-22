@@ -1,29 +1,38 @@
-import { useEffect } from "react";
-// import Topbar from "@/pages/home/components/Topbar";
+import { useEffect, useState } from "react";
 import FeaturedSection from "./components/FeaturedSection";
 import SectionGrid from "./components/SectionGrid";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
+import { Song } from "@/utils/types";
 
 const HomePage = () => {
-  const {
-    getFeaturedSongs,
-    getMadeForYouSongs,
-    getTrendingSongs,
-    isLoading,
-    madeForYouSongs,
-    featuredSongs,
-    trendingSongs,
-  } = useMusicStore();
+  const { getFeaturedSongs, getMadeForYouSongs, getTrendingSongs, isLoading } =
+    useMusicStore();
 
   const { initializeQueue } = usePlayerStore();
 
+  const [madeForYouSongs, setMadeForYouSongs] = useState<Song[]>([]);
+  const [featuredSongs, setFeaturedSongs] = useState<Song[]>([]);
+  const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
+
   // Call API when component mount
   useEffect(() => {
-    getFeaturedSongs();
-    getMadeForYouSongs();
-    getTrendingSongs();
+    const fetchData = async () => {
+      try {
+        const featured = await getFeaturedSongs();
+        const madeForYou = await getMadeForYouSongs();
+        const trending = await getTrendingSongs();
+
+        setFeaturedSongs(featured);
+        setMadeForYouSongs(madeForYou);
+        setTrendingSongs(trending);
+      } catch (error) {
+        console.error("Error fetching songs:", error);
+      }
+    };
+
+    fetchData();
   }, [getFeaturedSongs, getMadeForYouSongs, getTrendingSongs]);
 
   // Initialize the queue when has data

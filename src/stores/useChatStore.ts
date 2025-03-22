@@ -1,8 +1,9 @@
+import { toast } from "react-toastify";
 import { Message, User } from "@/utils/types";
 import { create } from "zustand";
 import { io } from "socket.io-client";
 import { getMessages } from "@/utils/api/chatApi";
-import { getAllUser } from "@/utils/api/usersApi";
+// import { getAllUser } from "@/utils/api/usersApi";
 
 const baseURL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
 
@@ -16,7 +17,7 @@ interface ChatStore {
 	error: string | null;
 	status: number;
 	message: string | null;
-	users: User[];
+	// users: User[];
 	socket: any;
 	isConnected: boolean;
 	onlineUsers: Set<string>;
@@ -24,7 +25,7 @@ interface ChatStore {
 	messages: Message[];
 	selectedUser: User | null;
 
-	getAllUser: () => Promise<void>;
+	// getAllUser: () => Promise<void>;
 	initSocket: (userId: string) => void;
 	disconnectSocket: () => void;
 	sendMessage: (receiverId: string, senderId: string, content: string) => void;
@@ -47,23 +48,24 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	setSelectedUser: (user) => set({ selectedUser: user }),
 
-	getAllUser: async () => {
-		set({ isLoading: true, error: null });
-		try {
-			const response = await getAllUser();
-			const data: User[] = response.data.users;
+	// getAllUser: async () => {
+	// 	set({ isLoading: true, error: null });
+	// 	try {
+	// 		const response = await getAllUser();
+	// 		const {users}= response.data;
 
-			set({ users: data });
-		} catch (error: any) {
-			console.log(error)
-			const message = error.response.data.message;
-			set({ error: message });
+	// 		set(users);
+	// 	} catch (error: any) {
+	// 		console.log(error)
+	// 		const { message } = error.response.data;
+	// 		set({ error: message });
 
-			return message;
-		} finally {
-			set({ isLoading: false });
-		}
-	},
+	// 		toast.error(message);
+	// 		return message;
+	// 	} finally {
+	// 		set({ isLoading: false });
+	// 	}
+	// },
 
 	initSocket: (userId) => {
 		if (!get().isConnected) {
@@ -142,9 +144,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 			set({ messages: data });
 		} catch (error: any) {
 			console.log(error)
-			const message = error.response.data.message;
+			const { message } = error.response.data;
 			set({ error: message });
 
+			toast.error(message);
 			return message;
 		} finally {
 			set({ isLoading: false });
@@ -153,7 +156,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	reset: () => {
 		set({
-			users: [],
+			// users: [],
 			socket: socket,
 			isConnected: false,
 			onlineUsers: new Set(),

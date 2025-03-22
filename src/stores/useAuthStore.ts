@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import {
@@ -68,9 +69,10 @@ export const useAuthStore = create<AuthStore>()(
 					set({ isAdmin: data });
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ isAdmin: false, error: message });
-					
+
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -87,9 +89,10 @@ export const useAuthStore = create<AuthStore>()(
 					set({ isArtist: data });
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ isArtist: false, error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -103,9 +106,10 @@ export const useAuthStore = create<AuthStore>()(
 					await sendOTP(email);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ isArtist: false, error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -119,9 +123,10 @@ export const useAuthStore = create<AuthStore>()(
 					await checkOTP(email, OTP);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ isArtist: false, error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -132,12 +137,16 @@ export const useAuthStore = create<AuthStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					return await register(formData);
+					const response = await register(formData);
+					const data = response.data.message;
+
+					toast.success(data);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -153,15 +162,18 @@ export const useAuthStore = create<AuthStore>()(
 
 					if (isVerified) {
 						set({ user, isAuth: true })
+
 						await get().checkAdmin();
+						await get().checkArtist();
 					}
-					
-					return {user: user, isVerified};
+
+					return { user: user, isVerified };
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ user: null, error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -177,13 +189,15 @@ export const useAuthStore = create<AuthStore>()(
 
 					set({ user, isAuth: true })
 					await get().checkAdmin();
-					
-					return {user: user};
+					await get().checkArtist();
+
+					return user ;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ user: null, error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -199,9 +213,10 @@ export const useAuthStore = create<AuthStore>()(
 					get().reset();
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -215,9 +230,10 @@ export const useAuthStore = create<AuthStore>()(
 					await changePassword(userId, formData);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -232,8 +248,9 @@ export const useAuthStore = create<AuthStore>()(
 				} catch (error: any) {
 					set({ error: error });
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -247,9 +264,10 @@ export const useAuthStore = create<AuthStore>()(
 					await resetPassword(userId);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -263,9 +281,10 @@ export const useAuthStore = create<AuthStore>()(
 					await refreshToken();
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
+					const { message } = error.response.data;
 					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });

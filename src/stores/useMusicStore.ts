@@ -1,4 +1,4 @@
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { Album, Song } from "@/utils/types";
@@ -33,11 +33,6 @@ interface MusicStore {
 	message: string | null;
 	songs: Song[];
 	albums: Album[];
-	currentAlbum: Album | null;
-	song: Song | null;
-	featuredSongs: Song[];
-	madeForYouSongs: Song[];
-	trendingSongs: Song[];
 
 	getAllAlbum: () => Promise<any>;
 	uploadAlbum: (userId: string, formData: FormData) => Promise<any>;
@@ -80,18 +75,20 @@ export const useMusicStore = create<MusicStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await deleteSong(id);
+					const response = await deleteSong(id);
+					const { message } = response.data;
 
 					set((state) => ({
 						songs: state.songs.filter((song) => song.id !== id),
 					}));
 
-					toast.success("Song deleted successfully");
+					toast.success(message);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -102,7 +99,8 @@ export const useMusicStore = create<MusicStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await deleteAlbum(id);
+					const response = await deleteAlbum(id);
+					const { message } = response.data;
 
 					set((state) => ({
 						albums: state.albums.filter((album) => album.id !== id),
@@ -111,12 +109,13 @@ export const useMusicStore = create<MusicStore>()(
 						),
 					}));
 
-					toast.success("Album deleted successfully");
+					toast.success(message);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -128,14 +127,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getAllSong();
-					const data: Song[] = response.data.songs;
+					const { songs } = response.data;
 
-					set({ songs: data });
+					return songs;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -146,12 +146,16 @@ export const useMusicStore = create<MusicStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await uploadAlbum(userId, formData);
+					const response = await uploadAlbum(userId, formData);
+					const { message } = response.data;
+
+					toast.success(message);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -162,12 +166,16 @@ export const useMusicStore = create<MusicStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await uploadSong(userId, formData);
+					const response = await uploadSong(userId, formData);
+					const { message } = response.data;
+
+					toast.success(message);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -179,14 +187,16 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await updateAlbum(id, formData);
-					const data: Album = response.data.album;
+					const { message, album } = response.data;
 
-					set({ currentAlbum: data });
+					toast.success(message);
+					return album;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -198,14 +208,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await searchAlbums(query);
-					const data: Album[] = response.data.albums;
+					const { albums } = response.data;
 
-					set({ albums: data });
+					return albums;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -217,14 +228,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getAllAlbum();
-					const data: Album[] = response.data.albums;
+					const { albums } = response.data;
 
-					set({ albums: data });
+					return albums;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -236,14 +248,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getAlbum(id);
-					const data: Album = response.data.album;
+					const { album } = response.data;
 
-					set({ currentAlbum: data });
+					return album;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -255,14 +268,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getUserAlbums(userId);
-					const data: Album = response.data.album;
+					const { album } = response.data;
 
-					set({ currentAlbum: data });
+					return album;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -274,14 +288,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getFeaturedSongs();
-					const data: Song[] = response.data.songs;
+					const { songs } = response.data;
 
-					set({ featuredSongs: data });
+					return songs;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -293,14 +308,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getMadeForYouSongs();
-					const data: Song[] = response.data.songs;
+					const { songs } = response.data;
 
-					set({ madeForYouSongs: data });
+					return songs;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -312,14 +328,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getTrendingSongs();
-					const data: Song[] = response.data.songs;
+					const { songs } = response.data;
 
-					set({ trendingSongs: data });
+					return songs;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -331,14 +348,16 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await updateSong(songId, formData);
-					const data: Song = response.data.song;
+					const { song, message } = response.data;
 
-					set({ song: data });
+					toast.success(message);
+					return song;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -349,12 +368,17 @@ export const useMusicStore = create<MusicStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await addSongToAlbum(id, albumId);
+					const response = await addSongToAlbum(id, albumId);
+					const { message, song } = response.data;
+
+					toast.success(message);
+					return song;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -365,12 +389,16 @@ export const useMusicStore = create<MusicStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await downloadSong(id);
+					const response = await downloadSong(id);
+					const { message } = response.data;
+
+					toast.success(message);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -382,14 +410,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getSong(id);
-					const data: Song = response.data.song;
+					const { song } = response.data;
 
-					set({ song: data });
+					return song;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -401,14 +430,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await searchSongs(query);
-					const data: Song[] = response.data.songs;
+					const { songs } = response.data;
 
-					set({ songs: data });
+					return songs;
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -422,9 +452,10 @@ export const useMusicStore = create<MusicStore>()(
 					await increaseSongView(songId);
 				} catch (error: any) {
 					console.log(error)
-					const message = error.response.data.message;
-					set({error: message});
+					const { message } = error.response.data;
+					set({ error: message });
 
+					toast.error(message);
 					return message;
 				} finally {
 					set({ isLoading: false });
@@ -435,11 +466,6 @@ export const useMusicStore = create<MusicStore>()(
 				set({
 					albums: [],
 					songs: [],
-					currentAlbum: null,
-					song: null,
-					madeForYouSongs: [],
-					featuredSongs: [],
-					trendingSongs: [],
 					isLoading: false,
 					error: null,
 					status: 0,

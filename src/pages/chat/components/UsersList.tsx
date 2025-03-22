@@ -1,11 +1,37 @@
 import UsersListSkeleton from "@/components/skeletons/UsersListSkeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useChatStore } from "@/stores/useChatStore";
+import { useUserStore } from "@/stores/useUserStore";
+import { User } from "@/utils/types";
+import { useEffect, useState } from "react";
 
 const UsersList = () => {
-  const { users, selectedUser, isLoading, setSelectedUser, onlineUsers } =
+  const [users, setUsers] = useState<User[]>([]);
+
+  const { selectedUser, isLoading, setSelectedUser, onlineUsers } =
     useChatStore();
+  const { getFollowings } = useUserStore();
+  const { user: userAuth } = useAuthStore();
+
+  useEffect(() => {
+    const fetchFollowings = async () => {
+      try {
+        if (!userAuth) {
+          return;
+        }
+
+        const followings = await getFollowings(userAuth?.id);
+
+        setUsers(followings);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFollowings();
+  }, [getFollowings, userAuth]);
 
   return (
     <div className="border-r border-zinc-800">
@@ -30,8 +56,10 @@ const UsersList = () => {
                   <div className="relative">
                     <Avatar className="size-8 md:size-12">
                       <AvatarImage src={user.avatarUrl} />
+
                       <AvatarFallback>{user.fullName[0]}</AvatarFallback>
                     </Avatar>
+
                     {/* online indicator */}
                     <div
                       className={`absolute bottom-0 right-0 h-3 w-3 rounded-full ring-2 ring-zinc-900

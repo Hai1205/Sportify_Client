@@ -1,21 +1,23 @@
-import type React from "react";
 import { Clock, Play } from "lucide-react";
 import formatTime from "@/utils/service/formatTime";
-import { SongsEmptyState } from "./EmptyState";
+import { SongsEmptyState } from "./ProfileEmptyState";
+import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
-interface Song {
-  id: string;
-  title: string;
-  album: string;
-  duration: number;
-}
+const ProfileSongsList = () => {
+  const { user: userAuth } = useAuthStore();
+  const { user: currentUser } = useUserStore();
 
-interface SongsListProps {
-  songs: Song[];
-}
+  const songs = currentUser?.songs || [];
+  const isMyProfile = currentUser?.id === userAuth?.id;
 
-const ProfileSongsList: React.FC<SongsListProps> = ({ songs }) => {
-  if(songs.length === 0) return <SongsEmptyState />;
+  if (songs.length === 0) {
+    return isMyProfile ? (
+      <SongsEmptyState message="You haven't created any songs yet. Songs will appear here once you're created." />
+    ) : (
+      <SongsEmptyState message="This user hasn't created any songs yet. Songs will appear here once they're created." />
+    );
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -42,13 +44,14 @@ const ProfileSongsList: React.FC<SongsListProps> = ({ songs }) => {
             >
               <td className="px-4 py-3 text-gray-400 group-hover:text-white">
                 <span className="group-hover:hidden">{index + 1}</span>
+
                 <Play size={16} className="hidden group-hover:block" />
               </td>
 
               <td className="px-4 py-3 font-medium">{song.title}</td>
 
-              <td className="px-4 py-3 text-gray-400">{song.album}</td>
-              
+              <td className="px-4 py-3 text-gray-400">{song?.album?.title}</td>
+
               <td className="px-4 py-3 text-gray-400 text-right">
                 {formatTime(song.duration)}
               </td>

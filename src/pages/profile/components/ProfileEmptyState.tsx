@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Music, AlertCircle, Album } from "lucide-react";
+import { Music, AlertCircle, Disc3 } from "lucide-react";
 
 interface EmptyStateProps {
   title: string;
@@ -7,7 +7,11 @@ interface EmptyStateProps {
   icon?: ReactNode;
 }
 
-export function EmptyState({ title, description, icon }: EmptyStateProps) {
+interface MessageProps {
+  message: string;
+}
+
+const EmptyState = ({ title, description, icon }: EmptyStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <div className="bg-gray-800 rounded-full p-4 mb-4">
@@ -17,36 +21,37 @@ export function EmptyState({ title, description, icon }: EmptyStateProps) {
       <p className="text-gray-400 max-w-md">{description}</p>
     </div>
   );
-}
+};
 
-export function AlbumsEmptyState() {
+const AlbumsEmptyState = ({ message }: MessageProps) => {
   return (
     <EmptyState
-      icon={<Album className="h-8 w-8 text-gray-400" />}
+      icon={<Disc3 className="h-8 w-8 text-gray-400" />}
       title="No Albums Found"
-      description="This user hasn't created any albums yet. Albums will appear here once they're created."
+      description={message}
     />
   );
-}
+};
 
-export function SongsEmptyState() {
+const SongsEmptyState = ({ message }: MessageProps) => {
   return (
     <EmptyState
       icon={<Music className="h-8 w-8 text-gray-400" />}
       title="No Songs Found"
-      description="This user hasn't created any songs yet. Songs will appear here once they're created."
+      description={message}
     />
   );
-}
+};
 
-export function UserNotFoundState() {
+const UserNotFoundState = () => {
   return (
     <div className=" h-[calc(100vh-420px)]">
       <EmptyState
         title="User Not Found"
         description="We couldn't find the user you're looking for. They may have deleted their account or the URL might be incorrect."
-        
       />
     </div>
   );
-}
+};
+
+export { EmptyState, SongsEmptyState, AlbumsEmptyState, UserNotFoundState };

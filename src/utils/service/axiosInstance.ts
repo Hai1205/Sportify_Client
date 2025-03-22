@@ -21,7 +21,7 @@ const getAccessToken = (item: string): string | null => {
 };
 
 // Số lần thử lại tối đa
-const MAX_RETRIES = 3;
+// const MAX_RETRIES = 3;
 
 // Thêm request interceptor
 axiosInstance.interceptors.request.use(
@@ -46,11 +46,11 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     // Kiểm tra số lần thử lại
-    const config = error.config;
-    if ((config as any).retryCount < MAX_RETRIES) {
-      (config as any).retryCount += 1;
-      return axiosInstance(config); // Gửi lại request
-    }
+    // const config = error.config;
+    // if ((config as any).retryCount < MAX_RETRIES) {
+    //   (config as any).retryCount += 1;
+    //   return axiosInstance(config);
+    // }
 
     return error?.response?.data?.message
       ? Promise.reject(error)

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Clock, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,14 +6,23 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDuration } from "@/utils/service/formatDuration";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
+import { Album } from "@/utils/types";
 
 const AlbumPage = () => {
   const { albumId } = useParams();
-  const { getAlbum, currentAlbum, isLoading } = useMusicStore();
+  const { getAlbum, isLoading } = useMusicStore();
   const { currentSong, isPlaying, playAlbum, togglePlay } = usePlayerStore();
+  const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
 
   useEffect(() => {
-    if (albumId) getAlbum(albumId);
+    const fetchAlbum = async () => {
+      if (albumId) {
+        const album = await getAlbum(albumId);
+        setCurrentAlbum(album);
+      }
+    };
+
+    fetchAlbum();
   }, [getAlbum, albumId]);
 
   if (isLoading) return null;

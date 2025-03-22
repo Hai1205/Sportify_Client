@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { ToastContainer, Slide } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import UserLayout from "@/layout/UserLayout";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -25,6 +26,8 @@ import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import AuthRoute from "./pages/auth/components/AuthRoute";
 import AdminRoute from "./pages/auth/components/AdminRoute";
 import ProfilePage from "./pages/profile/ProfilePage";
+import SongDetails from "./pages/song/SongDetails";
+import AlbumDetails from "./pages/album/AlbumDetails";
 
 function App() {
   const { isAuth, refreshToken } = useAuthStore();
@@ -63,6 +66,10 @@ function App() {
 
           <Route path="/search" element={<SearchResult />} />
 
+          <Route path="/song-detail/:songId" element={<SongDetails />} />
+
+          <Route path="/album-detail/:albumId" element={<AlbumDetails />} />
+
           <Route element={<PrivateRoute />}>
             <Route path="/chat" element={<ChatPage />} />
 
@@ -97,13 +104,25 @@ function App() {
               path="artist-application-management"
               element={<ArtistApplicationManagementPage />}
             />
-            
+
             {/* <Route path="*" element={<NotFoundPage />} /> */}
           </Route>
         </Route>
       </Routes>
 
-      <Toaster />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Slide}
+      />
     </Router>
   );
 }
