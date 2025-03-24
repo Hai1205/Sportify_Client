@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SongTab } from "./components/SongTab"

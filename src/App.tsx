@@ -28,7 +28,7 @@ import ProfilePage from "./pages/profile/ProfilePage";
 import SongDetails from "./pages/music/song/SongDetails";
 import SongPlayer from "./pages/music/song/SongPlayer";
 import AlbumDetails from "./pages/music/album/AlbumDetails";
-import MusicUploader from "./pages/music/MusicUploader";
+import MusicUploaderPage from "./pages/music/MusicUploaderPage";
 import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
@@ -68,7 +68,7 @@ function App() {
 
           <Route path="/search" element={<SearchResult />} />
 
-          <Route path="/music-uploader" element={<MusicUploader />} />
+          <Route path="/music-uploader" element={<MusicUploaderPage />} />
 
           <Route path="/song-detail/:songId" element={<SongDetails />} />
 
@@ -85,8 +85,6 @@ function App() {
 
             <Route path="/settings" element={<SettingPage />} />
           </Route>
-
-          <Route path="*" element={<NotFoundPage />} />
         </Route>
 
         <Route path="/admin" element={<AdminLayout />}>
@@ -110,10 +108,10 @@ function App() {
               path="artist-application-management"
               element={<ArtistApplicationManagementPage />}
             />
-
-            {/* <Route path="*" element={<NotFoundPage />} /> */}
           </Route>
         </Route>
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <ToastContainer
