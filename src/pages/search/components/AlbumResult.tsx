@@ -11,7 +11,7 @@ interface AlbumResultsProps {
 export function AlbumResults({ albums, query }: AlbumResultsProps) {
   if (albums.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="flex flex-col items-center justify-center py-20 text-center">
         <Disc className="h-12 w-12 text-muted-foreground mb-4" />
 
         <h3 className="text-lg font-medium">No albums found</h3>

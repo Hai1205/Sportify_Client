@@ -49,7 +49,7 @@ import { FileState, Song } from "@/utils/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import formatTime from "@/utils/service/formatTime";
 
-export function SongManagementPage() {
+export default function SongManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);

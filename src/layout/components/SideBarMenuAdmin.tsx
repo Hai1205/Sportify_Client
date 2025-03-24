@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { BarChart3, Users, Music, Mic2, Disc, Search, UserCheck } from "lucide-react";
+import { BarChart3, Users, Music, Mic2, Disc, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function SidebarMenuAdmin() {
@@ -24,15 +24,6 @@ export function SidebarMenuAdmin() {
         >
           <BarChart3 className="h-4 w-4" />
           Dashboard
-        </Button>
-       
-        <Button
-          variant={isActive("/admin/search") ? "secondary" : "ghost"}
-          className="justify-start gap-2 h-10"
-          onClick={() => navigate("/admin/search")}
-        >
-          <Search className="h-4 w-4" />
-          Search
         </Button>
        
         <Button

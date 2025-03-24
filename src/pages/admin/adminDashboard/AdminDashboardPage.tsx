@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Users, Music, Mic2 } from "lucide-react";
 import {
   Card,
@@ -9,8 +10,8 @@ import {
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { TopArtists } from "./components/TopArtists";
 import { PopularSongs } from "./components/PopularSongs";
+
 import { useStatStore } from "@/stores/useStatStore";
-import { useEffect } from "react";
 
 export default function AdminDashboardPage() {
   const { generalStat, getGeneralStat } = useStatStore();
@@ -138,3 +139,4 @@ export default function AdminDashboardPage() {
     </>
   );
 }
+

@@ -1,7 +1,7 @@
 import axiosInstance from "../service/axiosInstance";
 
 export const followUser = async (currentUserId: string, opponentId: string): Promise<any> => {
-  return await axiosInstance.post(`/api/users/follow/${currentUserId}/${opponentId}`);
+  return await axiosInstance.post(`/api/users/follow-user/${currentUserId}/${opponentId}/`);
 };
 
 export const getAllUser = async (): Promise<any> => {

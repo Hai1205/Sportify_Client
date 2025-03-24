@@ -29,7 +29,7 @@ import { User } from "@/utils/types";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-export function UserManagementPage() {
+export default function UserManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);

@@ -10,24 +10,26 @@ import OTPVerificationPage from "./pages/auth/OTPVerificationPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import HomePage from "@/pages/home/HomePage";
 import ChatPage from "@/pages/chat/ChatPage";
-import AlbumPage from "@/pages/album/AlbumPage";
+import AlbumPage from "@/pages/music/album/AlbumPage";
 import NotFoundPage from "@/pages/404/NotFoundPage";
-import { useAuthStore } from "./stores/useAuthStore";
 import SettingPage from "./pages/settings/SettingPage";
-import { SearchResult } from "./pages/search/SearchResults";
+import SearchResult from "./pages/search/SearchResults";
 import AdminDashboardPage from "./pages/admin/adminDashboard/AdminDashboardPage";
 import AdminLayout from "./layout/AdminLayout";
-import { AlbumManagementPage } from "./pages/admin/albumManagement/AlbumManagementPage";
-import { ArtistApplicationManagementPage } from "./pages/admin/artistApplicationManagement/ArtistApplicationManagementPage";
-import { ArtistManagementPage } from "./pages/admin/artistManagement/ArtistManagementPage";
-import { SongManagementPage } from "./pages/admin/songManagement/SongManagementPage";
-import { UserManagementPage } from "./pages/admin/userManagement/UserManagementPage";
+import AlbumManagementPage from "./pages/admin/albumManagement/AlbumManagementPage";
+import ArtistApplicationManagementPage from "./pages/admin/artistApplicationManagement/ArtistApplicationManagementPage";
+import ArtistManagementPage from "./pages/admin/artistManagement/ArtistManagementPage";
+import SongManagementPage from "./pages/admin/songManagement/SongManagementPage";
+import UserManagementPage from "./pages/admin/userManagement/UserManagementPage";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import AuthRoute from "./pages/auth/components/AuthRoute";
 import AdminRoute from "./pages/auth/components/AdminRoute";
 import ProfilePage from "./pages/profile/ProfilePage";
-import SongDetails from "./pages/song/SongDetails";
-import AlbumDetails from "./pages/album/AlbumDetails";
+import SongDetails from "./pages/music/song/SongDetails";
+import SongPlayer from "./pages/music/song/SongPlayer";
+import AlbumDetails from "./pages/music/album/AlbumDetails";
+import MusicUploader from "./pages/music/MusicUploader";
+import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
   const { isAuth, refreshToken } = useAuthStore();
@@ -66,9 +68,13 @@ function App() {
 
           <Route path="/search" element={<SearchResult />} />
 
+          <Route path="/music-uploader" element={<MusicUploader />} />
+
           <Route path="/song-detail/:songId" element={<SongDetails />} />
 
           <Route path="/album-detail/:albumId" element={<AlbumDetails />} />
+
+          <Route path="/song-player/:songId" element={<SongPlayer />} />
 
           <Route element={<PrivateRoute />}>
             <Route path="/chat" element={<ChatPage />} />

@@ -1,26 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Disc3,
-  HomeIcon,
-  Library,
-  MessageCircle,
-  Music,
-  Search,
-} from "lucide-react";
-// import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
+import { HomeIcon, Library, MessageCircle, Music, Search } from "lucide-react";
+import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
 import { buttonVariants } from "@/components/ui/button";
-// import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useMusicStore } from "@/stores/useMusicStore";
+import { Album } from "@/utils/types";
 
 const LeftSidebar = () => {
-  const { albums, getAllAlbum, isLoading } = useMusicStore();
-  const { isAuth, isArtist } = useAuthStore();
+  const { getAllAlbum, isLoading } = useMusicStore();
+  const { isAuth, isArtist, isAdmin } = useAuthStore();
+
+  const [albums, setAlbums] = useState<Album[]>([]);
 
   useEffect(() => {
-    getAllAlbum();
+    const fetchData = async () => {
+      const fetchAlbums = await getAllAlbum();
+
+      setAlbums(fetchAlbums);
+    };
+
+    fetchData();
   }, [getAllAlbum]);
 
   return (
@@ -73,10 +75,10 @@ const LeftSidebar = () => {
             </Link>
           )}
 
-          {isArtist && (
+          {(isArtist || isAdmin) && (
             <>
               <Link
-                to={"/create-album"}
+                to={"/music-uploader"}
                 className={cn(
                   buttonVariants({
                     variant: "ghost",
@@ -87,22 +89,7 @@ const LeftSidebar = () => {
               >
                 <Music className="mr-2 size-5" />
 
-                <span className="hidden md:inline">Create album</span>
-              </Link>
-
-              <Link
-                to={"/create-song"}
-                className={cn(
-                  buttonVariants({
-                    variant: "ghost",
-                    className:
-                      "w-full justify-start text-white hover:bg-zinc-800",
-                  })
-                )}
-              >
-                <Disc3 className="mr-2 size-5" />
-
-                <span className="hidden md:inline">Create song</span>
+                <span className="hidden md:inline">Upload music</span>
               </Link>
             </>
           )}
@@ -110,7 +97,7 @@ const LeftSidebar = () => {
       </div>
 
       {/* Library section */}
-      {/* <div className="flex-1 rounded-lg bg-zinc-900 p-4 overflow-hidden">
+      <div className="flex-1 rounded-lg bg-zinc-900 p-4 overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center text-white px-2">
             <Library className="size-5 mr-2" />
@@ -132,7 +119,7 @@ const LeftSidebar = () => {
                 >
                   <img
                     src={album.thumbnailUrl}
-                    alt="Playlist img"
+                    alt={album.title}
                     className="size-12 rounded-md flex-shrink-0 object-cover"
                   />
 
@@ -148,7 +135,7 @@ const LeftSidebar = () => {
             )}
           </div>
         </ScrollArea>
-      </div> */}
+      </div>
     </div>
   );
 };

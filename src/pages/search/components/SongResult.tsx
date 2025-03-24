@@ -10,7 +10,7 @@ interface SongResultsProps {
 export function SongResults({ songs, query }: SongResultsProps) {
   if (songs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="flex flex-col items-center justify-center py-20 text-center">
         <Music className="h-12 w-12 text-muted-foreground mb-4" />
 
         <h3 className="text-lg font-medium">No song found</h3>

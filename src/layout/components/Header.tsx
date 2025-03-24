@@ -18,13 +18,18 @@ import { Input } from "@/components/ui/input";
 
 export function Header() {
   const navigate = useNavigate();
-  const { user: authUser, isAuth, isAdmin, logout } = useAuthStore();
+
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { user: authUser, isAuth, isAdmin, logout } = useAuthStore();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      const params = new URLSearchParams({ query: searchQuery.trim() }).toString();
+      
+      navigate(`/search?${params}`);
     }
   };
 
@@ -32,11 +37,7 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-2">
         <Link to={"/"} className="flex gap-2 items-center cursor-pointer">
-          <img
-            src="/spotify.png"
-            className="size-8"
-            alt="Spotify logo"
-          />
+          <img src="/spotify.png" className="size-8" alt="Spotify logo" />
           Spotify
         </Link>
       </div>

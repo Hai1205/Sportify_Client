@@ -1,8 +1,9 @@
-import { MessageSquare, UserPlus, Loader2, UserCheck } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from "@/utils/types";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { MessageSquare, UserPlus, Loader2, UserCheck } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { User } from "@/utils/types";
+import { useState } from "react";
 
 interface ProfileHeaderProps {
   currentUser: User;
@@ -17,7 +18,14 @@ const ProfileHeader = ({
   userLoading,
   followUser,
 }: ProfileHeaderProps) => {
-  const follow = (e: any) => {
+  const checkFollow = (currentUser?.followers as string[])?.includes(
+    userAuth?.id
+  );
+  const isMyProfile = currentUser.id === userAuth?.id;
+
+  const [amIFollowing, setAmIFollowing] = useState(checkFollow);
+
+  const follow = async (e: any) => {
     e.preventDefault();
 
     if (!currentUser.id) {
@@ -28,11 +36,10 @@ const ProfileHeader = ({
       throw new Error("Current user ID is undefined");
     }
 
-    followUser(userAuth?.id, currentUser.id);
+    await followUser(userAuth?.id, currentUser.id);
+    
+    setAmIFollowing(!amIFollowing)
   };
-
-  const isMyProfile = currentUser.id === userAuth?.id;
-  const amIFollowing = currentUser?.following.includes(userAuth);
 
   return (
     <div className="bg-gradient-to-b from-green-800 to-black p-6">

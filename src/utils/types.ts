@@ -1,9 +1,9 @@
 export interface User {
 	id: string;
-	albums: Album[];
-	songs: Song[];
-	followers: User[];
-	following: User[];
+	albums: Album[] | string[];
+	songs: Song[] | string[];
+	followers: User[] | string[];
+	following: User[] | string[];
 	username: string;
 	email: string;
 	fullName: string;
@@ -20,6 +20,7 @@ export interface User {
 	country: string;
 	created_at: string;
 }
+
 export interface Album {
 	id: string;
 	user: User;

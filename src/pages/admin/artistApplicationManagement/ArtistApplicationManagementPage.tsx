@@ -67,7 +67,7 @@ import ApplicationDetailsDialog from "./components/ApplicationDetailsDialog";
 import ApproveArtistDialog from "./components/ApproveArtistDialog";
 import RejectApplicationDialog from "./components/RejectApplicationDialog";
 
-export function ArtistApplicationManagementPage() {
+export default function ArtistApplicationManagementPage() {
   const { artistApplications } = useUserStore();
 
   const [searchQuery, setSearchQuery] = useState("");

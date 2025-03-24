@@ -124,7 +124,7 @@ export const useUserStore = create<UserStore>()(
                     const response = await followUser(currentUserId, opponentId);
                     const { user, message } = response.data;
 
-                    set({ user: user });
+                    useAuthStore.getState().setUserAuth(user);
                     toast.success(message);
                 } catch (error: any) {
                     console.log(error)

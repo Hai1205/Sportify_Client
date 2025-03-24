@@ -79,7 +79,7 @@ const availableGenres: string[] = [
   "Soundtrack",
 ];
 
-export function ArtistManagementPage() {
+export default function ArtistManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);

@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMusicStore } from "@/stores/useMusicStore";
@@ -11,48 +11,46 @@ import { useUserStore } from "@/stores/useUserStore";
 import { SongResults } from "./components/SongResult";
 import { AlbumResults } from "./components/AlbumResult";
 import { UserResults } from "./components/UserResult";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Album, Song, User } from "@/utils/types";
 
-export function SearchResult() {
+export default function SearchResult() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
 
-  const { songs, albums, searchSongs, searchAlbums, getAllAlbum, getAllSong } =
-    useMusicStore();
-  // console.log(albums);
-  //   console.log("Type of albums:", typeof albums);
-  // console.log("Instance check:", Array.isArray(albums));
-  const { users, searchUsers, getAllUser } = useUserStore();
+  const { searchSongs, searchAlbums } = useMusicStore();
+  const { searchUsers } = useUserStore();
 
-  const fetchData = useCallback(() => {
-    if (!query.trim()) {
-      getAllSong();
-      getAllAlbum();
-      getAllUser();
-    } else {
-      searchSongs(query);
-      searchAlbums(query);
-      searchUsers(query);
-    }
-  }, [
-    query,
-    getAllSong,
-    getAllAlbum,
-    getAllUser,
-    searchSongs,
-    searchAlbums,
-    searchUsers,
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [songs, setSongs] = useState<Song[]>([]);
 
   useEffect(() => {
-    setSearchQuery(query);
+    const fetchData = async () => {
+      const searchParamsString = window.location.search;
+
+      if (!searchParamsString.trim()) {
+        return;
+      }
+
+      const fetchSongs = await searchSongs(searchParamsString);
+      const fetchAlbums = await searchAlbums(searchParamsString);
+      const fetchUsers = await searchUsers(searchParamsString);
+
+      setUsers(fetchUsers);
+      setAlbums(fetchAlbums);
+      setSongs(fetchSongs);
+    };
+
     fetchData();
-  }, [query, fetchData]);
+  }, [query, searchAlbums, searchSongs, searchUsers]);
 
   // Handle search
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
+      
       setSearchParams({ query: searchQuery.trim() });
     },
     [searchQuery, setSearchParams]
@@ -92,43 +90,37 @@ export function SearchResult() {
             <TabsList>
               <TabsTrigger value="songs">Songs ({songs.length})</TabsTrigger>
 
-              {/* <TabsTrigger value="albums">Albums ({albums.length})</TabsTrigger> */}
+              <TabsTrigger value="albums">Albums ({albums.length})</TabsTrigger>
 
               <TabsTrigger value="users">Users ({users.length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="songs" className="space-y-4">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle>Songs</CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                  <SongResults songs={songs} query={query} />
+                <CardContent className="pt-3">
+                  <ScrollArea className="h-[375px] w-full">
+                    <SongResults songs={songs} query={query} />
+                  </ScrollArea>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="albums" className="space-y-4">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle>Albums</CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                  <AlbumResults albums={albums} query={query} />
+                <CardContent className="pt-3">
+                  <ScrollArea className="h-[375px] w-full">
+                    <AlbumResults albums={albums} query={query} />
+                  </ScrollArea>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="users" className="space-y-4">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle>Users</CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                  <UserResults users={users} query={query} />
+                <CardContent className="pt-3">
+                  <ScrollArea className="h-[375px] w-full">
+                    <UserResults users={users} query={query} />
+                  </ScrollArea>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -149,3 +141,5 @@ export function SearchResult() {
     </div>
   );
 }
+// ScrollArea className="h-[540px] w-full"
+// import { ScrollArea } from "@/components/ui/scroll-area";
