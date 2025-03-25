@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import formatTime from "@/utils/service/formatTime";
 import { usePlayerStore } from "@/stores/usePlayerStore";
+import { Link } from "react-router-dom";
 
 export const PlaybackControls = () => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
@@ -163,6 +164,7 @@ export const PlaybackControls = () => {
             <div className="text-xs text-zinc-400">
               {formatTime(currentTime)}
             </div>
+
             <Slider
               value={[currentTime]}
               max={duration || 100}
@@ -176,29 +178,41 @@ export const PlaybackControls = () => {
 
         {/* volume controls */}
         <div className="hidden sm:flex items-center gap-4 min-w-[180px] w-[30%] justify-end">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="hover:text-white text-zinc-400"
-          >
-            <Mic2 className="h-4 w-4" />
-          </Button>
+          {currentSong && (
+            <>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="hover:text-white text-zinc-400"
+              >
+                <Link to={`/profile/${currentSong?.user?.id}`}>
+                  <Mic2 className="h-4 w-4" />
+                </Link>
+              </Button>
 
-          <Button
-            size="icon"
-            variant="ghost"
-            className="hover:text-white text-zinc-400"
-          >
-            <ListMusic className="h-4 w-4" />
-          </Button>
+              {currentSong?.album && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="hover:text-white text-zinc-400"
+                >
+                  <Link to={`/album/${currentSong?.album?.id}`}>
+                    <ListMusic className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
 
-          <Button
-            size="icon"
-            variant="ghost"
-            className="hover:text-white text-zinc-400"
-          >
-            <Laptop2 className="h-4 w-4" />
-          </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="hover:text-white text-zinc-400"
+              >
+                <Link to={`/song-player/${currentSong?.id}`}>
+                  <Laptop2 className="h-4 w-4" />
+                </Link>
+              </Button>
+            </>
+          )}
 
           <div className="flex items-center gap-2">
             <Button

@@ -1,8 +1,8 @@
 import { useState, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SongTab } from "./components/SongTab"
-import { SongVideoTab } from "./components/SongVideoTab"
-import { SongLyricsTab } from "./components/SongLyricsTab"
+import { SongTab } from "./song/components/SongTab"
+import { SongVideoTab } from "./song/components/SongVideoTab"
+import { SongLyricsTab } from "./song/components/SongLyricsTab"
 // import { Song } from "@/components/album-tab"
 // import { VideoTab } from "@/components/video-tab"
 // import { LyricsTab } from "@/components/lyrics-tab"
@@ -46,7 +46,7 @@ The catchiest part of the track
 That everyone remembers`,
 }
 
-const SongPlayer = () => {
+const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
 //   const [duration, setDuration] = useState(0)
@@ -103,9 +103,10 @@ const SongPlayer = () => {
 //   }
 
   return (
-    <div className="rounded-lg border border-accent bg-card text-card-foreground shadow-lg overflow-hidden">
+    <div className="h-full rounded-lg border border-accent bg-card text-card-foreground shadow-lg overflow-hidden">
       <div className="p-4 border-b border-accent">
         <h2 className="text-2xl font-bold text-white">{sampleSong.title}</h2>
+       
         <p className="text-muted-foreground">{sampleSong.artist}</p>
       </div>
 
@@ -161,4 +162,4 @@ const SongPlayer = () => {
   )
 }
 
-export default SongPlayer;
+export default MusicPlayer;

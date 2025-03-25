@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { ToastContainer, Slide } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import UserLayout from "@/layout/UserLayout";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -26,9 +26,9 @@ import AuthRoute from "./pages/auth/components/AuthRoute";
 import AdminRoute from "./pages/auth/components/AdminRoute";
 import ProfilePage from "./pages/profile/ProfilePage";
 import SongDetails from "./pages/music/song/SongDetails";
-import SongPlayer from "./pages/music/song/SongPlayer";
 import AlbumDetails from "./pages/music/album/AlbumDetails";
 import MusicUploaderPage from "./pages/music/MusicUploaderPage";
+import MusicPlayer from "./pages/music/MusicPlayer";
 import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
@@ -74,12 +74,12 @@ function App() {
 
           <Route path="/album-detail/:albumId" element={<AlbumDetails />} />
 
-          <Route path="/song-player/:songId" element={<SongPlayer />} />
+          <Route path="/song-player/:songId" element={<MusicPlayer />} />
+
+          <Route path="/album/:albumId" element={<AlbumPage />} />
 
           <Route element={<PrivateRoute />}>
             <Route path="/chat" element={<ChatPage />} />
-
-            <Route path="/albums/:albumId" element={<AlbumPage />} />
 
             <Route path="/profile/:userId" element={<ProfilePage />} />
 

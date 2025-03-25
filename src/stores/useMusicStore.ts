@@ -476,7 +476,7 @@ export const useMusicStore = create<MusicStore>()(
 
 		{
 			name: "music-storage",
-			storage: createJSONStorage(() => localStorage),
+			storage: createJSONStorage(() => sessionStorage),
 		}
 	)
 );

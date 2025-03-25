@@ -123,7 +123,7 @@ export const useStatStore = create<StatStore>()(
 
         {
             name: "stat-storage",
-            storage: createJSONStorage(() => localStorage),
+            storage: createJSONStorage(() => sessionStorage),
         }
     )
 );

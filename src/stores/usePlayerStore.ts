@@ -187,7 +187,7 @@ export const usePlayerStore = create<PlayerStore>()(
 
 		{
 			name: "player-storage",
-			storage: createJSONStorage(() => localStorage),
+			storage: createJSONStorage(() => sessionStorage),
 		}
 	)
 );

@@ -10,16 +10,16 @@ import { useAuthStore } from "@/stores/useAuthStore";
 
 const FriendsActivity = () => {
   const { onlineUsers, userActivities } = useChatStore();
-  const { user } = useAuthStore();
+  const { user: userAuth } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    if (user) {
-      const userFollowing = user?.following as User[];
+    if (userAuth) {
+      const userFollowing = userAuth?.following as User[];
 
       setUsers(userFollowing);
     }
-  }, [user]);
+  }, [userAuth]);
 
   if (users.length === 0) {
     return <FriendPrompt title="Follow your friends" />;
@@ -35,31 +35,31 @@ const FriendsActivity = () => {
         </div>
       </div>
 
-      {!user && <FriendPrompt title="Login" />}
+      {!userAuth && <FriendPrompt title="Login" />}
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
-          {users.map((user) => {
-            const activity = userActivities.get(user.id);
+          {users.map((userAuth) => {
+            const activity = userActivities.get(userAuth.id);
             const isPlaying = activity && activity !== "Idle";
 
             return (
-              <Link to={`/profile/${user?.id}`} key={user.id}>
+              <Link to={`/profile/${userAuth?.id}`} key={userAuth.id}>
                 <div
-                  key={user.id}
+                  key={userAuth.id}
                   className="cursor-pointer hover:bg-zinc-800/50 p-3 rounded-md transition-colors group"
                 >
                   <div className="flex items-start gap-3">
                     <div className="relative">
                       <Avatar className="size-10 border border-zinc-800">
-                        <AvatarImage src={user.avatarUrl} alt={user.fullName} />
+                        <AvatarImage src={userAuth.avatarUrl} alt={userAuth.fullName} />
 
-                        <AvatarFallback>{user.fullName[0]}</AvatarFallback>
+                        <AvatarFallback>{userAuth.fullName[0]}</AvatarFallback>
                       </Avatar>
 
                       <div
                         className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-900 
-												${onlineUsers.has(user.id) ? "bg-green-500" : "bg-zinc-500"}
+												${onlineUsers.has(userAuth.id) ? "bg-green-500" : "bg-zinc-500"}
 												`}
                         aria-hidden="true"
                       />
@@ -68,7 +68,7 @@ const FriendsActivity = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-white hover:underline">
-                          {user.fullName}
+                          {userAuth.fullName}
                         </span>
                        
                         {isPlaying && (

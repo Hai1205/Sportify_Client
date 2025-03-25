@@ -1,13 +1,14 @@
-import { useEffect } from "react";
-// import Topbar from "@/pages/home/components/Topbar";
+import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import UsersList from "./components/UsersList";
 import ChatHeader from "./components/ChatHeader";
 import MessageInput from "./components/MessageInput";
 import { useChatStore } from "@/stores/useChatStore";
-import { useUserStore } from "@/stores/useUserStore";
+// import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { NoConversationPlaceholder } from "./components/NoConversationPlaceholder";
+import { Message } from "@/utils/types";
 
 const formatTime = (date: string) => {
   return new Date(date).toLocaleTimeString("en-US", {
@@ -18,28 +19,34 @@ const formatTime = (date: string) => {
 };
 
 const ChatPage = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const { user: userAuth } = useAuthStore();
-  const { user, getAllUser } = useUserStore();
-  const { messages, selectedUser, getMessages } = useChatStore();
+  // const { user, getAllUser } = useUserStore();
+  const { selectedUser, getMessages } = useChatStore();
+
+  // useEffect(() => {
+  //   if (user) getAllUser();
+  // }, [getAllUser, user]);
 
   useEffect(() => {
-    if (user) getAllUser();
-  }, [getAllUser, user]);
+    const fetchMessages = async () => {
+      if (!userAuth?.id) {
+        throw new Error("User ID is undefined");
+      }
 
-  useEffect(() => {
-    if (!userAuth?.id) {
-      throw new Error("User ID is undefined");
-    }
+      if (selectedUser) {
+        const data = await getMessages(userAuth?.id, selectedUser.id);
+        console.log(data);
+       
+        setMessages(data);
+      }
+    };
 
-    if (selectedUser) getMessages(userAuth?.id, selectedUser.id);
+    fetchMessages();
   }, [getMessages, userAuth, selectedUser]);
-
-  console.log({ messages });
 
   return (
     <main className="h-full rounded-lg bg-gradient-to-b from-zinc-800 to-zinc-900 overflow-hidden">
-      {/* <Topbar /> */}
-
       <div className="grid lg:grid-cols-[300px_1fr] grid-cols-[80px_1fr] h-[calc(100vh-180px)]">
         <UsersList />
 
@@ -77,6 +84,7 @@ const ChatPage = () => {
 												`}
                       >
                         <p className="text-sm">{message.content}</p>
+
                         <span className="text-xs text-zinc-300 mt-1 block">
                           {formatTime(message.createdAt)}
                         </span>
@@ -97,15 +105,3 @@ const ChatPage = () => {
   );
 };
 export default ChatPage;
-
-const NoConversationPlaceholder = () => (
-  <div className="flex flex-col items-center justify-center h-full space-y-6">
-    <img src="/spotify.png" alt="Spotify" className="size-16 animate-bounce" />
-    <div className="text-center">
-      <h3 className="text-zinc-300 text-lg font-medium mb-1">
-        No conversation selected
-      </h3>
-      <p className="text-zinc-500 text-sm">Choose a friend to start chatting</p>
-    </div>
-  </div>
-);

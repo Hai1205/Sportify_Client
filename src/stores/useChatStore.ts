@@ -16,8 +16,7 @@ interface ChatStore {
 	isLoading: boolean;
 	error: string | null;
 	status: number;
-	message: string | null;
-	// users: User[];
+	
 	socket: any;
 	isConnected: boolean;
 	onlineUsers: Set<string>;
@@ -25,11 +24,10 @@ interface ChatStore {
 	messages: Message[];
 	selectedUser: User | null;
 
-	// getAllUser: () => Promise<void>;
 	initSocket: (userId: string) => void;
 	disconnectSocket: () => void;
 	sendMessage: (receiverId: string, senderId: string, content: string) => void;
-	getMessages: (currentUserId: string, opponentId: string) => Promise<void>;
+	getMessages: (currentUserId: string, opponentId: string) => Promise<any>;
 	setSelectedUser: (user: User | null) => void;
 }
 
@@ -47,25 +45,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	message: null,
 
 	setSelectedUser: (user) => set({ selectedUser: user }),
-
-	// getAllUser: async () => {
-	// 	set({ isLoading: true, error: null });
-	// 	try {
-	// 		const response = await getAllUser();
-	// 		const {users}= response.data;
-
-	// 		set(users);
-	// 	} catch (error: any) {
-	// 		console.log(error)
-	// 		const { message } = error.response.data;
-	// 		set({ error: message });
-
-	// 		toast.error(message);
-	// 		return message;
-	// 	} finally {
-	// 		set({ isLoading: false });
-	// 	}
-	// },
 
 	initSocket: (userId) => {
 		if (!get().isConnected) {
@@ -139,9 +118,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 		try {
 			const response = await getMessages(currentUserId, opponentId);
-			const data: Message[] = response.data.Message;
+			const {messages} = response.data;
 
-			set({ messages: data });
+			return messages;
 		} catch (error: any) {
 			console.log(error)
 			const { message } = error.response.data;
@@ -156,7 +135,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	reset: () => {
 		set({
-			// users: [],
 			socket: socket,
 			isConnected: false,
 			onlineUsers: new Set(),
@@ -166,7 +144,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 			isLoading: false,
 			error: null,
 			status: 0,
-			message: null,
 		});
 	},
 }));

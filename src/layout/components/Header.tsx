@@ -81,7 +81,7 @@ export function Header() {
               >
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
+                    src={authUser?.avatarUrl}
                     alt="Avatar"
                   />
 

@@ -2,12 +2,14 @@ import { Play } from "lucide-react";
 import { AlbumsEmptyState } from "./ProfileEmptyState";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { Album } from "@/utils/types";
 
 const ProfileAlbumsList = () => {
   const { user: userAuth } = useAuthStore();
   const { user: currentUser } = useUserStore();
 
-  const albums = currentUser?.albums || [];
+  const albums: Album[] = (currentUser?.albums || []) as Album[];
+
   const isMyProfile = currentUser?.id === userAuth?.id;
 
   if (albums.length === 0) {
@@ -21,11 +23,11 @@ const ProfileAlbumsList = () => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {albums.map((album) => (
-        <div key={album.id} className="group relative">
+        <div key={album?.id} className="group relative">
           <div className="relative overflow-hidden rounded-md aspect-square bg-gray-900">
             <img
-              src={album.thumbnailUrl || "/placeholder.svg"}
-              alt={album.title}
+              src={album?.thumbnailUrl || "/placeholder.svg"}
+              alt={album?.title}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             />
 
@@ -37,9 +39,9 @@ const ProfileAlbumsList = () => {
           </div>
 
           <div className="mt-2">
-            <h3 className="font-medium text-sm truncate">{album.title}</h3>
+            <h3 className="font-medium text-sm truncate">{album?.title}</h3>
 
-            <p className="text-gray-400 text-xs">{album.releaseDate}</p>
+            <p className="text-gray-400 text-xs">{album?.releaseDate}</p>
           </div>
         </div>
       ))}
