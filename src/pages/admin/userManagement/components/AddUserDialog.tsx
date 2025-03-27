@@ -19,8 +19,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { User } from "@/utils/types";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { toast } from "react-toastify";
+import { useUserStore } from "@/stores/useUserStore";
 
 interface AddUserDialogProps {
   isOpen: boolean;
@@ -28,29 +28,51 @@ interface AddUserDialogProps {
 }
 
 const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
-  const { register } = useAuthStore();
-  
-  const [userData, setUserData] = useState<User | null>(null);
-  const [password, setPassword] = useState("");
-  
-  const handleChange = (field: keyof User, value: string) => {
-    if (userData) {
-      setUserData({ ...userData, [field]: value });
-    }
+  const { isLoading, createUser } = useUserStore();
+
+  const [userData, setUserData] = useState({
+    username: "",
+    fullName: "",
+    password: "",
+    email: "",
+    role: "",
+  });
+
+  const createUserData = (field: keyof typeof userData, value: any) => {
+    setUserData((prev) => ({ ...prev, [field]: value }));
   };
-  const [role, setRole] = useState("");
 
-  const handleCreateUser = () => {
+  const handleCreateUser = async () => {
     if (userData) {
-      const data = new FormData();
-      data.append("username", userData.username);
-      data.append("fullName", userData.fullName);
-      data.append("password", password);
-      data.append("email", userData.email);
-      data.append("role", role);
+      const isEmpty = Object.values(userData).some(
+        (value) => value.trim() === ""
+      );
 
-      register(data);
-      onOpenChange(false);
+      if (isEmpty) {
+        toast.error("Please fill in all fields.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("username", userData.username);
+      formData.append("fullName", userData.fullName);
+      formData.append("password", userData.password);
+      formData.append("email", userData.email);
+      formData.append("role", userData.role);
+
+      const res = await createUser(formData);
+
+      if (res) {
+        setUserData({
+          username: "",
+          fullName: "",
+          password: "",
+          email: "",
+          role: "",
+        });
+
+        onOpenChange(false);
+      }
     }
   };
 
@@ -81,7 +103,7 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
               type="email"
               placeholder="Enter email address"
               value={userData?.email}
-              onChange={(e) => handleChange("email", e.target.value)}
+              onChange={(e) => createUserData("email", e.target.value)}
             />
           </div>
 
@@ -92,7 +114,7 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
               type="username"
               placeholder="Enter username"
               value={userData?.username}
-              onChange={(e) => handleChange("username", e.target.value)}
+              onChange={(e) => createUserData("username", e.target.value)}
             />
           </div>
 
@@ -104,7 +126,7 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
               type="fullName"
               placeholder="Enter full name"
               value={userData?.fullName}
-              onChange={(e) => handleChange("fullName", e.target.value)}
+              onChange={(e) => createUserData("fullName", e.target.value)}
             />
 
             <div className="grid gap-2">
@@ -114,14 +136,17 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
                 id="password"
                 type="password"
                 placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={userData?.password}
+                onChange={(e) => createUserData("password", e.target.value)}
               />
             </div>
 
             <Label htmlFor="role">Role</Label>
 
-            <Select defaultValue={userData?.role} onValueChange={setRole}>
+            <Select
+              value={userData?.role}
+              onValueChange={(value) => createUserData("role", value)}
+            >
               <SelectTrigger id="role">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
@@ -130,17 +155,41 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
                 <SelectItem value="user">User</SelectItem>
 
                 <SelectItem value="artist">Artist</SelectItem>
+
+                <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setUserData({
+                username: "",
+                fullName: "",
+                password: "",
+                email: "",
+                role: "",
+              });
+
+              onOpenChange(false);
+            }}
+          >
             Cancel
           </Button>
 
-          <Button onClick={handleCreateUser}>Create User</Button>
+          <Button onClick={handleCreateUser} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                Creating...
+              </>
+            ) : (
+              <>Create User</>
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

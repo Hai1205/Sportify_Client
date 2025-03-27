@@ -9,7 +9,7 @@ export function TopArtists() {
   }, [getTopArtistsStat]);
 
   return (
-    <ScrollArea className="h-[300px] pr-4">
+    <ScrollArea className="h-[290px] pr-4">
       <div className="space-y-4">
         {artists.map((artist) => (
           <div

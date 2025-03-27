@@ -22,7 +22,7 @@ const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const { user: userAuth } = useAuthStore();
   // const { user, getAllUser } = useUserStore();
-  const { selectedUser, getMessages } = useChatStore();
+  const { selectedUser, getMessages, initSocket } = useChatStore();
 
   // useEffect(() => {
   //   if (user) getAllUser();
@@ -33,6 +33,7 @@ const ChatPage = () => {
       if (!userAuth?.id) {
         throw new Error("User ID is undefined");
       }
+      initSocket(userAuth?.id);
 
       if (selectedUser) {
         const data = await getMessages(userAuth?.id, selectedUser.id);

@@ -41,7 +41,7 @@ const AdminLayout = () => {
           defaultSize={20}
           minSize={isMobile ? 0 : 10}
           maxSize={25}
-          className="bg-background border-r"
+          className="bg-zinc-900"
         >
           <SidebarMenuAdmin />
         </ResizablePanel>

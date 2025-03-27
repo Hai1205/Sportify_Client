@@ -31,6 +31,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMusicStore } from "@/stores/useMusicStore";
 import AddAlbumDialog from "./components/AddAlbumDialog";
+import { AlbumsEmptyState } from "@/layout/components/EmptyState";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function AlbumManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -100,7 +102,7 @@ export default function AlbumManagementPage() {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle>Album Library</CardTitle>
+            <CardTitle>Album Management</CardTitle>
 
             <div className="flex items-center gap-2">
               <form onSubmit={handleSearch} className="flex items-center gap-2">
@@ -117,111 +119,123 @@ export default function AlbumManagementPage() {
             </div>
           </div>
         </CardHeader>
-
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[40px]">
-                  <Checkbox
-                    checked={selectedSongs.length === albums.length}
-                    onCheckedChange={toggleAllSongs}
-                  />
-                </TableHead>
-
-                <TableHead className="w-[40px]"></TableHead>
-
-                <TableHead>Title</TableHead>
-
-                <TableHead>Artist</TableHead>
-
-                <TableHead>Release Date</TableHead>
-
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {albums.map((song) => (
-                <TableRow key={song.id}>
-                  <TableCell>
+        <ScrollArea className="h-[calc(100vh-340px)] w-full rounded-xl">
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40px]">
                     <Checkbox
-                      checked={selectedSongs.includes(song.id)}
-                      onCheckedChange={() => toggleSongSelection(song.id)}
+                      checked={selectedSongs.length === albums.length}
+                      onCheckedChange={toggleAllSongs}
                     />
-                  </TableCell>
+                  </TableHead>
 
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 rounded-full"
-                      onClick={() => togglePlaySong(song.id)}
-                    >
-                      {playingSong === song.id ? (
-                        <Pause className="h-4 w-4" />
-                      ) : (
-                        <Play className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </TableCell>
+                  <TableHead className="w-[40px]"></TableHead>
 
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 rounded-md">
-                        <AvatarImage src={song.thumbnailUrl} alt={song.title} />
+                  <TableHead>Title</TableHead>
 
-                        <AvatarFallback>
-                          <Music className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  </TableCell>
+                  <TableHead>Artist</TableHead>
 
-                  <TableCell>{song.user.fullName}</TableCell>
+                  <TableHead>Release Date</TableHead>
 
-                  <TableCell>{song.releaseDate}</TableCell>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
 
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+              <TableBody>
+                {albums.length > 0 ? (
+                  albums.map((song) => (
+                    <TableRow key={song.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedSongs.includes(song.id)}
+                          onCheckedChange={() => toggleSongSelection(song.id)}
+                        />
+                      </TableCell>
+
+                      <TableCell>
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
+                          size="icon"
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => togglePlaySong(song.id)}
                         >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
+                          {playingSong === song.id ? (
+                            <Pause className="h-4 w-4" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
                         </Button>
-                      </DropdownMenuTrigger>
+                      </TableCell>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9 rounded-md">
+                            <AvatarImage
+                              src={song.thumbnailUrl}
+                              alt={song.title}
+                            />
 
-                        <DropdownMenuItem>View details</DropdownMenuItem>
+                            <AvatarFallback>
+                              <Music className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                      </TableCell>
 
-                        <DropdownMenuItem>Edit metadata</DropdownMenuItem>
+                      <TableCell>{song.user.fullName}</TableCell>
 
-                        <DropdownMenuSeparator />
+                      <TableCell>{song.releaseDate}</TableCell>
 
-                        <DropdownMenuItem>Add to playlist</DropdownMenuItem>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
 
-                        <DropdownMenuItem>Download</DropdownMenuItem>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                        <DropdownMenuSeparator />
+                            <DropdownMenuItem>View details</DropdownMenuItem>
 
-                        <DropdownMenuItem className="text-red-600">
-                          <Trash className="mr-2 h-4 w-4" />
-                          Delete song
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+                            <DropdownMenuItem>Edit metadata</DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem>Add to playlist</DropdownMenuItem>
+
+                            <DropdownMenuItem>Download</DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash className="mr-2 h-4 w-4" />
+                              Delete song
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <AlbumsEmptyState message="No albums have been added yet. Create an album to get started." />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </ScrollArea>
       </Card>
     </div>
   );

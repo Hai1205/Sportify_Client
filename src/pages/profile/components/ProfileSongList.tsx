@@ -1,14 +1,15 @@
 import { Clock, Play } from "lucide-react";
 import formatTime from "@/utils/service/formatTime";
-import { SongsEmptyState } from "./ProfileEmptyState";
+import { SongsEmptyState } from "../../../layout/components/EmptyState";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { Song } from "@/utils/types";
 
 const ProfileSongsList = () => {
   const { user: userAuth } = useAuthStore();
   const { user: currentUser } = useUserStore();
 
-  const songs = currentUser?.songs || [];
+  const songs: Song[] = (currentUser?.songs || []) as Song[];
   const isMyProfile = currentUser?.id === userAuth?.id;
 
   if (songs.length === 0) {

@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { BarChart3, Users, Music, Mic2, Disc, UserCheck } from "lucide-react";
+import { BarChart3, Users, Music, Disc, FileUser } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function SidebarMenuAdmin() {
@@ -7,7 +7,9 @@ export function SidebarMenuAdmin() {
   const location = useLocation();
 
   const isActive = (path: any) => {
-    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+    return (
+      location.pathname === path || location.pathname.startsWith(`${path}/`)
+    );
   };
 
   return (
@@ -15,17 +17,21 @@ export function SidebarMenuAdmin() {
       <div className="px-4 py-2 mt-2">
         <h2 className="text-xs font-semibold text-muted-foreground">MENU</h2>
       </div>
-     
+
       <nav className="grid gap-1 px-2 group">
         <Button
-          variant={isActive("/admin") && !isActive("/admin/search") ? "secondary" : "ghost"}
+          variant={
+            isActive("/admin") && !isActive("/admin/search")
+              ? "secondary"
+              : "ghost"
+          }
           className="justify-start gap-2 h-10"
           onClick={() => navigate("/admin")}
         >
           <BarChart3 className="h-4 w-4" />
           Dashboard
         </Button>
-       
+
         <Button
           variant={isActive("/admin/user-management") ? "secondary" : "ghost"}
           className="justify-start gap-2 h-10"
@@ -34,7 +40,7 @@ export function SidebarMenuAdmin() {
           <Users className="h-4 w-4" />
           Users
         </Button>
-       
+
         <Button
           variant={isActive("/admin/album-management") ? "secondary" : "ghost"}
           className="justify-start gap-2 h-10"
@@ -52,22 +58,17 @@ export function SidebarMenuAdmin() {
           <Music className="h-4 w-4" />
           Songs
         </Button>
-      
+
         <Button
-          variant={isActive("/admin/artist-management") ? "secondary" : "ghost"}
-          className="justify-start gap-2 h-10"
-          onClick={() => navigate("/admin/artist-management")}
-        >
-          <Mic2 className="h-4 w-4" />
-          Artists
-        </Button>
-     
-        <Button
-          variant={isActive("/admin/artist-application-management") ? "secondary" : "ghost"}
+          variant={
+            isActive("/admin/artist-application-management")
+              ? "secondary"
+              : "ghost"
+          }
           className="justify-start gap-2 h-10"
           onClick={() => navigate("/admin/artist-application-management")}
         >
-          <UserCheck className="h-4 w-4" />
+          <FileUser className="h-4 w-4" />
           Artist Applications
         </Button>
       </nav>

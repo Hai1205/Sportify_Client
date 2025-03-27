@@ -83,13 +83,14 @@ export const useMusicStore = create<MusicStore>()(
 					}));
 
 					toast.success(message);
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -110,13 +111,14 @@ export const useMusicStore = create<MusicStore>()(
 					}));
 
 					toast.success(message);
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -131,12 +133,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return songs;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -150,13 +152,14 @@ export const useMusicStore = create<MusicStore>()(
 					const { message } = response.data;
 
 					toast.success(message);
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -170,13 +173,14 @@ export const useMusicStore = create<MusicStore>()(
 					const { message } = response.data;
 
 					toast.success(message);
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -192,12 +196,12 @@ export const useMusicStore = create<MusicStore>()(
 					toast.success(message);
 					return album;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -212,12 +216,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return albums;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -232,12 +236,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return albums;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -252,12 +256,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return album;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -272,12 +276,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return album;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -292,12 +296,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return songs;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -312,12 +316,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return songs;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -332,12 +336,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return songs;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -353,12 +357,12 @@ export const useMusicStore = create<MusicStore>()(
 					toast.success(message);
 					return song;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -374,12 +378,12 @@ export const useMusicStore = create<MusicStore>()(
 					toast.success(message);
 					return song;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -393,13 +397,14 @@ export const useMusicStore = create<MusicStore>()(
 					const { message } = response.data;
 
 					toast.success(message);
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -414,12 +419,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return song;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -434,12 +439,12 @@ export const useMusicStore = create<MusicStore>()(
 
 					return songs;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -450,13 +455,15 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					await increaseSongView(songId);
+
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}

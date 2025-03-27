@@ -1,5 +1,5 @@
 import { Play } from "lucide-react";
-import { AlbumsEmptyState } from "./ProfileEmptyState";
+import { AlbumsEmptyState } from "../../../layout/components/EmptyState";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Album } from "@/utils/types";

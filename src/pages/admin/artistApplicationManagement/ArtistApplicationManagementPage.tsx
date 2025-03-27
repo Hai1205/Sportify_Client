@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   Check,
   X,
@@ -6,21 +6,10 @@ import {
   Search,
   Filter,
   Calendar,
-  // User,
-  // Music,
-  // ExternalLink,
   FileText,
-  Download,
-  // Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -38,39 +27,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-// } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-// import { Separator } from "@/components/ui/separator";
-// import { Textarea } from "@/components/ui/textarea";
-// import { Label } from "@/components/ui/label";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
 import { useUserStore } from "@/stores/useUserStore";
 import { ArtistApplication } from "@/utils/types";
 import ApplicationDetailsDialog from "./components/ApplicationDetailsDialog";
 import ApproveArtistDialog from "./components/ApproveArtistDialog";
 import RejectApplicationDialog from "./components/RejectApplicationDialog";
+import { ApplicationsEmptyState } from "@/layout/components/EmptyState";
+import { useSearchParams } from "react-router-dom";
 
 export default function ArtistApplicationManagementPage() {
   const { artistApplications } = useUserStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("query") || "";
+  const [searchQuery, setSearchQuery] = useState(query);
+  const queryString = location.search;
+  console.log(queryString);
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedApplications, setSelectedApplications] = useState<string[]>(
     []
   );
@@ -80,71 +56,25 @@ export default function ArtistApplicationManagementPage() {
   const [selectedApplication, setSelectedApplication] =
     useState<ArtistApplication | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
-  const [activeFilters, setActiveFilters] = useState<{
-    genres: string[];
-    dateRange: string;
-    followers: string[];
-  }>({
-    genres: [],
-    dateRange: "",
-    followers: [],
+  const [activeFilters, setActiveFilters] = useState<{ status: string[] }>({
+    status: [],
   });
 
-  // Filter applications based on search query and active filters
   const filteredApplications = artistApplications.filter((application) => {
-    console.log(application)
-  //   // Search functionality
-  //   const matchesSearch =
-  //     searchQuery === "" ||
-  //     application.user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     application.user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     application.user.user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     application.user.genres.some((genre) => genre.toLowerCase().includes(searchQuery.toLowerCase()))
+    // Filter by search query
+    const matchesSearch =
+      application.user.fullName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      application.user.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-  //   // Filter by genres
-  //   const matchesGenres =
-  //     activeFilters.genres.length === 0 ||
-  //     application.user.genres.some((genre) => activeFilters.genres.includes(genre.toLowerCase()))
+    // Filter by status
+    const matchesStatus =
+      activeFilters.status.length === 0 ||
+      activeFilters.status.includes(application.status);
 
-  //   // Filter by date range
-  //   const matchesDateRange = () => {
-  //     if (!activeFilters.dateRange) return true
-
-  //     const submittedDate = new Date(application.submittedDate)
-  //     const now = new Date()
-
-  //     switch (activeFilters.dateRange) {
-  //       case "today":
-  //         return submittedDate.toDateString() === now.toDateString()
-  //       case "this-week": {
-  //         const oneWeekAgo = new Date()
-  //         oneWeekAgo.setDate(now.getDate() - 7)
-  //         return submittedDate >= oneWeekAgo
-  //       }
-  //       case "this-month": {
-  //         return submittedDate.getMonth() === now.getMonth() && submittedDate.getFullYear() === now.getFullYear()
-  //       }
-  //       default:
-  //         return true
-  //     }
-  //   }
-
-  //   // Filter by followers
-  //   const matchesFollowers = () => {
-  //     if (activeFilters.followers.length === 0) return true
-
-  //     const followerCount = Number.parseInt(application.followers.replace(/[^\d]/g, ""))
-
-  //     return activeFilters.followers.some((range) => {
-  //       if (range === "under-5k") return followerCount < 5000
-  //       if (range === "5k-20k") return followerCount >= 5000 && followerCount < 20000
-  //       if (range === "over-20k") return followerCount >= 20000
-  //       return true
-  //     })
-  //   }
-
-  //   return matchesSearch && matchesGenres && matchesDateRange() && matchesFollowers()
-  })
+    return matchesSearch && matchesStatus;
+  });
 
   const toggleApplicationSelection = (applicationId: string) => {
     if (selectedApplications.includes(applicationId)) {
@@ -156,13 +86,7 @@ export default function ArtistApplicationManagementPage() {
     }
   };
 
-  const toggleAllApplications = () => {
-    // if (selectedApplications.length === filteredApplications.length) {
-    //   setSelectedApplications([])
-    // } else {
-    //   setSelectedApplications(filteredApplications.map((app) => app.id))
-    // }
-  };
+  const toggleAllApplications = () => {};
 
   const handleViewDetails = (application: (typeof artistApplications)[0]) => {
     setSelectedApplication(application);
@@ -196,41 +120,72 @@ export default function ArtistApplicationManagementPage() {
     // You would typically update the application status here
   };
 
-  // Function to toggle a filter value
-  const toggleFilter = (
-    category: keyof typeof activeFilters,
-    value: string
-  ) => {
+  const toggleFilter = (value: string) => {
     setActiveFilters((prev) => {
       const updated = { ...prev };
-
-      if (category === "dateRange") {
-        // Date range is a single selection
-        updated.dateRange = prev.dateRange === value ? "" : value;
-        return updated;
-      }
-
-      // For arrays (genres, followers)
-      const categoryArray = updated[category] as string[];
-      if (categoryArray.includes(value)) {
-        updated[category] = categoryArray.filter((item) => item !== value);
+      if (updated.status.includes(value)) {
+        updated.status = updated.status.filter((item) => item !== value);
       } else {
-        updated[category] = [...categoryArray, value];
+        updated.status = [...updated.status, value];
       }
-
       return updated;
     });
   };
 
-  // Function to clear all filters
   const clearFilters = () => {
-    setActiveFilters({
-      genres: [],
-      dateRange: "",
-      followers: [],
-    });
+    setActiveFilters({ status: [] });
     setSearchQuery("");
+    setSearchParams({});
+    closeMenuMenuFilters();
   };
+
+  const applyFilters = () => {
+    const params = new URLSearchParams(searchParams);
+
+    if (activeFilters.status.length > 0) {
+      params.set("status", activeFilters.status.join(","));
+    } else {
+      params.delete("status");
+    }
+
+    setSearchParams(params);
+    closeMenuMenuFilters();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-500";
+      case "pending":
+        return "bg-yellow-500";
+      case "rejected":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
+  const [openMenuFilters, setOpenMenuFilters] = useState(false);
+  const closeMenuMenuFilters = () => setOpenMenuFilters(false);
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (searchQuery.trim()) {
+        setSearchParams({ query: searchQuery.trim() });
+      } else {
+        setSearchParams();
+      }
+    },
+    [searchQuery, setSearchParams]
+  );
+
+  useEffect(() => {
+    const status = searchParams.get("status");
+    if (status) {
+      setActiveFilters({ status: status.split(",") });
+    }
+  }, [searchParams]);
 
   return (
     <div className="space-y-4">
@@ -238,13 +193,6 @@ export default function ArtistApplicationManagementPage() {
         <h2 className="text-3xl font-bold tracking-tight">
           Artist Applications
         </h2>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8 gap-1">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
       </div>
 
       {/* View Application Details Dialog */}
@@ -706,213 +654,111 @@ export default function ArtistApplicationManagementPage() {
         application={selectedApplication}
       />
 
-      <Tabs defaultValue="pending" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="pending">
-            Pending ({artistApplications.length})
-          </TabsTrigger>
+      <div className="space-y-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle>Application Management</CardTitle>
 
-          <TabsTrigger value="approved">Approved (0)</TabsTrigger>
-
-          <TabsTrigger value="rejected">Rejected (0)</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="pending" className="space-y-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle>Pending Applications</CardTitle>
-
-                <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <form
+                  onSubmit={handleSearch}
+                  className="flex items-center gap-2"
+                >
                   <div className="relative w-60">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
 
                     <Input
                       type="search"
-                      placeholder="Search applications..."
+                      placeholder="Search users..."
                       className="w-full pl-8"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
+                </form>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 gap-1">
-                        <Filter className="h-4 w-4" />
-                        Filter
+                <DropdownMenu
+                  open={openMenuFilters}
+                  onOpenChange={closeMenuMenuFilters}
+                >
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 gap-1"
+                      onClick={() => setOpenMenuFilters((prev) => !prev)}
+                    >
+                      <Filter className="h-4 w-4" />
+                      Filter
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end" className="w-[250px]">
+                    <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+
+                    <DropdownMenuSeparator />
+
+                    <div className="p-2">
+                      <h4 className="mb-2 text-sm font-medium">Status</h4>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center">
+                          <Checkbox
+                            id="status-approved"
+                            checked={activeFilters.status.includes("approved")}
+                            onCheckedChange={() => toggleFilter("approved")}
+                            className="mr-2"
+                          />
+
+                          <label htmlFor="status-approved">Approved</label>
+                        </div>
+
+                        <div className="flex items-center">
+                          <Checkbox
+                            id="status-pending"
+                            checked={activeFilters.status.includes("pending")}
+                            onCheckedChange={() => toggleFilter("pending")}
+                            className="mr-2"
+                          />
+
+                          <label htmlFor="status-pending">Pending</label>
+                        </div>
+
+                        <div className="flex items-center">
+                          <Checkbox
+                            id="status-rejected"
+                            checked={activeFilters.status.includes("rejected")}
+                            onCheckedChange={() => toggleFilter("rejected")}
+                            className="mr-2"
+                          />
+
+                          <label htmlFor="status-rejected">Rejected</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <DropdownMenuSeparator />
+
+                    <div className="p-2 flex justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={clearFilters}
+                      >
+                        Clear Filters
                       </Button>
-                    </DropdownMenuTrigger>
 
-                    <DropdownMenuContent align="end" className="w-[250px]">
-                      <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-
-                      <DropdownMenuSeparator />
-
-                      <div className="p-2">
-                        <h4 className="mb-2 text-sm font-medium">Genres</h4>
-                        <ScrollArea className="h-[150px]">
-                          <div className="space-y-2 pr-3">
-                            {[
-                              "pop",
-                              "hip-hop",
-                              "rock",
-                              "r&b",
-                              "electronic",
-                              "jazz",
-                              "indie pop",
-                              "folk",
-                              "country",
-                              "latin",
-                              "k-pop",
-                            ].map((genre) => (
-                              <div key={genre} className="flex items-center">
-                                <Checkbox
-                                  id={`genre-${genre}`}
-                                  checked={activeFilters.genres.includes(genre)}
-                                  onCheckedChange={() =>
-                                    toggleFilter("genres", genre)
-                                  }
-                                  className="mr-2"
-                                />
-                                <label
-                                  htmlFor={`genre-${genre}`}
-                                  className="capitalize"
-                                >
-                                  {genre}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        </ScrollArea>
-                      </div>
-
-                      <DropdownMenuSeparator />
-
-                      <div className="p-2">
-                        <h4 className="mb-2 text-sm font-medium">
-                          Submission Date
-                        </h4>
-                      
-                        <div className="space-y-2">
-                          <div className="flex items-center">
-                            <Checkbox
-                              id="date-today"
-                              checked={activeFilters.dateRange === "today"}
-                              onCheckedChange={() =>
-                                toggleFilter("dateRange", "today")
-                              }
-                              className="mr-2"
-                            />
-                           
-                            <label htmlFor="date-today">Today</label>
-                          </div>
-                       
-                          <div className="flex items-center">
-                            <Checkbox
-                              id="date-this-week"
-                              checked={activeFilters.dateRange === "this-week"}
-                              onCheckedChange={() =>
-                                toggleFilter("dateRange", "this-week")
-                              }
-                              className="mr-2"
-                            />
-                          
-                            <label htmlFor="date-this-week">This Week</label>
-                          </div>
-                        
-                          <div className="flex items-center">
-                            <Checkbox
-                              id="date-this-week"
-                              checked={activeFilters.dateRange === "this-month"}
-                              onCheckedChange={() =>
-                                toggleFilter("dateRange", "this-month")
-                              }
-                              className="mr-2"
-                            />
-                            <label htmlFor="date-this-month">This Month</label>
-                          </div>
-                        </div>
-                      </div>
-
-                      <DropdownMenuSeparator />
-
-                      <div className="p-2">
-                        <h4 className="mb-2 text-sm font-medium">Followers</h4>
-                   
-                        <div className="space-y-2">
-                          <div className="flex items-center">
-                            <Checkbox
-                              id="followers-under-5k"
-                              checked={activeFilters.followers.includes(
-                                "under-5k"
-                              )}
-                              onCheckedChange={() =>
-                                toggleFilter("followers", "under-5k")
-                              }
-                              className="mr-2"
-                            />
-                            <label htmlFor="followers-under-5k">Under 5K</label>
-                          </div>
-                      
-                          <div className="flex items-center">
-                            <Checkbox
-                              id="followers-5k-20k"
-                              checked={activeFilters.followers.includes(
-                                "5k-20k"
-                              )}
-                              onCheckedChange={() =>
-                                toggleFilter("followers", "5k-20k")
-                              }
-                              className="mr-2"
-                            />
-                            <label htmlFor="followers-5k-20k">5K - 20K</label>
-                          </div>
-                     
-                          <div className="flex items-center">
-                            <Checkbox
-                              id="followers-over-20k"
-                              checked={activeFilters.followers.includes(
-                                "over-20k"
-                              )}
-                              onCheckedChange={() =>
-                                toggleFilter("followers", "over-20k")
-                              }
-                              className="mr-2"
-                            />
-                            <label htmlFor="followers-over-20k">Over 20K</label>
-                          </div>
-                        </div>
-                      </div>
-
-                      <DropdownMenuSeparator />
-
-                      <div className="p-2 flex justify-between">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={clearFilters}
-                        >
-                          Clear Filters
-                        </Button>
-                      
-                        <Button size="sm">Apply Filters</Button>
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8"
-                    onClick={clearFilters}
-                  >
-                    Clear Filters
-                  </Button>
-                </div>
+                      <Button size="sm" onClick={applyFilters}>
+                        Apply Filters
+                      </Button>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            </CardHeader>
-          
+            </div>
+          </CardHeader>
+          <ScrollArea className="h-[calc(100vh-340px)] w-full  rounded-xl">
             <CardContent>
               <Table>
                 <TableHeader>
@@ -927,21 +773,21 @@ export default function ArtistApplicationManagementPage() {
                         onCheckedChange={toggleAllApplications}
                       />
                     </TableHead>
-                   
-                    <TableHead>Artist</TableHead>
-                   
+
+                    <TableHead>User</TableHead>
+
+                    <TableHead>Status</TableHead>
+
                     <TableHead>Genres</TableHead>
-                 
+
                     <TableHead>Followers</TableHead>
-                  
+
                     <TableHead>Submitted</TableHead>
-                   
-                    {/* <TableHead>Location</TableHead> */}
-                 
+
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
-              
+
                 <TableBody>
                   {filteredApplications.length > 0 ? (
                     filteredApplications.map((application) => (
@@ -956,7 +802,7 @@ export default function ArtistApplicationManagementPage() {
                             }
                           />
                         </TableCell>
-                    
+
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-9 w-9">
@@ -964,24 +810,37 @@ export default function ArtistApplicationManagementPage() {
                                 src={application.user.avatarUrl}
                                 alt={application.user.fullName}
                               />
-                             
+
                               <AvatarFallback>
                                 {application.user.fullName.substring(0, 2)}
                               </AvatarFallback>
                             </Avatar>
-                          
+
                             <div className="flex flex-col">
                               <span className="font-medium">
                                 {application.user.fullName}
                               </span>
-                          
+
                               <span className="text-sm text-muted-foreground">
                                 {application.user.email}
                               </span>
                             </div>
                           </div>
                         </TableCell>
-                      
+
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`h-2 w-2 rounded-full ${getStatusColor(
+                                application.status
+                              )}`}
+                            />
+                            <span className="capitalize">
+                              {application.status}
+                            </span>
+                          </div>
+                        </TableCell>
+
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {application.user.genres.map((genre, index) => (
@@ -995,18 +854,18 @@ export default function ArtistApplicationManagementPage() {
                             ))}
                           </div>
                         </TableCell>
-                        
-                        <TableCell>{application?.user?.followers.length}</TableCell>
-                        
+
+                        <TableCell>
+                          {application?.user?.followers.length}
+                        </TableCell>
+
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                             <span>{application.created_at}</span>
                           </div>
                         </TableCell>
-                      
-                        {/* <TableCell>{application.location}</TableCell> */}
-                  
+
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button
@@ -1057,59 +916,17 @@ export default function ArtistApplicationManagementPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={7} className="h-24 text-center">
-                        No applications found matching your criteria.
+                      <TableCell colSpan={7}>
+                        <ApplicationsEmptyState />
                       </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
               </Table>
             </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="approved">
-          <Card>
-            <CardHeader>
-              <CardTitle>Approved Applications</CardTitle>
-              <CardDescription>
-                Artists who have been approved to join the platform.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px] flex items-center justify-center">
-              <div className="text-center">
-                <Check className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">
-                  No approved applications yet
-                </h3>
-                <p className="text-muted-foreground mt-1 max-w-md">
-                  When you approve artist applications, they will appear here.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="rejected">
-          <Card>
-            <CardHeader>
-              <CardTitle>Rejected Applications</CardTitle>
-              <CardDescription>
-                Artists whose applications have been rejected.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px] flex items-center justify-center">
-              <div className="text-center">
-                <X className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">
-                  No rejected applications yet
-                </h3>
-                <p className="text-muted-foreground mt-1 max-w-md">
-                  When you reject artist applications, they will appear here.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          </ScrollArea>
+        </Card>
+      </div>
     </div>
   );
 }

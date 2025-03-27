@@ -67,13 +67,14 @@ export const useAuthStore = create<AuthStore>()(
 					const data: boolean = response.data.isAdmin;
 
 					set({ isAdmin: data });
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ isAdmin: false, error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -87,13 +88,14 @@ export const useAuthStore = create<AuthStore>()(
 					const data: boolean = response.data.isArtist;
 
 					set({ isArtist: data });
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ isArtist: false, error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -104,13 +106,15 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					await sendOTP(email);
+
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ isArtist: false, error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -121,13 +125,15 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					await checkOTP(email, OTP);
+
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ isArtist: false, error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -141,13 +147,14 @@ export const useAuthStore = create<AuthStore>()(
 					const data = response.data.message;
 
 					toast.success(data);
+					return data;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -169,12 +176,12 @@ export const useAuthStore = create<AuthStore>()(
 
 					return { user: user, isVerified };
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ user: null, error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -191,14 +198,14 @@ export const useAuthStore = create<AuthStore>()(
 					await get().checkAdmin();
 					await get().checkArtist();
 
-					return user ;
+					return user;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ user: null, error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -211,13 +218,14 @@ export const useAuthStore = create<AuthStore>()(
 					await logout();
 
 					get().reset();
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -228,13 +236,15 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					await changePassword(userId, formData);
+
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -245,13 +255,15 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					await forgotPassword(userId, formData);
+
+					return true;
 				} catch (error: any) {
 					set({ error: error });
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -262,13 +274,15 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					await resetPassword(userId);
+
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}
@@ -279,13 +293,15 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					await refreshToken();
+
+					return true;
 				} catch (error: any) {
-					console.log(error)
+					console.error(error)
 					const { message } = error.response.data;
 					set({ error: message });
 
 					toast.error(message);
-					return message;
+					return false;
 				} finally {
 					set({ isLoading: false });
 				}

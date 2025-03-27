@@ -1,22 +1,23 @@
 import { toast } from "react-toastify";
 import { Message, User } from "@/utils/types";
 import { create } from "zustand";
-import { io } from "socket.io-client";
+// import { io } from "socke	t.io-client";
 import { getMessages } from "@/utils/api/chatApi";
 // import { getAllUser } from "@/utils/api/usersApi";
 
-const baseURL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
+// const baseURL = import.meta.env.MODE === "development" ? "http://localhost:5000" : "/";
 
-const socket = io(baseURL, {
-	autoConnect: false, // only connect if user is authenticated
-	withCredentials: true,
-});
+// const socket = io(baseURL, {
+// 	autoConnect: false, // only connect if user is authenticated
+// 	withCredentials: true,
+// });
+
 
 interface ChatStore {
 	isLoading: boolean;
 	error: string | null;
 	status: number;
-	
+
 	socket: any;
 	isConnected: boolean;
 	onlineUsers: Set<string>;
@@ -35,7 +36,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 	users: [],
 	isLoading: false,
 	error: null,
-	socket: socket,
+	socket: null,
 	isConnected: false,
 	onlineUsers: new Set(),
 	userActivities: new Map(),
@@ -48,60 +49,83 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	initSocket: (userId) => {
 		if (!get().isConnected) {
-			socket.auth = { userId };
-			socket.connect();
+			const baseURL = import.meta.env.MODE === "development" ? "ws://localhost:8001" : "wss://your-production-url";
+			const socket = new WebSocket(`${baseURL}/ws/chat/${userId}/`);
+			set({ socket: socket })
+			socket.onopen = () => {
+				set({ isConnected: true, socket });
+				console.log("WebSocket connected");
+			};
 
-			socket.emit("user_connected", userId);
+			socket.onmessage = (event) => {
+				const data = JSON.parse(event.data);
+				console.log("📩 Received event:", data);
 
-			socket.on("users_online", (users: string[]) => {
-				set({ onlineUsers: new Set(users) });
-			});
+				switch (data.type) {
+					case "users_online":
+						set({ onlineUsers: new Set(data.users) });
+						console.log("🟢 Online users updated:", data.users);
+						break;
 
-			socket.on("activities", (activities: [string, string][]) => {
-				set({ userActivities: new Map(activities) });
-			});
+					case "receive_message":
+						console.log("📨 New message:", data);
+						set((state) => ({
+							messages: [...state.messages, data.message],
+						}));
+						break;
 
-			socket.on("user_connected", (userId: string) => {
-				set((state) => ({
-					onlineUsers: new Set([...state.onlineUsers, userId]),
-				}));
-			});
+					case "user_connected":
+						set((state) => ({
+							onlineUsers: new Set([...state.onlineUsers, data.userId]),
+						}));
+						console.log(`✅ ${data.userId} vừa online`);
+						break;
 
-			socket.on("user_disconnected", (userId: string) => {
-				set((state) => {
-					const newOnlineUsers = new Set(state.onlineUsers);
-					newOnlineUsers.delete(userId);
-					return { onlineUsers: newOnlineUsers };
-				});
-			});
+					case "user_disconnected":
+						set((state) => {
+							const newOnlineUsers = new Set(state.onlineUsers);
+							newOnlineUsers.delete(data.userId);
+							return { onlineUsers: newOnlineUsers };
+						});
+						console.log(`❌ ${data.userId} vừa offline`);
+						break;
 
-			socket.on("receive_message", (message: Message) => {
-				set((state) => ({
-					messages: [...state.messages, message],
-				}));
-			});
+					case "activities":
+						set({ userActivities: new Map(data.activities) });
+						console.log(`❌ ${data.userId} vừa offline`);
+						break;
 
-			socket.on("message_sent", (message: Message) => {
-				set((state) => ({
-					messages: [...state.messages, message],
-				}));
-			});
+					case "message_sent":
+						set((state) => ({
+							messages: [...state.messages, data.message],
+						}));
+						console.log(`❌ ${data.userId} vừa offline`);
+						break;
 
-			socket.on("activity_updated", ({ userId, activity }) => {
-				set((state) => {
-					const newActivities = new Map(state.userActivities);
-					newActivities.set(userId, activity);
-					return { userActivities: newActivities };
-				});
-			});
+					case "activity_updated":
+						set((state) => {
+							const newActivities = new Map(state.userActivities);
+							newActivities.set(userId, data.activity);
+							return { userActivities: newActivities };
+						});
+						console.log(`❌ ${data.userId} vừa offline`);
+						break;
 
-			set({ isConnected: true });
+					default:
+						console.warn("⚠️ Không nhận diện được event type:", data.type);
+				}
+			};
+
+			socket.onclose = () => {
+				set({ isConnected: false, socket: null });
+				console.log("WebSocket disconnected");
+			};
 		}
 	},
 
 	disconnectSocket: () => {
 		if (get().isConnected) {
-			socket.disconnect();
+			get().socket.disconnect();
 			set({ isConnected: false });
 		}
 	},
@@ -118,11 +142,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 		try {
 			const response = await getMessages(currentUserId, opponentId);
-			const {messages} = response.data;
+			const { messages } = response.data;
 
 			return messages;
 		} catch (error: any) {
-			console.log(error)
+			console.error(error)
 			const { message } = error.response.data;
 			set({ error: message });
 
@@ -135,7 +159,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	reset: () => {
 		set({
-			socket: socket,
+			socket: null,
 			isConnected: false,
 			onlineUsers: new Set(),
 			userActivities: new Map(),

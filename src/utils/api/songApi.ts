@@ -8,7 +8,7 @@ export const uploadSong = async (
     userId: string,
     formData: FormData
 ): Promise<any> => {
-    return await axiosInstance.put(`/api/songs/upload-song/${userId}/`, formData, {
+    return await axiosInstance.post(`/api/songs/upload-song/${userId}/`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },

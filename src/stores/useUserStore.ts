@@ -65,13 +65,14 @@ export const useUserStore = create<UserStore>()(
                     const { users } = response.data;
 
                     set({ users: users });
+                    return users;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ users: [], error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -86,12 +87,12 @@ export const useUserStore = create<UserStore>()(
 
                     return users;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ users: [], error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -105,13 +106,14 @@ export const useUserStore = create<UserStore>()(
                     const { user } = response.data;
 
                     set({ user: user });
+                    return user;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -126,13 +128,14 @@ export const useUserStore = create<UserStore>()(
 
                     useAuthStore.getState().setUserAuth(user);
                     toast.success(message);
+                    return user;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -145,15 +148,14 @@ export const useUserStore = create<UserStore>()(
                     const response = await getSuggestedUsers(userId);
                     const { users } = response.data;
 
-                    // set({ users: users });
                     return users;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -167,13 +169,14 @@ export const useUserStore = create<UserStore>()(
                     const { message } = response.data;
 
                     toast.success(message);
+                    return true;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -194,12 +197,12 @@ export const useUserStore = create<UserStore>()(
                     toast.success(message);
                     return user;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -213,13 +216,14 @@ export const useUserStore = create<UserStore>()(
                     const { message } = response.data;
 
                     toast.success(message);
+                    return true;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ user: null, error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -233,13 +237,14 @@ export const useUserStore = create<UserStore>()(
                     const { message } = response.data;
 
                     toast.success(message);
+                    return true;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -253,13 +258,14 @@ export const useUserStore = create<UserStore>()(
                     const { message } = response.data;
 
                     toast.success(message);
+                    return true;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -274,12 +280,12 @@ export const useUserStore = create<UserStore>()(
 
                     return users;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -294,12 +300,12 @@ export const useUserStore = create<UserStore>()(
 
                     return artistApplications;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ users: [], error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -313,13 +319,14 @@ export const useUserStore = create<UserStore>()(
                     const { message } = response.data;
 
                     toast.success(message);
+                    return true;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ users: [], error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }

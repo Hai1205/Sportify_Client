@@ -18,7 +18,7 @@ import AdminDashboardPage from "./pages/admin/adminDashboard/AdminDashboardPage"
 import AdminLayout from "./layout/AdminLayout";
 import AlbumManagementPage from "./pages/admin/albumManagement/AlbumManagementPage";
 import ArtistApplicationManagementPage from "./pages/admin/artistApplicationManagement/ArtistApplicationManagementPage";
-import ArtistManagementPage from "./pages/admin/artistManagement/ArtistManagementPage";
+// import ArtistManagementPage from "./pages/admin/artistManagement/ArtistManagementPage";
 import SongManagementPage from "./pages/admin/songManagement/SongManagementPage";
 import UserManagementPage from "./pages/admin/userManagement/UserManagementPage";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
@@ -95,10 +95,10 @@ function App() {
 
             <Route path="search" element={<SearchResult />} />
 
-            <Route
+            {/* <Route
               path="artist-management"
               element={<ArtistManagementPage />}
-            />
+            /> */}
 
             <Route path="song-management" element={<SongManagementPage />} />
 

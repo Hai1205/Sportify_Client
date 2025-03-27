@@ -21,9 +21,9 @@ interface StatStore {
     songs: Song[];
     users: User[];
 
-    getGeneralStat: () => Promise<void>;
-    getPopularSongsStat: () => Promise<void>;
-    getTopArtistsStat: () => Promise<void>;
+    getGeneralStat: () => Promise<any>;
+    getPopularSongsStat: () => Promise<any>;
+    getTopArtistsStat: () => Promise<any>;
     reset: () => void;
 }
 
@@ -51,13 +51,14 @@ export const useStatStore = create<StatStore>()(
                     const { generalStat } = response.data;
 
                     set({ generalStat: generalStat });
+                    return generalStat;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -68,16 +69,17 @@ export const useStatStore = create<StatStore>()(
 
                 try {
                     const response = await getPopularSongsStat();
-                    const {songs} = response.data;
+                    const { songs } = response.data;
 
                     set({ songs: songs });
+                    return songs;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }
@@ -88,16 +90,17 @@ export const useStatStore = create<StatStore>()(
 
                 try {
                     const response = await getTopArtistsStat();
-                    const {users} = response.data;
+                    const { users } = response.data;
 
                     set({ users: users });
+                    return users;
                 } catch (error: any) {
-                    console.log(error)
+                    console.error(error)
                     const { message } = error.response.data;
                     set({ error: message });
 
                     toast.error(message);
-                    return message;
+                    return false;
                 } finally {
                     set({ isLoading: false });
                 }

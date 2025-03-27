@@ -11,7 +11,7 @@ export function PopularSongs() {
     getPopularSongsStat();
   }, [getPopularSongsStat]);
   return (
-    <ScrollArea className="h-[300px] pr-4">
+    <ScrollArea className="h-[290px] pr-4">
       <div className="space-y-4">
         {songs.map((song) => (
           <div

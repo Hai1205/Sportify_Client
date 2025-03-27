@@ -48,6 +48,8 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import { FileState, Song } from "@/utils/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import formatTime from "@/utils/service/formatTime";
+import { SongsEmptyState } from "@/layout/components/EmptyState";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function SongManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -164,12 +166,15 @@ export default function SongManagementPage() {
     formData.append("title", newSong.title);
     formData.append("lyrics", newSong.lyrics);
     formData.append("genre", newSong.genre);
-    formData.append("releaseDate", newSong.releaseDate.toISOString().split("T")[0]);
-    
+    formData.append(
+      "releaseDate",
+      newSong.releaseDate.toISOString().split("T")[0]
+    );
+
     if (file.thumbnail) {
       formData.append("thumbnail", file.thumbnail);
     }
-    
+
     uploadSong(userAuth.id, formData);
 
     setNewSong({
@@ -191,16 +196,19 @@ export default function SongManagementPage() {
     formData.append("title", newSong.title);
     formData.append("lyrics", newSong.lyrics);
     formData.append("genre", newSong.genre);
-    formData.append("releaseDate", newSong.releaseDate.toISOString().split("T")[0]);
-    
+    formData.append(
+      "releaseDate",
+      newSong.releaseDate.toISOString().split("T")[0]
+    );
+
     if (file.thumbnail) {
       formData.append("thumbnail", file.thumbnail);
     }
-    
+
     if (file.audio) {
       formData.append("audio", file.audio);
     }
-    
+
     if (newSong.albumId) {
       formData.append("albumId", newSong.albumId);
     }
@@ -337,7 +345,7 @@ export default function SongManagementPage() {
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle>Song Library</CardTitle>
+                <CardTitle>Song Management</CardTitle>
 
                 <div className="flex items-center gap-2">
                   <form
@@ -354,194 +362,171 @@ export default function SongManagementPage() {
                       />
                     </div>
                   </form>
-
-                  {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 gap-1">
-                        <Filter className="h-4 w-4" />
-                        Filter
-                      </Button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent align="end" className="w-[200px]">
-                      <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuItem>
-                        <Checkbox id="artist-filter" className="mr-2" />
-
-                        <label htmlFor="artist-filter">Artist</label>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem>
-                        <Checkbox id="album-filter" className="mr-2" />
-
-                        <label htmlFor="album-filter">Album</label>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem>
-                        <Checkbox id="release-filter" className="mr-2" />
-
-                        <label htmlFor="release-filter">Release Date</label>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem>
-                        <Checkbox id="explicit-filter" className="mr-2" />
-
-                        <label htmlFor="explicit-filter">Explicit</label>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu> */}
                 </div>
               </div>
             </CardHeader>
 
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[40px]">
-                      <Checkbox
-                        checked={selectedSongs.length === songs.length}
-                        onCheckedChange={toggleAllSongs}
-                      />
-                    </TableHead>
-
-                    <TableHead className="w-[40px]"></TableHead>
-
-                    <TableHead>Title</TableHead>
-
-                    <TableHead>Artist</TableHead>
-
-                    <TableHead>Album</TableHead>
-
-                    <TableHead>Duration</TableHead>
-
-                    <TableHead>Views</TableHead>
-
-                    <TableHead>Release Date</TableHead>
-
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {songs.map((song) => (
-                    <TableRow key={song.id}>
-                      <TableCell>
+            <ScrollArea className="h-[calc(100vh-340px)] w-full rounded-xl">
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[40px]">
                         <Checkbox
-                          checked={selectedSongs.includes(song.id)}
-                          onCheckedChange={() => toggleSongSelection(song.id)}
+                          checked={selectedSongs.length === songs.length}
+                          onCheckedChange={toggleAllSongs}
                         />
-                      </TableCell>
+                      </TableHead>
 
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-full"
-                          onClick={() => togglePlaySong(song.id)}
-                        >
-                          {playingSong === song.id ? (
-                            <Pause className="h-4 w-4" />
-                          ) : (
-                            <Play className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </TableCell>
+                      <TableHead className="w-[40px]"></TableHead>
 
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9 rounded-md">
-                            <AvatarImage
-                              src={song.thumbnailUrl}
-                              alt={song.title}
+                      <TableHead>Title</TableHead>
+
+                      <TableHead>Artist</TableHead>
+
+                      <TableHead>Album</TableHead>
+
+                      <TableHead>Duration</TableHead>
+
+                      <TableHead>Views</TableHead>
+
+                      <TableHead>Release Date</TableHead>
+
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {songs.length > 0 ? (
+                      songs.map((song) => (
+                        <TableRow key={song.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedSongs.includes(song.id)}
+                              onCheckedChange={() =>
+                                toggleSongSelection(song.id)
+                              }
                             />
+                          </TableCell>
 
-                            <AvatarFallback>
-                              <Music className="h-4 w-4" />
-                            </AvatarFallback>
-                          </Avatar>
-
-                          <div className="flex flex-col">
-                            <span className="font-medium">{song.title}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-
-                      <TableCell>{song.user.fullName}</TableCell>
-
-                      <TableCell>{song.album?.title}</TableCell>
-
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-
-                          <span>{formatTime(song.duration)}</span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell>{song.views}</TableCell>
-
-                      <TableCell>{song.releaseDate}</TableCell>
-
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
+                          <TableCell>
                             <Button
                               variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
+                              size="icon"
+                              className="h-8 w-8 rounded-full"
+                              onClick={() => togglePlaySong(song.id)}
                             >
-                              <MoreHorizontal className="h-4 w-4" />
-
-                              <span className="sr-only">Open menu</span>
+                              {playingSong === song.id ? (
+                                <Pause className="h-4 w-4" />
+                              ) : (
+                                <Play className="h-4 w-4" />
+                              )}
                             </Button>
-                          </DropdownMenuTrigger>
+                          </TableCell>
 
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-9 w-9 rounded-md">
+                                <AvatarImage
+                                  src={song.thumbnailUrl}
+                                  alt={song.title}
+                                />
 
-                            <DropdownMenuItem
-                              onClick={() => handleViewDetails(song)}
-                            >
-                              View details
-                            </DropdownMenuItem>
+                                <AvatarFallback>
+                                  <Music className="h-4 w-4" />
+                                </AvatarFallback>
+                              </Avatar>
 
-                            <DropdownMenuItem onClick={() => handleEditSong()}>
-                              Edit song
-                            </DropdownMenuItem>
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {song.title}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
 
-                            <DropdownMenuItem
-                              onClick={() => handleAddToAlbum(song)}
-                            >
-                              Add to album
-                            </DropdownMenuItem>
+                          <TableCell>{song.user.fullName}</TableCell>
 
-                            <DropdownMenuItem
-                              onClick={() => handleDownloadSong(song)}
-                            >
-                              Download
-                            </DropdownMenuItem>
+                          <TableCell>{song.album?.title}</TableCell>
 
-                            <DropdownMenuSeparator />
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-3 w-3 text-muted-foreground" />
 
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash
-                                onClick={() => handleDeleteSong(song)}
-                                className="mr-2 h-4 w-4"
-                              />{" "}
-                              Delete song
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
+                              <span>{formatTime(song.duration)}</span>
+                            </div>
+                          </TableCell>
+
+                          <TableCell>{song.views}</TableCell>
+
+                          <TableCell>{song.releaseDate}</TableCell>
+
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+
+                                  <span className="sr-only">Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleViewDetails(song)}
+                                >
+                                  View details
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleEditSong()}
+                                >
+                                  Edit song
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleAddToAlbum(song)}
+                                >
+                                  Add to album
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                  onClick={() => handleDownloadSong(song)}
+                                >
+                                  Download
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem className="text-red-600">
+                                  <Trash
+                                    onClick={() => handleDeleteSong(song)}
+                                    className="mr-2 h-4 w-4"
+                                  />{" "}
+                                  Delete song
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={9}>
+                          <SongsEmptyState message="No songs have been added yet. Upload a song to get started." />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </ScrollArea>
           </Card>
         </TabsContent>
       </Tabs>

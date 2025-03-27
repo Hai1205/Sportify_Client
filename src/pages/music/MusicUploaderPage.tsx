@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import { useState } from "react";
 import {
@@ -28,25 +30,105 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useMusicStore } from "@/stores/useMusicStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
-export default function MusicUploadPage() {
-  const [songTitle, setSongTitle] = useState("");
+export default function MusicUploaderPage() {
+  const [songData, setSongData] = useState({
+    title: "",
+    lyrics: "",
+    genre: "",
+  });
   const [songThumbnail, setSongThumbnail] = useState<File | null>(null);
   const [songVideo, setSongVideo] = useState<File | null>(null);
   const [songAudio, setSongAudio] = useState<File | null>(null);
-  const [songLyrics, setSongLyrics] = useState("");
-  const [songGenre, setSongGenre] = useState("");
 
-  const [albumTitle, setAlbumTitle] = useState("");
+  const [albumData, setAlbumData] = useState({
+    title: "",
+    genre: "",
+  });
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
-  const [albumGenre, setAlbumGenre] = useState("");
+
+  const updateAlbumData = (field: keyof typeof albumData, value: any) => {
+    setAlbumData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateSongData = (field: keyof typeof songData, value: any) => {
+    setSongData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const { isLoading, error, uploadSong, uploadAlbum } = useMusicStore();
+
+  const { user: userAuth } = useAuthStore();
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     setFile: React.Dispatch<React.SetStateAction<File | null>>
   ) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    const files = e.target.files;
+
+    if (files && files[0]) {
+      setFile(files[0]);
+    }
+  };
+
+  const handleUploadAlbum = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!userAuth) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", albumData.title);
+    if (albumThumbnail) {
+      formData.append("thumbnail", albumThumbnail);
+    }
+    formData.append("genre", albumData.genre);
+
+    await uploadAlbum(userAuth?.id, formData);
+
+    if (!error) {
+      setAlbumData({
+        title: "",  
+        genre: "",
+      });
+      setAlbumThumbnail(null);
+    }
+  };
+
+  const handleUploadSong = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!userAuth) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", songData.title);
+    if (songThumbnail) {
+      formData.append("thumbnail", songThumbnail);
+    }
+    if (songVideo) {
+      formData.append("video", songVideo);
+    }
+    if (songAudio) {
+      formData.append("audio", songAudio);
+    }
+    formData.append("lyrics", songData.lyrics);
+    formData.append("genre", songData.genre);
+
+    await uploadSong(userAuth?.id, formData);
+
+    if (!error) {
+      setSongData({
+        title: "",
+        lyrics: "",
+        genre: "",
+      });
+      setSongThumbnail(null);
+      setSongVideo(null);
+      setSongAudio(null);
     }
   };
 
@@ -80,29 +162,31 @@ export default function MusicUploadPage() {
                   <CardTitle className="text-[#1DB954]">
                     Upload a New Song
                   </CardTitle>
-                
+
                   <CardDescription className="text-gray-400">
                     Fill in the details to upload your song
                   </CardDescription>
                 </CardHeader>
-              
+
                 <CardContent>
-                  <form className="space-y-6">
+                  <form onSubmit={handleUploadSong} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="song-title">Title</Label>
-                     
+
                       <Input
                         id="song-title"
                         placeholder="Enter song title"
-                        value={songTitle}
-                        onChange={(e) => setSongTitle(e.target.value)}
+                        value={songData.title}
+                        onChange={(e) =>
+                          updateSongData("title", e.target.value)
+                        }
                         className="bg-[#333333] border-[#444444] focus-visible:ring-[#1DB954]"
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="song-thumbnail">Thumbnail</Label>
-                    
+
                       <div className="flex items-center gap-4">
                         <div className="w-24 h-24 bg-[#333333] rounded-md flex items-center justify-center">
                           {songThumbnail ? (
@@ -111,14 +195,14 @@ export default function MusicUploadPage() {
                                 URL.createObjectURL(songThumbnail) ||
                                 "/placeholder.svg"
                               }
-                              alt="Thumbnail preview"
+                              alt="Album cover preview"
                               className="w-full h-full object-cover rounded-md"
                             />
                           ) : (
                             <Image className="w-8 h-8 text-gray-400" />
                           )}
                         </div>
-                      
+
                         <div className="flex-1">
                           <Input
                             id="song-thumbnail"
@@ -135,14 +219,14 @@ export default function MusicUploadPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="song-video">Video (Optional)</Label>
-                    
+
                       <div className="flex items-center gap-2">
                         {songVideo && (
                           <span className="text-sm text-gray-400 truncate max-w-[200px]">
                             {songVideo.name}
                           </span>
                         )}
-                       
+
                         <Button
                           type="button"
                           variant="outline"
@@ -154,7 +238,7 @@ export default function MusicUploadPage() {
                           <Video className="mr-2 h-4 w-4" />
                           {songVideo ? "Change Video" : "Upload Video"}
                         </Button>
-                     
+
                         <Input
                           id="song-video"
                           type="file"
@@ -167,14 +251,14 @@ export default function MusicUploadPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="song-audio">Audio File</Label>
-                     
+
                       <div className="flex items-center gap-2">
                         {songAudio && (
                           <span className="text-sm text-gray-400 truncate max-w-[200px]">
                             {songAudio.name}
                           </span>
                         )}
-                      
+
                         <Button
                           type="button"
                           variant="outline"
@@ -186,26 +270,27 @@ export default function MusicUploadPage() {
                           <FileAudio className="mr-2 h-4 w-4" />
                           {songAudio ? "Change Audio" : "Upload Audio"}
                         </Button>
-                   
+
                         <Input
                           id="song-audio"
                           type="file"
                           accept="audio/*"
                           onChange={(e) => handleFileChange(e, setSongAudio)}
-                          className="hidden"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="song-lyrics">Lyrics</Label>
-                     
+
                       <ScrollArea className="h-40 rounded-md border border-[#444444] bg-[#333333] p-4">
                         <Textarea
                           id="song-lyrics"
                           placeholder="Enter song lyrics"
-                          value={songLyrics}
-                          onChange={(e) => setSongLyrics(e.target.value)}
+                          value={songData.lyrics}
+                          onChange={(e) =>
+                            updateSongData("lyrics", e.target.value)
+                          }
                           className="bg-transparent border-0 focus-visible:ring-0 resize-none h-48"
                         />
                       </ScrollArea>
@@ -213,29 +298,34 @@ export default function MusicUploadPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="song-genre">Genre</Label>
-                    
-                      <Select value={songGenre} onValueChange={setSongGenre}>
+
+                      <Select
+                        value={songData.genre}
+                        onValueChange={(value) =>
+                          updateSongData("genre", value)
+                        }
+                      >
                         <SelectTrigger className="bg-[#333333] border-[#444444] focus:ring-[#1DB954]">
                           <SelectValue placeholder="Select genre" />
                         </SelectTrigger>
-                 
+
                         <SelectContent className="bg-[#333333] border-[#444444]">
                           <SelectItem value="pop">Pop</SelectItem>
-                        
+
                           <SelectItem value="rock">Rock</SelectItem>
-                        
+
                           <SelectItem value="hiphop">Hip Hop</SelectItem>
-                        
+
                           <SelectItem value="rnb">R&B</SelectItem>
-                        
+
                           <SelectItem value="electronic">Electronic</SelectItem>
-                        
+
                           <SelectItem value="jazz">Jazz</SelectItem>
-                        
+
                           <SelectItem value="classical">Classical</SelectItem>
-                        
+
                           <SelectItem value="country">Country</SelectItem>
-                        
+
                           <SelectItem value="folk">Folk</SelectItem>
                         </SelectContent>
                       </Select>
@@ -244,9 +334,19 @@ export default function MusicUploadPage() {
                     <Button
                       type="submit"
                       className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                      disabled={isLoading}
                     >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Song
+                      {isLoading ? (
+                        <>
+                          <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload Song
+                        </>
+                      )}
                     </Button>
                   </form>
                 </CardContent>
@@ -261,29 +361,31 @@ export default function MusicUploadPage() {
                   <CardTitle className="text-[#1DB954]">
                     Upload a New Album
                   </CardTitle>
-                  
+
                   <CardDescription className="text-gray-400">
                     Fill in the details to create your album
                   </CardDescription>
                 </CardHeader>
-                
+
                 <CardContent>
-                  <form className="space-y-6">
+                  <form onSubmit={handleUploadAlbum} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="album-title">Title</Label>
-                      
+
                       <Input
                         id="album-title"
                         placeholder="Enter album title"
-                        value={albumTitle}
-                        onChange={(e) => setAlbumTitle(e.target.value)}
+                        value={albumData.title}
+                        onChange={(e) =>
+                          updateAlbumData("title", e.target.value)
+                        }
                         className="bg-[#333333] border-[#444444] focus-visible:ring-[#1DB954]"
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="album-thumbnail">Thumbnail</Label>
-                    
+
                       <div className="flex items-center gap-4">
                         <div className="w-32 h-32 bg-[#333333] rounded-md flex items-center justify-center">
                           {albumThumbnail ? (
@@ -299,12 +401,15 @@ export default function MusicUploadPage() {
                             <AlbumIcon className="w-12 h-12 text-gray-400" />
                           )}
                         </div>
-                   
+
                         <div className="flex-1">
                           <Input
                             id="album-thumbnail"
                             type="file"
                             accept="image/*"
+                            // onChange={(e) =>
+                            //   handleFileChange(e, "albumThumbnail")
+                            // }
                             onChange={(e) =>
                               handleFileChange(e, setAlbumThumbnail)
                             }
@@ -316,29 +421,34 @@ export default function MusicUploadPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="album-genre">Genre</Label>
-                     
-                      <Select value={albumGenre} onValueChange={setAlbumGenre}>
+
+                      <Select
+                        value={albumData.genre}
+                        onValueChange={(value) =>
+                          updateAlbumData("genre", value)
+                        }
+                      >
                         <SelectTrigger className="bg-[#333333] border-[#444444] focus:ring-[#1DB954]">
                           <SelectValue placeholder="Select genre" />
                         </SelectTrigger>
-                      
+
                         <SelectContent className="bg-[#333333] border-[#444444]">
                           <SelectItem value="pop">Pop</SelectItem>
-                    
+
                           <SelectItem value="rock">Rock</SelectItem>
-                    
+
                           <SelectItem value="hiphop">Hip Hop</SelectItem>
-                    
+
                           <SelectItem value="rnb">R&B</SelectItem>
-                    
+
                           <SelectItem value="electronic">Electronic</SelectItem>
-                    
+
                           <SelectItem value="jazz">Jazz</SelectItem>
-                    
+
                           <SelectItem value="classical">Classical</SelectItem>
-                    
+
                           <SelectItem value="country">Country</SelectItem>
-                    
+
                           <SelectItem value="folk">Folk</SelectItem>
                         </SelectContent>
                       </Select>
@@ -347,9 +457,19 @@ export default function MusicUploadPage() {
                     <Button
                       type="submit"
                       className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                      disabled={isLoading}
                     >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Create Album
+                      {isLoading ? (
+                        <>
+                          <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Create Album
+                        </>
+                      )}
                     </Button>
                   </form>
                 </CardContent>

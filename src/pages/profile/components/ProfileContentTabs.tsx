@@ -1,16 +1,12 @@
 import ProfileAlbumsList from "./ProfileAlbumList";
 import ProfileSongsList from "./ProfileSongList";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ContentTabsProps {
   activeTab: "albums" | "songs";
   setActiveTab: (tab: "albums" | "songs") => void;
 }
 
-const ProfileContentTabs = ({
-  setActiveTab,
-  activeTab,
-}: ContentTabsProps) => {
+const ProfileContentTabs = ({ setActiveTab, activeTab }: ContentTabsProps) => {
   return (
     <div className="container mx-auto px-4 py-6 flex flex-col h-[calc(100vh-370px)]">
       <div className="flex border-b border-gray-800 mb-6">
@@ -35,14 +31,7 @@ const ProfileContentTabs = ({
           Songs
         </button>
       </div>
-
-      <ScrollArea className="flex-1 h-full">
-        {activeTab === "albums" ? (
-          <ProfileAlbumsList />
-        ) : (
-          <ProfileSongsList />
-        )}
-      </ScrollArea>
+      {activeTab === "albums" ? <ProfileAlbumsList /> : <ProfileSongsList />}
     </div>
   );
 };

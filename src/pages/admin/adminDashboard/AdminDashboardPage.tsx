@@ -41,9 +41,7 @@ export default function AdminDashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Albums
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Albums</CardTitle>
 
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -79,10 +77,6 @@ export default function AdminDashboardPage() {
 
           <CardContent>
             <div className="text-2xl font-bold">{generalStat.totalSongs}</div>
-
-            {/* <p className="text-xs text-muted-foreground">
-              +24.3% from last month
-            </p> */}
           </CardContent>
         </Card>
 
@@ -95,10 +89,6 @@ export default function AdminDashboardPage() {
 
           <CardContent>
             <div className="text-2xl font-bold">{generalStat.totalArtists}</div>
-
-            {/* <p className="text-xs text-muted-foreground">
-              +10.1% from last month
-            </p> */}
           </CardContent>
         </Card>
       </div>
@@ -139,4 +129,3 @@ export default function AdminDashboardPage() {
     </>
   );
 }
-
