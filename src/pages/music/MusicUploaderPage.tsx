@@ -23,13 +23,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -37,7 +30,6 @@ export default function MusicUploaderPage() {
   const [songData, setSongData] = useState({
     title: "",
     lyrics: "",
-    genre: "",
   });
   const [songThumbnail, setSongThumbnail] = useState<File | null>(null);
   const [songVideo, setSongVideo] = useState<File | null>(null);
@@ -45,7 +37,6 @@ export default function MusicUploaderPage() {
 
   const [albumData, setAlbumData] = useState({
     title: "",
-    genre: "",
   });
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
 
@@ -84,14 +75,12 @@ export default function MusicUploaderPage() {
     if (albumThumbnail) {
       formData.append("thumbnail", albumThumbnail);
     }
-    formData.append("genre", albumData.genre);
 
     await uploadAlbum(userAuth?.id, formData);
 
     if (!error) {
       setAlbumData({
         title: "",  
-        genre: "",
       });
       setAlbumThumbnail(null);
     }
@@ -116,7 +105,6 @@ export default function MusicUploaderPage() {
       formData.append("audio", songAudio);
     }
     formData.append("lyrics", songData.lyrics);
-    formData.append("genre", songData.genre);
 
     await uploadSong(userAuth?.id, formData);
 
@@ -124,7 +112,6 @@ export default function MusicUploaderPage() {
       setSongData({
         title: "",
         lyrics: "",
-        genre: "",
       });
       setSongThumbnail(null);
       setSongVideo(null);
@@ -296,41 +283,6 @@ export default function MusicUploaderPage() {
                       </ScrollArea>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="song-genre">Genre</Label>
-
-                      <Select
-                        value={songData.genre}
-                        onValueChange={(value) =>
-                          updateSongData("genre", value)
-                        }
-                      >
-                        <SelectTrigger className="bg-[#333333] border-[#444444] focus:ring-[#1DB954]">
-                          <SelectValue placeholder="Select genre" />
-                        </SelectTrigger>
-
-                        <SelectContent className="bg-[#333333] border-[#444444]">
-                          <SelectItem value="pop">Pop</SelectItem>
-
-                          <SelectItem value="rock">Rock</SelectItem>
-
-                          <SelectItem value="hiphop">Hip Hop</SelectItem>
-
-                          <SelectItem value="rnb">R&B</SelectItem>
-
-                          <SelectItem value="electronic">Electronic</SelectItem>
-
-                          <SelectItem value="jazz">Jazz</SelectItem>
-
-                          <SelectItem value="classical">Classical</SelectItem>
-
-                          <SelectItem value="country">Country</SelectItem>
-
-                          <SelectItem value="folk">Folk</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
                     <Button
                       type="submit"
                       className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-white"
@@ -417,41 +369,6 @@ export default function MusicUploaderPage() {
                           />
                         </div>
                       </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="album-genre">Genre</Label>
-
-                      <Select
-                        value={albumData.genre}
-                        onValueChange={(value) =>
-                          updateAlbumData("genre", value)
-                        }
-                      >
-                        <SelectTrigger className="bg-[#333333] border-[#444444] focus:ring-[#1DB954]">
-                          <SelectValue placeholder="Select genre" />
-                        </SelectTrigger>
-
-                        <SelectContent className="bg-[#333333] border-[#444444]">
-                          <SelectItem value="pop">Pop</SelectItem>
-
-                          <SelectItem value="rock">Rock</SelectItem>
-
-                          <SelectItem value="hiphop">Hip Hop</SelectItem>
-
-                          <SelectItem value="rnb">R&B</SelectItem>
-
-                          <SelectItem value="electronic">Electronic</SelectItem>
-
-                          <SelectItem value="jazz">Jazz</SelectItem>
-
-                          <SelectItem value="classical">Classical</SelectItem>
-
-                          <SelectItem value="country">Country</SelectItem>
-
-                          <SelectItem value="folk">Folk</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
 
                     <Button

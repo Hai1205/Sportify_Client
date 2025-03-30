@@ -3,13 +3,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -27,8 +20,6 @@ interface EditAlbumDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedAlbum: Album | null;
   albumSongs: Song[];
-  availableGenres: string[];
-  // handleAddSong: () => void;
   handleEditSong: (song: Song) => void;
   handleRemoveSongFromAlbum: (songId: string) => void;
 }
@@ -38,8 +29,6 @@ const EditAlbumDialog = ({
   onOpenChange,
   selectedAlbum,
   albumSongs,
-  availableGenres,
-  // handleAddSong,
   handleEditSong,
   handleRemoveSongFromAlbum,
 }: EditAlbumDialogProps) => {
@@ -80,6 +69,7 @@ const EditAlbumDialog = ({
                 >
                   Edit Album
                 </Dialog.Title>
+             
                 <div className="mt-2">
                   <p className="text-sm text-gray-400">
                     {selectedAlbum
@@ -100,6 +90,7 @@ const EditAlbumDialog = ({
                             alt={selectedAlbum.title}
                             className="object-cover w-full h-full"
                           />
+                         
                           <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
                             <Button
                               variant="secondary"
@@ -110,16 +101,19 @@ const EditAlbumDialog = ({
                             </Button>
                           </div>
                         </div>
+                     
                         <label
                           htmlFor="album-cover"
                           className="flex flex-col items-center justify-center w-full h-12 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer bg-[#282828] hover:bg-[#333333] transition-colors"
                         >
                           <div className="flex items-center justify-center">
                             <Upload className="w-4 h-4 mr-2 text-gray-400" />
+                         
                             <p className="text-sm text-gray-400">
                               Upload New Cover
                             </p>
                           </div>
+                         
                           <Input
                             id="album-cover"
                             type="file"
@@ -127,6 +121,7 @@ const EditAlbumDialog = ({
                           />
                         </label>
                       </div>
+                    
                       <div className="flex flex-col gap-4">
                         <Label
                           htmlFor="edit-album-title"
@@ -134,6 +129,7 @@ const EditAlbumDialog = ({
                         >
                           Album Title
                         </Label>
+                       
                         <Input
                           id="edit-album-title"
                           defaultValue={selectedAlbum.title}
@@ -146,6 +142,7 @@ const EditAlbumDialog = ({
                         >
                           Release Date
                         </Label>
+                      
                         <Input
                           id="edit-album-release-date"
                           type="date"
@@ -159,38 +156,13 @@ const EditAlbumDialog = ({
                         >
                           Record Label
                         </Label>
+                     
                         <Input
                           id="edit-album-record-label"
                           placeholder="Enter record label"
                           defaultValue="Republic Records"
                           className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
                         />
-
-                        <Label
-                          htmlFor="edit-album-genre"
-                          className="text-white"
-                        >
-                          Primary Genre
-                        </Label>
-                        <Select defaultValue="pop">
-                          <SelectTrigger
-                            id="edit-album-genre"
-                            className="bg-[#282828] text-white border-gray-700"
-                          >
-                            <SelectValue placeholder="Select genre" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#282828] border-gray-700">
-                            {availableGenres.slice(0, 15).map((genre) => (
-                              <SelectItem
-                                key={genre}
-                                value={genre.toLowerCase()}
-                                className="text-white hover:bg-[#1DB954] hover:text-white"
-                              >
-                                {genre}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                       </div>
                     </div>
 
@@ -199,31 +171,28 @@ const EditAlbumDialog = ({
                     <div>
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-white">
-                          Album Tracks
+                          Album Songs
                         </h3>
-                        {/* <Button
-                          size="sm"
-                          className="gap-1 bg-[#1DB954] text-white hover:bg-[#1ed760]"
-                          onClick={handleAddSong}
-                        >
-                          <Plus className="h-4 w-4" /> Add Track
-                        </Button> */}
                       </div>
                       <Table>
                         <TableHeader>
                           <TableRow className="border-gray-700">
                             <TableHead className="text-white">Title</TableHead>
+                            
                             <TableHead className="text-white">
                               Duration
                             </TableHead>
+                           
                             <TableHead className="text-white">
-                              Track #
+                              Song #
                             </TableHead>
+                           
                             <TableHead className="text-right text-white">
                               Actions
                             </TableHead>
                           </TableRow>
                         </TableHeader>
+                       
                         <TableBody>
                           {albumSongs.length > 0 ? (
                             albumSongs.map((song) => (
@@ -236,9 +205,11 @@ const EditAlbumDialog = ({
                                     {song.title}
                                   </span>
                                 </TableCell>
+                               
                                 <TableCell className="text-white">
                                   {song.duration}
                                 </TableCell>
+                             
                                 <TableCell className="text-right">
                                   <Button
                                     variant="ghost"
@@ -248,6 +219,7 @@ const EditAlbumDialog = ({
                                   >
                                     <Pencil className="h-4 w-4 text-white" />
                                   </Button>
+                               
                                   <Button
                                     variant="ghost"
                                     size="icon"

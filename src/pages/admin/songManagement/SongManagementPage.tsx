@@ -2,11 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Clock,
-  // Filter,
   MoreHorizontal,
   Music,
-  Pause,
-  Play,
   Plus,
   Search,
   Trash,
@@ -50,21 +47,21 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import formatTime from "@/utils/service/formatTime";
 import { SongsEmptyState } from "@/layout/components/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TableSkeleton } from "@/layout/components/TableSkeleton";
 
 export default function SongManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
+  const queryString = location.search;
 
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
   const [isAddSongOpen, setIsAddSongOpen] = useState(false);
-  const [playingSong, setPlayingSong] = useState<string | null>(null);
 
   const [newSong, setNewSong] = useState({
     title: "",
     albumId: "",
     lyrics: "",
-    genre: "",
     releaseDate: new Date(),
   });
 
@@ -73,8 +70,10 @@ export default function SongManagementPage() {
     audio: null,
   });
 
+  const [songs, setSongs] = useState<Song[] | []>([]);
+
   const {
-    songs,
+    isLoading,
     getAllSong,
     searchSongs,
     uploadSong,
@@ -87,18 +86,26 @@ export default function SongManagementPage() {
   const { user: userAuth } = useAuthStore();
 
   useEffect(() => {
-    getAllSong();
-  }, [getAllSong]);
+    const fetchSongs = async () => {
+      if (queryString) {
+        await searchSongs(queryString).then(setSongs);
+      } else {
+        await getAllSong().then(setSongs);
+      }
+    };
 
-  useEffect(() => {
-    setSearchQuery(query);
-    searchSongs(query);
-  }, [query, searchSongs]);
+    fetchSongs();
+  }, [getAllSong, query, queryString, searchSongs]);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      setSearchParams({ query: searchQuery.trim() });
+
+      if (searchQuery.trim()) {
+        setSearchParams({ query: searchQuery.trim() });
+      } else {
+        setSearchParams();
+      }
     },
     [searchQuery, setSearchParams]
   );
@@ -116,14 +123,6 @@ export default function SongManagementPage() {
       setSelectedSongs([]);
     } else {
       setSelectedSongs(songs.map((song) => song.id));
-    }
-  };
-
-  const togglePlaySong = (songId: string) => {
-    if (playingSong === songId) {
-      setPlayingSong(null);
-    } else {
-      setPlayingSong(songId);
     }
   };
 
@@ -165,7 +164,6 @@ export default function SongManagementPage() {
     const formData = new FormData();
     formData.append("title", newSong.title);
     formData.append("lyrics", newSong.lyrics);
-    formData.append("genre", newSong.genre);
     formData.append(
       "releaseDate",
       newSong.releaseDate.toISOString().split("T")[0]
@@ -181,7 +179,6 @@ export default function SongManagementPage() {
       albumId: "",
       title: "",
       lyrics: "",
-      genre: "",
       releaseDate: new Date(),
     });
     setFile({ thumbnail: null, audio: null });
@@ -195,7 +192,6 @@ export default function SongManagementPage() {
     const formData = new FormData();
     formData.append("title", newSong.title);
     formData.append("lyrics", newSong.lyrics);
-    formData.append("genre", newSong.genre);
     formData.append(
       "releaseDate",
       newSong.releaseDate.toISOString().split("T")[0]
@@ -219,7 +215,6 @@ export default function SongManagementPage() {
       albumId: "",
       title: "",
       lyrics: "",
-      genre: "",
       releaseDate: new Date(),
     });
     setFile({ thumbnail: null, audio: null });
@@ -304,7 +299,7 @@ export default function SongManagementPage() {
                         </p>
 
                         <p className="text-xs text-muted-foreground">
-                          MP3, WAV or FLAC (max. 50MB)
+                          MP3 (max. 50MB)
                         </p>
                       </div>
 
@@ -359,6 +354,8 @@ export default function SongManagementPage() {
                         type="search"
                         placeholder="Search songs..."
                         className="w-full pl-8"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </div>
                   </form>
@@ -371,36 +368,46 @@ export default function SongManagementPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[40px]">
+                      <TableHead className="w-[40px] text-center">
                         <Checkbox
                           checked={selectedSongs.length === songs.length}
                           onCheckedChange={toggleAllSongs}
                         />
                       </TableHead>
 
-                      <TableHead className="w-[40px]"></TableHead>
+                      <TableHead className="w-[40px] text-center">
+                        Thumbnail
+                      </TableHead>
 
-                      <TableHead>Title</TableHead>
+                      <TableHead className="text-center">Title</TableHead>
 
-                      <TableHead>Artist</TableHead>
+                      <TableHead className="text-center">Artist</TableHead>
 
-                      <TableHead>Album</TableHead>
+                      <TableHead className="text-center">Album</TableHead>
 
-                      <TableHead>Duration</TableHead>
+                      <TableHead className="text-center">Duration</TableHead>
 
-                      <TableHead>Views</TableHead>
+                      <TableHead className="text-center">Views</TableHead>
 
-                      <TableHead>Release Date</TableHead>
+                      <TableHead className="text-center">
+                        Release Date
+                      </TableHead>
 
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
 
                   <TableBody>
-                    {songs.length > 0 ? (
+                    {isLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={9}>
+                          <TableSkeleton />
+                        </TableCell>
+                      </TableRow>
+                    ) : songs.length > 0 ? (
                       songs.map((song) => (
                         <TableRow key={song.id}>
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Checkbox
                               checked={selectedSongs.includes(song.id)}
                               onCheckedChange={() =>
@@ -409,110 +416,101 @@ export default function SongManagementPage() {
                             />
                           </TableCell>
 
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 rounded-full"
-                              onClick={() => togglePlaySong(song.id)}
-                            >
-                              {playingSong === song.id ? (
-                                <Pause className="h-4 w-4" />
-                              ) : (
-                                <Play className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </TableCell>
-
-                          <TableCell>
-                            <div className="flex items-center gap-3">
+                          <TableCell className="text-center">
+                            <div className="flex justify-center">
                               <Avatar className="h-9 w-9 rounded-md">
                                 <AvatarImage
                                   src={song.thumbnailUrl}
                                   alt={song.title}
                                 />
-
                                 <AvatarFallback>
                                   <Music className="h-4 w-4" />
                                 </AvatarFallback>
                               </Avatar>
-
-                              <div className="flex flex-col">
-                                <span className="font-medium">
-                                  {song.title}
-                                </span>
-                              </div>
                             </div>
                           </TableCell>
 
-                          <TableCell>{song.user.fullName}</TableCell>
+                          <TableCell className="text-center">
+                            {song.title}
+                          </TableCell>
 
-                          <TableCell>{song.album?.title}</TableCell>
+                          <TableCell className="text-center">
+                            {song.user.fullName}
+                          </TableCell>
 
-                          <TableCell>
-                            <div className="flex items-center gap-2">
+                          <TableCell className="text-center">
+                            {song.album?.title}
+                          </TableCell>
+
+                          <TableCell className="text-center">
+                            <div className="flex items-center justify-center gap-2">
                               <Clock className="h-3 w-3 text-muted-foreground" />
-
                               <span>{formatTime(song.duration)}</span>
                             </div>
                           </TableCell>
 
-                          <TableCell>{song.views}</TableCell>
+                          <TableCell className="text-center">
+                            {song.views}
+                          </TableCell>
 
-                          <TableCell>{song.releaseDate}</TableCell>
+                          <TableCell className="text-center">
+                            {song.releaseDate}
+                          </TableCell>
 
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
+                          <TableCell className="text-center">
+                            <div className="flex justify-center">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
 
-                                  <span className="sr-only">Open menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
+                                    <span className="sr-only">Open menu</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
 
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                                <DropdownMenuItem
-                                  onClick={() => handleViewDetails(song)}
-                                >
-                                  View details
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewDetails(song)}
+                                  >
+                                    View details
+                                  </DropdownMenuItem>
 
-                                <DropdownMenuItem
-                                  onClick={() => handleEditSong()}
-                                >
-                                  Edit song
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditSong()}
+                                  >
+                                    Edit song
+                                  </DropdownMenuItem>
 
-                                <DropdownMenuItem
-                                  onClick={() => handleAddToAlbum(song)}
-                                >
-                                  Add to album
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleAddToAlbum(song)}
+                                  >
+                                    Add to album
+                                  </DropdownMenuItem>
 
-                                <DropdownMenuItem
-                                  onClick={() => handleDownloadSong(song)}
-                                >
-                                  Download
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleDownloadSong(song)}
+                                  >
+                                    Download
+                                  </DropdownMenuItem>
 
-                                <DropdownMenuSeparator />
+                                  <DropdownMenuSeparator />
 
-                                <DropdownMenuItem className="text-red-600">
-                                  <Trash
-                                    onClick={() => handleDeleteSong(song)}
-                                    className="mr-2 h-4 w-4"
-                                  />{" "}
-                                  Delete song
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                                  <DropdownMenuItem className="text-red-600">
+                                    <Trash
+                                      onClick={() => handleDeleteSong(song)}
+                                      className="mr-2 h-4 w-4"
+                                    />{" "}
+                                    Delete song
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))

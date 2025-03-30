@@ -124,8 +124,10 @@ export const useAuthStore = create<AuthStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await checkOTP(email, OTP);
+					const response = await checkOTP(email, OTP);
+					const { message } = response.data;
 
+                    toast.success(message);
 					return true;
 				} catch (error: any) {
 					console.error(error)
@@ -254,8 +256,9 @@ export const useAuthStore = create<AuthStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await forgotPassword(userId, formData);
+					const {message} = await forgotPassword(userId, formData);
 
+					toast.success(message);
 					return true;
 				} catch (error: any) {
 					set({ error: error });

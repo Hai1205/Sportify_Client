@@ -21,9 +21,9 @@ import ArtistApplicationManagementPage from "./pages/admin/artistApplicationMana
 // import ArtistManagementPage from "./pages/admin/artistManagement/ArtistManagementPage";
 import SongManagementPage from "./pages/admin/songManagement/SongManagementPage";
 import UserManagementPage from "./pages/admin/userManagement/UserManagementPage";
-import PrivateRoute from "./pages/auth/components/PrivateRoute";
-import AuthRoute from "./pages/auth/components/AuthRoute";
-import AdminRoute from "./pages/auth/components/AdminRoute";
+import PrivateRoute from "./layout/components/PrivateRoute";
+import AuthRoute from "./layout/components/AuthRoute";
+import AdminRoute from "./layout/components/AdminRoute";
 import ProfilePage from "./pages/profile/ProfilePage";
 import SongDetails from "./pages/music/song/SongDetails";
 import AlbumDetails from "./pages/music/album/AlbumDetails";

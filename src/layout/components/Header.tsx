@@ -25,10 +25,12 @@ export function Header() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (searchQuery.trim()) {
-      const params = new URLSearchParams({ query: searchQuery.trim() }).toString();
-      
+      const params = new URLSearchParams({
+        query: searchQuery.trim(),
+      }).toString();
+
       navigate(`/search?${params}`);
     }
   };
@@ -80,12 +82,11 @@ export function Header() {
                 className="relative h-8 flex items-center gap-2 rounded-full"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={authUser?.avatarUrl}
-                    alt="Avatar"
-                  />
+                  <AvatarImage src={authUser?.avatarUrl} alt="Avatar" />
 
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarFallback>
+                    {authUser?.fullName.substring(0, 2)}
+                  </AvatarFallback>
                 </Avatar>
 
                 <div className="hidden md:block text-sm font-medium">
@@ -98,7 +99,10 @@ export function Header() {
 
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link to={`profile/${authUser?.id}`} className="cursor-pointer">
+                <Link
+                  to={`/profile/${authUser?.id}`}
+                  className="cursor-pointer"
+                >
                   Profile
                 </Link>
               </DropdownMenuItem>

@@ -4,6 +4,7 @@ import { SongsEmptyState } from "../../../layout/components/EmptyState";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Song } from "@/utils/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const ProfileSongsList = () => {
   const { user: userAuth } = useAuthStore();
@@ -22,44 +23,58 @@ const ProfileSongsList = () => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-gray-800 text-left text-gray-400 text-xs">
-            <th className="px-4 py-2 w-12">#</th>
+      <ScrollArea className="flex-1 h-full">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-gray-800 text-gray-400 text-xs">
+              <th className="px-4 py-2 w-12 text-center">#</th>
 
-            <th className="px-4 py-2">Title</th>
+              <th className="px-4 py-2 text-center">Title</th>
 
-            <th className="px-4 py-2">Album</th>
+              <th className="px-4 py-2 text-center">Album</th>
 
-            <th className="px-4 py-2 text-right">
-              <Clock size={16} />
-            </th>
-          </tr>
-        </thead>
+              <th className="px-4 py-2 text-center">Views</th>
 
-        <tbody>
-          {songs.map((song, index) => (
-            <tr
-              key={song.id}
-              className="hover:bg-gray-900/50 group transition-colors"
-            >
-              <td className="px-4 py-3 text-gray-400 group-hover:text-white">
-                <span className="group-hover:hidden">{index + 1}</span>
-
-                <Play size={16} className="hidden group-hover:block" />
-              </td>
-
-              <td className="px-4 py-3 font-medium">{song.title}</td>
-
-              <td className="px-4 py-3 text-gray-400">{song?.album?.title}</td>
-
-              <td className="px-4 py-3 text-gray-400 text-right">
-                {formatTime(song.duration)}
-              </td>
+              <th className="px-4 py-2 text-center">
+                <Clock size={16} className="mx-auto" />
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {songs.map((song, index) => (
+              <tr
+                key={song.id}
+                className="hover:bg-gray-900/50 group transition-colors"
+              >
+                <td className="px-4 py-3 text-gray-400 group-hover:text-white text-center">
+                  <span className="group-hover:hidden">{index + 1}</span>
+                  <Play
+                    size={16}
+                    className="hidden group-hover:block mx-auto"
+                  />
+                </td>
+
+                <td className="px-4 py-3 font-medium text-center">
+                  {song.title}
+                </td>
+
+                <td className="px-4 py-3 text-gray-400 text-center">
+                  {song?.album?.title}
+                </td>
+
+                <td className="px-4 py-3 text-gray-400 text-center">
+                  {song?.views}
+                </td>
+
+                <td className="px-4 py-3 text-gray-400 text-center">
+                  {formatTime(song.duration)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </ScrollArea>
     </div>
   );
 };

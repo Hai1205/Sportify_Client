@@ -35,7 +35,7 @@ export function PopularSongs() {
             </div>
 
             <div className="hidden md:flex flex-col items-end gap-1">
-              <div className="text-sm">{song.views} plays</div>
+              <div className="text-sm">{song.views} views</div>
 
               <div className="text-xs text-muted-foreground">
                 {song.duration}

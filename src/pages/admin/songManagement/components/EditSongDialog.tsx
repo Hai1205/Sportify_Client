@@ -20,7 +20,6 @@ type EditSongDialogProps = {
   onOpenChange: (open: boolean) => void;
   song: Song | null;
   albums: Album[];
-  genres: string[];
 };
 
 const EditSongDialog = ({
@@ -28,7 +27,6 @@ const EditSongDialog = ({
   onOpenChange,
   song,
   albums,
-  genres,
 }: EditSongDialogProps) => {
   if (!song) return null;
 
@@ -125,30 +123,6 @@ const EditSongDialog = ({
                                 className="text-white hover:bg-[#1DB954] hover:text-white"
                               >
                                 {album.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="edit-song-genre" className="text-white">
-                          Genre
-                        </Label>
-                        <Select defaultValue={song.genre}>
-                          <SelectTrigger
-                            id="edit-song-genre"
-                            className="bg-[#282828] text-white border-gray-700"
-                          >
-                            <SelectValue placeholder="Select genre" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#282828] border-gray-700">
-                            {genres.slice(0, 15).map((genre) => (
-                              <SelectItem
-                                key={genre}
-                                value={genre}
-                                className="text-white hover:bg-[#1DB954] hover:text-white"
-                              >
-                                {genre}
                               </SelectItem>
                             ))}
                           </SelectContent>

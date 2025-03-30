@@ -5,10 +5,11 @@ import {
     followUser,
     searchUsers,
     getSuggestedUsers,
-    getArtistApplicatioins,
-    deleteArtistApplicatioin,
+    getArtistApplications,
+    deleteArtistApplication,
     getUserByRole,
     createUser,
+    getArtistApplication,
 } from './../utils/api/usersApi';
 import { ArtistApplication, User } from "../utils/types";
 import {
@@ -28,6 +29,7 @@ interface UserStore {
     message: string | null;
     user: User | null;
     users: User[];
+    artistApplication: ArtistApplication | null;
     artistApplications: ArtistApplication[];
 
     getAllUser: () => Promise<any>;
@@ -38,11 +40,12 @@ interface UserStore {
     deleteUser: (userId: string) => Promise<any>;
     followUser: (currentUserId: string, opponentId: string) => Promise<any>;
     getSuggestedUsers: (userId: string) => Promise<any>;
-    requireUpdateUserToArtist: (userId: string) => Promise<any>;
+    requireUpdateUserToArtist: (userId: string, formData: FormData) => Promise<any>;
     responseUpdateUserToArtist: (userId: string) => Promise<any>;
     searchUsers: (query: string) => Promise<any>;
-    getArtistApplicatioins: (status: string) => Promise<any>;
-    deleteArtistApplicatioin: (applicationId: string) => Promise<any>;
+    getArtistApplications: (status: string) => Promise<any>;
+    getArtistApplication: (userId: string) => Promise<any>;
+    deleteArtistApplication: (applicationId: string) => Promise<any>;
     reset: () => any;
 }
 
@@ -50,6 +53,7 @@ export const useUserStore = create<UserStore>()(
     persist(
         (set) => ({
             user: null,
+            artistApplication: null,
             users: [],
             artistApplications: [],
             isLoading: false,
@@ -120,7 +124,7 @@ export const useUserStore = create<UserStore>()(
             },
 
             followUser: async (currentUserId, opponentId) => {
-                set({ isLoading: true, error: null });
+                set({ error: null });
 
                 try {
                     const response = await followUser(currentUserId, opponentId);
@@ -136,8 +140,6 @@ export const useUserStore = create<UserStore>()(
 
                     toast.error(message);
                     return false;
-                } finally {
-                    set({ isLoading: false });
                 }
             },
 
@@ -166,10 +168,10 @@ export const useUserStore = create<UserStore>()(
 
                 try {
                     const response = await createUser(formData);
-                    const { message } = response.data;
+                    const { message, user } = response.data;
 
                     toast.success(message);
-                    return true;
+                    return user;
                 } catch (error: any) {
                     console.error(error)
                     const { message } = error.response.data;
@@ -229,11 +231,11 @@ export const useUserStore = create<UserStore>()(
                 }
             },
 
-            requireUpdateUserToArtist: async (userId) => {
+            requireUpdateUserToArtist: async (userId, formData) => {
                 set({ isLoading: true, error: null });
 
                 try {
-                    const response = await requireUpdateUserToArtist(userId);
+                    const response = await requireUpdateUserToArtist(userId, formData);
                     const { message } = response.data;
 
                     toast.success(message);
@@ -291,11 +293,11 @@ export const useUserStore = create<UserStore>()(
                 }
             },
 
-            getArtistApplicatioins: async (status) => {
+            getArtistApplications: async (status) => {
                 set({ isLoading: true, error: null });
 
                 try {
-                    const response = await getArtistApplicatioins(status);
+                    const response = await getArtistApplications(status);
                     const { artistApplications } = response.data;
 
                     return artistApplications;
@@ -311,11 +313,32 @@ export const useUserStore = create<UserStore>()(
                 }
             },
 
-            deleteArtistApplicatioin: async (applicationId) => {
+            getArtistApplication: async (userId) => {
                 set({ isLoading: true, error: null });
 
                 try {
-                    const response = await deleteArtistApplicatioin(applicationId);
+                    const response = await getArtistApplication(userId);
+                    const { artistApplication } = response.data;
+
+                    set({ artistApplication: artistApplication });
+                    return artistApplication;
+                } catch (error: any) {
+                    console.error(error)
+                    const { message } = error.response.data;
+                    set({ users: [], error: message });
+
+                    toast.error(message);
+                    return false;
+                } finally {
+                    set({ isLoading: false });
+                }
+            },
+
+            deleteArtistApplication: async (applicationId) => {
+                set({ isLoading: true, error: null });
+
+                try {
+                    const response = await deleteArtistApplication(applicationId);
                     const { message } = response.data;
 
                     toast.success(message);
@@ -336,6 +359,7 @@ export const useUserStore = create<UserStore>()(
                 set({
                     user: null,
                     users: [],
+                    artistApplication: null,
                     artistApplications: [],
                     isLoading: false,
                     error: null,

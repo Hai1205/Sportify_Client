@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import Input from "./components/Input";
-import Button from "./components/Button";
+import LoadingButton from "../../layout/components/LoadingButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { GoogleLoginButton } from "@/pages/auth/components/Oauth";
 
@@ -108,14 +108,14 @@ const LoginPage: React.FC = () => {
           </a>
         </div>
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="primary"
           isLoading={isLoading}
           className="w-full"
         >
           LOG IN
-        </Button>
+        </LoadingButton>
       </form>
 
       <div className="relative my-6">

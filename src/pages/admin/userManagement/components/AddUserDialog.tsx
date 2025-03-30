@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { UserPlus } from "lucide-react";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -19,15 +17,20 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { toast } from "react-toastify";
 import { useUserStore } from "@/stores/useUserStore";
+import { User } from "@/utils/types";
 
 interface AddUserDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onUserAdded: (user: User) => void;
 }
 
-const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
+const AddUserDialog = ({
+  isOpen,
+  onOpenChange,
+  onUserAdded,
+}: AddUserDialogProps) => {
   const { isLoading, createUser } = useUserStore();
 
   const [userData, setUserData] = useState({
@@ -38,53 +41,88 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
     role: "",
   });
 
+  const [errors, setErrors] = useState({
+    email: "",
+    username: "",
+    fullName: "",
+    password: "",
+    role: "",
+  });
+
   const createUserData = (field: keyof typeof userData, value: any) => {
     setUserData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCreateUser = async () => {
-    if (userData) {
-      const isEmpty = Object.values(userData).some(
-        (value) => value.trim() === ""
-      );
+    setErrors({
+      email: "",
+      username: "",
+      fullName: "",
+      password: "",
+      role: "",
+    });
 
-      if (isEmpty) {
-        toast.error("Please fill in all fields.");
-        return;
-      }
+    let hasError = false;
+    const newErrors = {
+      email: "",
+      username: "",
+      fullName: "",
+      password: "",
+      role: "",
+    };
 
-      const formData = new FormData();
-      formData.append("username", userData.username);
-      formData.append("fullName", userData.fullName);
-      formData.append("password", userData.password);
-      formData.append("email", userData.email);
-      formData.append("role", userData.role);
+    if (!userData.email.trim()) {
+      newErrors.email = "Email is required";
+      hasError = true;
+    }
+    if (!userData.username.trim()) {
+      newErrors.username = "Username is required";
+      hasError = true;
+    }
+    if (!userData.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+      hasError = true;
+    }
+    if (!userData.password.trim()) {
+      newErrors.password = "Password is required";
+      hasError = true;
+    }
+    if (!userData.role) {
+      newErrors.role = "Role is required";
+      hasError = true;
+    }
 
-      const res = await createUser(formData);
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
 
-      if (res) {
-        setUserData({
-          username: "",
-          fullName: "",
-          password: "",
-          email: "",
-          role: "",
-        });
+    const formData = new FormData();
+    formData.append("username", userData.username);
+    formData.append("fullName", userData.fullName);
+    formData.append("password", userData.password);
+    formData.append("email", userData.email);
+    formData.append("role", userData.role);
 
-        onOpenChange(false);
-      }
+    const user = await createUser(formData);
+
+    if (user) {
+      onUserAdded(user);
+
+      setUserData({
+        username: "",
+        fullName: "",
+        password: "",
+        email: "",
+        role: "",
+      });
+
+      onOpenChange(false);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="h-8 gap-1">
-          <UserPlus className="h-4 w-4" />
-          Add User
-        </Button>
-      </DialogTrigger>
-
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Add New User</DialogTitle>
@@ -97,7 +135,6 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-
             <Input
               id="email"
               type="email"
@@ -105,6 +142,9 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
               value={userData?.email}
               onChange={(e) => createUserData("email", e.target.value)}
             />
+            {errors.email && (
+              <span className="text-sm text-red-500">{errors.email}</span>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -116,11 +156,13 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
               value={userData?.username}
               onChange={(e) => createUserData("username", e.target.value)}
             />
+            {errors.username && (
+              <span className="text-sm text-red-500">{errors.username}</span>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="fullName">Full Name</Label>
-
             <Input
               id="fullName"
               type="fullName"
@@ -128,10 +170,12 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
               value={userData?.fullName}
               onChange={(e) => createUserData("fullName", e.target.value)}
             />
+            {errors.fullName && (
+              <span className="text-sm text-red-500">{errors.fullName}</span>
+            )}
 
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-
               <Input
                 id="password"
                 type="password"
@@ -139,26 +183,44 @@ const AddUserDialog = ({ isOpen, onOpenChange }: AddUserDialogProps) => {
                 value={userData?.password}
                 onChange={(e) => createUserData("password", e.target.value)}
               />
+              {errors.password && (
+                <span className="text-sm text-red-500">{errors.password}</span>
+              )}
             </div>
 
             <Label htmlFor="role">Role</Label>
-
             <Select
               value={userData?.role}
               onValueChange={(value) => createUserData("role", value)}
             >
-              <SelectTrigger id="role">
+              <SelectTrigger id="role" className="cursor-pointer">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-
-                <SelectItem value="artist">Artist</SelectItem>
-
-                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem
+                  value="user"
+                  className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                >
+                  User
+                </SelectItem>
+                <SelectItem
+                  value="artist"
+                  className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                >
+                  Artist
+                </SelectItem>
+                <SelectItem
+                  value="admin"
+                  className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                >
+                  Admin
+                </SelectItem>
               </SelectContent>
             </Select>
+            {errors.role && (
+              <span className="text-sm text-red-500">{errors.role}</span>
+            )}
           </div>
         </div>
 

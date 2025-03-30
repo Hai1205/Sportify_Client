@@ -59,19 +59,15 @@ const ApplicationDetailsDialog = ({
                 <h2 className="text-2xl font-bold">
                   {selectedApplication.user.fullName}
                 </h2>
+          
                 <p className="text-muted-foreground">
                   {selectedApplication.user.username} •{" "}
                   {selectedApplication.user.email}
                 </p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedApplication.user.genres.map((genre, index) => (
-                    <Badge key={index} variant="outline">
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
+
                 <div className="flex items-center gap-4 mt-3">
                   <User className="h-4 w-4 text-muted-foreground" />
+                  
                   <span className="text-sm">
                     {selectedApplication.user.followers.length} followers
                   </span>
@@ -84,21 +80,25 @@ const ApplicationDetailsDialog = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-semibold mb-2">Artist Bio</h3>
+               
                 <p className="text-sm">{selectedApplication.user.biography}</p>
 
                 <h3 className="text-lg font-semibold mt-4 mb-2">
                   Achievements
                 </h3>
+              
                 <p className="text-sm">{selectedApplication.achievements}</p>
 
                 <h3 className="text-lg font-semibold mt-4 mb-2">
                   ArtistApplication Reason
                 </h3>
+              
                 <p className="text-sm">{selectedApplication.reason}</p>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold mb-2">Music Samples</h3>
+              
                 <div className="space-y-3">
                   {selectedApplication.songs.map((song, index) => (
                     <div
@@ -113,15 +113,19 @@ const ApplicationDetailsDialog = ({
                         >
                           <Play className="h-4 w-4" />
                         </Button>
+                    
                         <div>
                           <p className="font-medium text-sm">{song.title}</p>
+                       
                           <p className="text-xs text-muted-foreground">
                             {song.duration}
                           </p>
                         </div>
                       </div>
+                    
                       <Button variant="ghost" size="sm" className="h-7 gap-1">
                         <ExternalLink className="h-3 w-3" />
+                    
                         <span className="text-xs">Listen</span>
                       </Button>
                     </div>
@@ -131,6 +135,7 @@ const ApplicationDetailsDialog = ({
                 <h3 className="text-lg font-semibold mt-4 mb-2">
                   Social Media
                 </h3>
+             
                 <div className="space-y-2">
                   {Object.entries(selectedApplication.website).map(
                     ([platform, link]) => (
@@ -139,6 +144,7 @@ const ApplicationDetailsDialog = ({
                         className="flex items-center justify-between"
                       >
                         <span className="text-sm capitalize">{platform}:</span>
+                     
                         <span className="text-sm font-medium">{link}</span>
                       </div>
                     )
@@ -148,15 +154,19 @@ const ApplicationDetailsDialog = ({
                 <h3 className="text-lg font-semibold mt-4 mb-2">
                   ArtistApplication Info
                 </h3>
+               
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Submitted:</span>
+                  
                     <span className="text-sm font-medium">
                       {selectedApplication.created_at}
                     </span>
                   </div>
+                  
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Status:</span>
+                    
                     <Badge variant="outline" className="capitalize">
                       {selectedApplication.status}
                     </Badge>
@@ -174,10 +184,12 @@ const ApplicationDetailsDialog = ({
           >
             Reject
           </Button>
+         
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Close
             </Button>
+         
             <Button onClick={() => onApprove(selectedApplication)}>
               Approve
             </Button>

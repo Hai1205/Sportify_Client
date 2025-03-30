@@ -49,8 +49,8 @@ export const deleteUser = async (userId: string): Promise<any> => {
   return await axiosInstance.delete(`/api/users/delete-user/${userId}/`);
 };
 
-export const requireUpdateUserToArtist = async (userId: string): Promise<any> => {
-  return await axiosInstance.post(`/api/users/require-update-user-to-artist/${userId}/`);
+export const requireUpdateUserToArtist = async (userId: string, formData: FormData): Promise<any> => {
+  return await axiosInstance.post(`/api/users/require-update-user-to-artist/${userId}/`, formData);
 };
 
 export const responseUpdateUserToArtist = async (userId: string): Promise<any> => {
@@ -61,10 +61,14 @@ export const searchUsers = async (queryString: string): Promise<any> => {
   return await axiosInstance.get(`api/users/search-users/${queryString}`);
 }
 
-export const getArtistApplicatioins = async (queryString: string): Promise<any> => {
+export const getArtistApplications = async (queryString: string): Promise<any> => {
   return await axiosInstance.get(`api/users/get-artist-applications/${queryString}`);
 }
 
-export const deleteArtistApplicatioin = async (applicationId: string): Promise<any> => {
+export const getArtistApplication = async (userId: string): Promise<any> => {
+  return await axiosInstance.get(`api/users/get-artist-application/${userId}/`);
+}
+
+export const deleteArtistApplication = async (applicationId: string): Promise<any> => {
   return await axiosInstance.delete(`api/users/delete-artist-application/${applicationId}/`);
 }

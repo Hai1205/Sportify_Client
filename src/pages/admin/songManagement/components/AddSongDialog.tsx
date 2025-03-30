@@ -26,7 +26,6 @@ interface AddSongDialogProps {
   onManageSongsOpen: (open: boolean) => void;
   artist?: User | null;
   albums: Album[];
-  availableGenres: string[];
 }
 
 const AddSongDialog = ({
@@ -35,11 +34,9 @@ const AddSongDialog = ({
   onManageSongsOpen,
   artist,
   albums,
-  availableGenres,
 }: AddSongDialogProps) => {
   const [songTitle, setSongTitle] = useState("");
   const [selectedAlbum, setSelectedAlbum] = useState<string | undefined>();
-  const [selectedGenre, setSelectedGenre] = useState<string | undefined>();
   const [thumbnail, setThumbnail] = useState<File | null>(null);
 
   const handleCoverArtChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,16 +46,12 @@ const AddSongDialog = ({
   };
 
   const handleAddSong = () => {
-    if (!songTitle || !selectedAlbum || !selectedGenre) {
+    if (!songTitle || !selectedAlbum) {
       alert("Please fill all required fields.");
       return;
     }
     onOpenChange(false);
     onManageSongsOpen(true);
-  };
-
-  const handleClose = () => {
-    onOpenChange(false);
   };
 
   return (
@@ -120,30 +113,6 @@ const AddSongDialog = ({
                     className="text-white hover:bg-[#1DB954] hover:text-white"
                   >
                     {album.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="song-genre" className="text-white">
-              Genre
-            </Label>
-            <Select onValueChange={setSelectedGenre}>
-              <SelectTrigger
-                id="song-genre"
-                className="bg-[#282828] text-white border-gray-700"
-              >
-                <SelectValue placeholder="Select genre" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#282828] border-gray-700">
-                {availableGenres.slice(0, 15).map((genre) => (
-                  <SelectItem
-                    key={genre}
-                    value={genre.toLowerCase()}
-                    className="text-white hover:bg-[#1DB954] hover:text-white"
-                  >
-                    {genre}
                   </SelectItem>
                 ))}
               </SelectContent>

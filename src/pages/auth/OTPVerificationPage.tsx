@@ -2,9 +2,9 @@ import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
-import Button from "./components/Button";
-import { useAuthStore } from "@/stores/useAuthStore";
 import formatTime from "@/utils/service/formatTime";
+import LoadingButton from "../../layout/components/LoadingButton";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const OTPVerificationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const OTPVerificationPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
-  const { isLoading, error: errorAuth, checkOTP, sendOTP } = useAuthStore();
+  const { isLoading, checkOTP, sendOTP } = useAuthStore();
 
   const handleChange = (index: number, value: string) => {
     if (error) setError("");
@@ -101,41 +101,40 @@ const OTPVerificationPage: React.FC = () => {
     }
 
     const otpString = otp.join("");
-    await checkOTP(email, otpString);
+    const res = await checkOTP(email, otpString);
 
-    if (errorAuth) {
-      setError(error);
+    if (!res) {
+      setOtp(Array(6).fill(""));
 
       return;
     }
 
     if (isExpired) {
       setError("The verification code has expired. Please request a new one.");
+      setOtp(Array(6).fill(""));
+
       return;
     }
 
     if (isPasswordReset) {
-      // Navigate to reset password page
       navigate("/reset-password");
 
       return;
     }
 
-    // Navigate to home or dashboard
     navigate("/login");
   };
 
-  const handleResendCode = () => {
-    // Logic to resend OTP
-    sendOTP(email);
+  const handleResendCode = async () => {
+    const res = await sendOTP(email);
+    if (!res) {
+      return;
+    }
 
-    // Reset the form
     setOtp(Array(6).fill(""));
     setError("");
-    // Reset the timer
     setTimeLeft(300);
     setIsExpired(false);
-    // Focus the first input
     inputRefs.current[0]?.focus();
   };
 
@@ -147,7 +146,7 @@ const OTPVerificationPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Enter verification codee">
+    <AuthLayout title="Enter verification code">
       <p className="text-gray-400 text-sm mb-2">
         We've sent a verification code to {email || "your email"}. Enter the
         code below to{" "}
@@ -185,27 +184,29 @@ const OTPVerificationPage: React.FC = () => {
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="primary"
           fullWidth
-          className="mb-4"
-          disabled={isExpired}
+          className="mt-6 mb-4"
+          isLoading={isLoading}
         >
-          VERIFY
-        </Button>
+          VERIFYING
+        </LoadingButton>
 
         <div className="text-center mb-4">
           <p className="text-gray-400 text-sm">
             {isExpired ? "Code expired. " : "Didn't receive a code? "}
-            
+
             <a
               onClick={(e) => {
                 e.preventDefault();
 
                 if (!isLoading) handleResendCode();
               }}
-              className={`text-white hover:text-[#1DB954] underline cursor-pointer ${isLoading ? "pointer-events-none opacity-70" : ""}`}
+              className={`text-white hover:text-[#1DB954] underline cursor-pointer ${
+                isLoading ? "pointer-events-none opacity-70" : ""
+              }`}
             >
               Resend code
             </a>

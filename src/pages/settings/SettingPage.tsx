@@ -1,60 +1,172 @@
-import { Mic2, Save, Shield, Upload, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-// import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Mic2, Shield, User } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUserStore } from "@/stores/useUserStore";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import React, { useEffect, useState } from "react";
+import { User as USER } from "@/utils/types";
+import GeneralSettings from "@/pages/settings/components/GeneralSettings";
+import SecuritySettings from "@/pages/settings/components/SecuritySettings";
+import ArtistApplication from "@/pages/settings/components/ArtistApplication";
+
+type SongSample = {
+  title: string;
+  file?: File | null;
+};
+
+type ChangePassword = {
+  currentPassword: string;
+  newPassword: string;
+  rePassword: string;
+};
+
+type ArtistApplication = {
+  biography: string;
+  achievements: string;
+  reason: string;
+};
 
 const SettingPage = () => {
+  const [userData, setUserData] = useState<USER | null>(null);
+  const [changePasswordData, setChangePasswordData] = useState<ChangePassword>({
+    currentPassword: "",
+    newPassword: "",
+    rePassword: "",
+  });
+  const [applicationData, setApplicationData] = useState<ArtistApplication>({
+    achievements: "",
+    biography: "",
+    reason: "",
+  });
+  const [songData, setSongData] = useState<SongSample[]>([
+    { title: "", file: null },
+    { title: "", file: null },
+    { title: "", file: null },
+  ]);
+  const [previewAvatar, setPreviewAvatar] = useState<string>("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
   const {
     isAdmin,
     isArtist,
     user: userAuth,
     isLoading: isAuthLoading,
-    changePassword,
   } = useAuthStore();
-  const { isLoading: isUserLoading, updateUser } = useUserStore();
+  const {
+    isLoading: isUserLoading,
+    updateUser,
+    getArtistApplication,
+  } = useUserStore();
 
-  const handleChangePassword = () => {
-    const formData = new FormData();
-    if (!userAuth) {
-      console.log("User not found");
-
-      return;
+  // Initialize userData when userAuth is available or changes
+  useEffect(() => {
+    if (userAuth) {
+      setUserData(userAuth);
+      getArtistApplication(userAuth.id).then(setApplicationData);
+      setPreviewAvatar(userAuth.avatarUrl || "");
     }
-    changePassword(userAuth?.id, formData);
+  }, [getArtistApplication, userAuth]);
+
+  const handleInfoChange = (field: keyof USER, value: string | File | null) => {
+    setUserData((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
 
-  const handleUpdateUser = () => {
-    const formData = new FormData();
-    if (!userAuth) {
-      console.log("User not found");
+  const handleSecurityChange = (
+    field: keyof ChangePassword,
+    value: string | File | null
+  ) => {
+    setChangePasswordData((prev: ChangePassword) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-      return;
+  const handleApplicationChange = (
+    name: string,
+    value: string | File | null
+  ) => {
+    if (name.startsWith("song")) {
+      const index = parseInt(name.match(/\d+/)?.[0] || "0", 10) - 1; // Extract song index (e.g., song1Title -> index 0)
+      const field = name.replace(/\d+/, ""); // Extract field name (e.g., song1Title -> title)
+
+      setSongData((prev) => {
+        const updatedSongs = [...prev];
+        if (!updatedSongs[index]) {
+          updatedSongs[index] = { title: "", file: null }; // Initialize if undefined
+        }
+        updatedSongs[index] = { ...updatedSongs[index], [field]: value };
+        return updatedSongs;
+      });
+    } else {
+      setApplicationData((prev) =>
+        prev ? { ...prev, [name as keyof ArtistApplication]: value } : prev
+      );
     }
-    updateUser(userAuth?.id, formData);
-    console.log("is", isUserLoading);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setPreviewAvatar(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveInfo = () => {
+    if (userData && userAuth) {
+      const formData = new FormData();
+      formData.append("fullName", userData.fullName || "");
+      formData.append("country", userData.country || "");
+      formData.append("biography", userData.biography || "");
+      formData.append("website", userData.website || "");
+      formData.append("instagram", userData.instagram || "");
+      formData.append("twitter", userData.twitter || "");
+      formData.append("facebook", userData.facebook || "");
+      formData.append("youtube", userData.youtube || "");
+
+      if (avatarFile) {
+        formData.append("avatar", avatarFile);
+      }
+
+      updateUser(userAuth.id, formData);
+    }
+  };
+
+  const handleChangePassword = () => {
+    if (changePasswordData && userAuth) {
+      const formData = new FormData();
+      formData.append(
+        "currentPassword",
+        changePasswordData.currentPassword || ""
+      );
+      formData.append("newPassword", changePasswordData.newPassword || "");
+      formData.append("rePassword", changePasswordData.rePassword || "");
+
+      // changePassword(userAuth.id, formData);
+    }
+  };
+
+  const handleRequireApplication = () => {
+    if (userData && userAuth) {
+      const formData = new FormData();
+      formData.append("biography", applicationData?.biography || "");
+      formData.append("achievements", applicationData?.achievements || "");
+      formData.append("reason", applicationData?.reason || "");
+      formData.append("song1Title", songData[0].title || "");
+      formData.append("song2Title", songData[1].title || "");
+      formData.append("song3Title", songData[2].title || "");
+
+      if (songData[0].file) {
+        formData.append("song3Audio", songData[0].file);
+      }
+      if (songData[1].file) {
+        formData.append("song3Audio", songData[1].file);
+      }
+      if (songData[2].file) {
+        formData.append("song3Audio", songData[2].file);
+      }
+
+      // requireUpdateUserToArtist(userAuth.id, formData);
+    }
   };
 
   return (
@@ -82,542 +194,43 @@ const SettingPage = () => {
           </TabsTrigger>
 
           {!(isArtist || isAdmin) && (
-            <TabsTrigger value="artist" className="flex items-center gap-2">
+            <TabsTrigger
+              value="application"
+              className="flex items-center gap-2"
+            >
               <Mic2 className="h-4 w-4" />
 
-              <span className="hidden sm:inline-block">Artist</span>
+              <span className="hidden sm:inline-block">Apply to Artist</span>
             </TabsTrigger>
           )}
         </TabsList>
 
-        <TabsContent value="general">
-          <Card>
-            <CardHeader>
-              <CardTitle>General Settings</CardTitle>
-
-              <CardDescription>
-                Manage your basic account information and preferences.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="h-[280px] space-y-4">
-              <div className="space-y-1">
-                <Label htmlFor="username">Username</Label>
-
-                <Input
-                  id="username"
-                  defaultValue={userAuth?.username}
-                  readOnly
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="email">Email</Label>
-
-                <Input id="email" defaultValue={userAuth?.email} readOnly />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="fullName">Full name</Label>
-
-                <Input id="name" defaultValue={userAuth?.fullName} />
-              </div>
-            </CardContent>
-
-            <CardFooter>
-              <Button
-                onClick={() => handleUpdateUser()}
-                disabled={isUserLoading}
-                className="gap-1"
-              >
-                {isUserLoading ? (
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
-                Save Changes
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="security">
-          <Card>
-            <CardHeader>
-              <CardTitle>Security Settings</CardTitle>
-
-              <CardDescription>
-                Manage your account security and authentication methods.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="h-[280px] space-y-4">
-              <div className="space-y-1">
-                <Label htmlFor="current-password">Current Password</Label>
-
-                <Input id="current-password" type="password" />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="new-password">New Password</Label>
-
-                <Input id="new-password" type="password" />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="confirm-password">Confirm New Password</Label>
-                <Input id="confirm-password" type="password" />
-              </div>
-            </CardContent>
-
-            <CardFooter>
-              <Button
-                onClick={() => handleChangePassword()}
-                disabled={isAuthLoading}
-                className="gap-1"
-              >
-                {isAuthLoading ? (
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
-                Save Changes
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="artist">
-          <Card>
-            <CardHeader>
-              <CardTitle>Artist Application</CardTitle>
-
-              <CardDescription>
-                Apply to become a verified artist on Spotify
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-6">
-              {/* <Alert variant="info" className="bg-blue-50 dark:bg-blue-950">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>About Artist Accounts</AlertTitle>
-                <AlertDescription>
-                  Artist accounts allow you to upload music, access analytics,
-                  and promote your content to a wider audience. Applications are
-                  typically reviewed within 5-7 business days.
-                </AlertDescription>
-              </Alert> */}
-              <ScrollArea className="h-[260px] w-full">
-                <div className="grid gap-4">
-                  <div className="space-y-1">
-                    <Label htmlFor="artist-name">Artist/Band Name</Label>
-
-                    <Input
-                      id="artist-name"
-                      placeholder="Your artist or band name"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="genres">Primary Genre</Label>
-
-                      <Select>
-                        <SelectTrigger id="genres">
-                          <SelectValue placeholder="Select a genre" />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                          <SelectItem value="pop">Pop</SelectItem>
-
-                          <SelectItem value="rock">Rock</SelectItem>
-
-                          <SelectItem value="hip-hop">Hip-Hop</SelectItem>
-
-                          <SelectItem value="r&b">R&B</SelectItem>
-
-                          <SelectItem value="country">Country</SelectItem>
-
-                          <SelectItem value="electronic">Electronic</SelectItem>
-
-                          <SelectItem value="jazz">Jazz</SelectItem>
-
-                          <SelectItem value="classical">Classical</SelectItem>
-
-                          <SelectItem value="folk">Folk</SelectItem>
-
-                          <SelectItem value="indie">Indie</SelectItem>
-
-                          <SelectItem value="alternative">
-                            Alternative
-                          </SelectItem>
-
-                          <SelectItem value="metal">Metal</SelectItem>
-
-                          <SelectItem value="latin">Latin</SelectItem>
-
-                          <SelectItem value="k-pop">K-Pop</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label htmlFor="secondary-genres">
-                        Secondary Genres (Optional)
-                      </Label>
-
-                      <Select>
-                        <SelectTrigger id="secondary-genres">
-                          <SelectValue placeholder="Select genres" />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                          <SelectItem value="pop">Pop</SelectItem>
-
-                          <SelectItem value="rock">Rock</SelectItem>
-
-                          <SelectItem value="hip-hop">Hip-Hop</SelectItem>
-
-                          <SelectItem value="r&b">R&B</SelectItem>
-
-                          <SelectItem value="country">Country</SelectItem>
-
-                          <SelectItem value="electronic">Electronic</SelectItem>
-
-                          <SelectItem value="jazz">Jazz</SelectItem>
-
-                          <SelectItem value="classical">Classical</SelectItem>
-
-                          <SelectItem value="folk">Folk</SelectItem>
-
-                          <SelectItem value="indie">Indie</SelectItem>
-
-                          <SelectItem value="alternative">
-                            Alternative
-                          </SelectItem>
-
-                          <SelectItem value="metal">Metal</SelectItem>
-
-                          <SelectItem value="latin">Latin</SelectItem>
-
-                          <SelectItem value="k-pop">K-Pop</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        You can select multiple genres
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label htmlFor="artist-bio">Artist Biography</Label>
-
-                    <Textarea
-                      id="artist-bio"
-                      placeholder="Tell us about yourself, your music style, and your journey as an artist"
-                      rows={4}
-                    />
-
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Minimum 100 characters
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label htmlFor="achievements">Notable Achievements</Label>
-
-                    <Textarea
-                      id="achievements"
-                      placeholder="List any notable achievements, performances, or milestones in your music career"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label>Social Media Links</Label>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <Label htmlFor="instagram" className="text-sm">
-                          Instagram
-                        </Label>
-
-                        <Input id="instagram" placeholder="@username" />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label htmlFor="twitter" className="text-sm">
-                          Twitter
-                        </Label>
-
-                        <Input id="twitter" placeholder="@username" />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label htmlFor="youtube" className="text-sm">
-                          YouTube
-                        </Label>
-
-                        <Input id="youtube" placeholder="Channel URL" />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label htmlFor="website" className="text-sm">
-                          Website (Optional)
-                        </Label>
-
-                        <Input
-                          id="website"
-                          placeholder="https://yourwebsite.com"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label>Music Samples</Label>
-
-                    <p className="text-sm text-muted-foreground">
-                      Upload at least 3 music samples that represent your work
-                    </p>
-
-                    <div className="grid gap-4">
-                      <div className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-medium">Sample 1</h4>
-
-                          <Badge>Required</Badge>
-                        </div>
-
-                        <div className="grid gap-4">
-                          <div className="space-y-1">
-                            <Label htmlFor="sample1-title">Track Title</Label>
-
-                            <Input
-                              id="sample1-title"
-                              placeholder="Enter track title"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <Label htmlFor="sample1-file">Audio File</Label>
-
-                            <div className="flex items-center justify-center w-full">
-                              <label
-                                htmlFor="sample1-file"
-                                className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"
-                              >
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                  <p className="text-sm text-muted-foreground">
-                                    <span className="font-semibold">
-                                      Click to upload
-                                    </span>{" "}
-                                    or drag and drop
-                                  </p>
-
-                                  <p className="text-xs text-muted-foreground">
-                                    MP3, WAV or FLAC (max. 10MB)
-                                  </p>
-                                </div>
-
-                                <Input
-                                  id="sample1-file"
-                                  type="file"
-                                  accept="audio/*"
-                                  className="hidden"
-                                />
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-medium">Sample 2</h4>
-
-                          <Badge>Required</Badge>
-                        </div>
-
-                        <div className="grid gap-4">
-                          <div className="space-y-1">
-                            <Label htmlFor="sample2-title">Track Title</Label>
-
-                            <Input
-                              id="sample2-title"
-                              placeholder="Enter track title"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <Label htmlFor="sample2-file">Audio File</Label>
-
-                            <div className="flex items-center justify-center w-full">
-                              <label
-                                htmlFor="sample2-file"
-                                className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"
-                              >
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                                  <p className="text-sm text-muted-foreground">
-                                    <span className="font-semibold">
-                                      Click to upload
-                                    </span>{" "}
-                                    or drag and drop
-                                  </p>
-
-                                  <p className="text-xs text-muted-foreground">
-                                    MP3, WAV or FLAC (max. 10MB)
-                                  </p>
-                                </div>
-
-                                <Input
-                                  id="sample2-file"
-                                  type="file"
-                                  accept="audio/*"
-                                  className="hidden"
-                                />
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-medium">Sample 3</h4>
-                          <Badge>Required</Badge>
-                        </div>
-
-                        <div className="grid gap-4">
-                          <div className="space-y-1">
-                            <Label htmlFor="sample3-title">Track Title</Label>
-
-                            <Input
-                              id="sample3-title"
-                              placeholder="Enter track title"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <Label htmlFor="sample3-file">Audio File</Label>
-
-                            <div className="flex items-center justify-center w-full">
-                              <label
-                                htmlFor="sample3-file"
-                                className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"
-                              >
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                  <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-
-                                  <p className="text-sm text-muted-foreground">
-                                    <span className="font-semibold">
-                                      Click to upload
-                                    </span>{" "}
-                                    or drag and drop
-                                  </p>
-
-                                  <p className="text-xs text-muted-foreground">
-                                    MP3, WAV or FLAC (max. 10MB)
-                                  </p>
-                                </div>
-
-                                <Input
-                                  id="sample3-file"
-                                  type="file"
-                                  accept="audio/*"
-                                  className="hidden"
-                                />
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label htmlFor="application-reason">
-                      Why do you want to become a verified artist?
-                    </Label>
-
-                    <Textarea
-                      id="application-reason"
-                      placeholder="Explain why you want to become a verified artist and how you plan to use the platform"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="terms" />
-
-                      <label
-                        htmlFor="terms"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        I agree to the{" "}
-                        <a
-                          href="#"
-                          className="text-spotify-green hover:underline"
-                        >
-                          Artist Terms and Conditions
-                        </a>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </ScrollArea>
-            </CardContent>
-
-            <CardFooter className="flex justify-between">
-              <Button variant="outline">Save as Draft</Button>
-
-              <Button>Submit Application</Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
+        {userData && userAuth && (
+          <GeneralSettings
+            userData={userData}
+            handleInfoChange={handleInfoChange}
+            handleSaveInfo={handleSaveInfo}
+            isUserLoading={isUserLoading}
+            previewAvatar={previewAvatar}
+            userAuth={userAuth}
+            handleAvatarChange={handleAvatarChange}
+          />
+        )}
+
+        <SecuritySettings
+          changePasswordData={changePasswordData}
+          handleSecurityChange={handleSecurityChange}
+          handleChangePassword={handleChangePassword}
+          isAuthLoading={isAuthLoading}
+        />
+
+        <ArtistApplication
+          applicationData={applicationData}
+          songData={songData}
+          handleApplicationChange={handleApplicationChange}
+          handleRequireApplication={handleRequireApplication}
+          isUserLoading={isUserLoading}
+        />
       </Tabs>
     </div>
   );

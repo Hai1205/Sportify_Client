@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import Input from "./components/Input";
-import Button from "./components/Button";
+import LoadingButton from "../../layout/components/LoadingButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { GoogleLoginButton } from "@/pages/auth/components/Oauth";
 
@@ -17,12 +17,12 @@ const RegisterPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { isLoading, error, register } = useAuthStore();
+  const { isLoading, register } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user types
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -64,17 +64,16 @@ const RegisterPage: React.FC = () => {
     data.append("email", formData.email);
     data.append("password", formData.password);
 
-    if (!validate()) {
+    if (validate()) {
       return;
     }
 
-    await register(data);
+    const res = await register(data);
 
-    if (error) {
+    if (!res) {
       return;
     }
 
-    // Navigate to OTP verification after registration
     navigate("/verify-otp", {
       state: { email: formData.email, isPasswordReset: false },
     });
@@ -113,7 +112,7 @@ const RegisterPage: React.FC = () => {
           error={errors.password}
         />
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="primary"
           fullWidth
@@ -121,7 +120,7 @@ const RegisterPage: React.FC = () => {
           isLoading={isLoading}
         >
           Register
-        </Button>
+        </LoadingButton>
       </form>
 
       <div className="relative my-6">

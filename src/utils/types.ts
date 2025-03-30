@@ -7,7 +7,6 @@ export interface User {
 	username: string;
 	email: string;
 	fullName: string;
-	genres: string[];
 	avatarUrl: string;
 	biography: string;
 	status: string;
@@ -18,7 +17,7 @@ export interface User {
 	youtube: string;
 	role: string;
 	country: string;
-	created_at: string;
+	joinDate: string;
 }
 
 export interface Album {
@@ -41,7 +40,6 @@ export interface Song {
 	releaseDate: string;
 	views: number;
 	lyrics: string;
-	genre: string;
 	updatedAt: string;
 }
 
@@ -49,15 +47,8 @@ export interface ArtistApplication {
 	id: string;
 	user: User;
 	songs: Song[];
-	primaryGenre: string;
-	secondaryGenre: string;
 	biography: string;
-	achievements: number;
-	website: string;
-	instagram: string;
-	twitter: string;
-	facebook: string;
-	youtube: string;
+	achievements: string;
 	reason: string;
 	created_at: string;
 	status: string;

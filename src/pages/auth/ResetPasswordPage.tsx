@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import Input from "./components/Input";
-import Button from "./components/Button";
+import LoadingButton from "../../layout/components/LoadingButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const ResetPasswordPage: React.FC = () => {
@@ -50,15 +50,15 @@ const ResetPasswordPage: React.FC = () => {
       return;
     }
 
+    if (!validate()) {
+      return;
+    }
+
     const data = new FormData();
     data.append("newPassword", formData.newPassword);
     data.append("rePassword", formData.rePassword);
 
     forgotPassword(userAuth?.id, data);
-
-    if (!validate()) {
-      return;
-    }
 
     navigate("/login");
   };
@@ -86,7 +86,7 @@ const ResetPasswordPage: React.FC = () => {
           error={errors.rePassword}
         />
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="primary"
           fullWidth
@@ -94,7 +94,7 @@ const ResetPasswordPage: React.FC = () => {
           isLoading={isLoading}
         >
           RESET PASSWORD
-        </Button>
+        </LoadingButton>
       </form>
     </AuthLayout>
   );

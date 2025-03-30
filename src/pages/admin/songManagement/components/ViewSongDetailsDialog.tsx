@@ -1,7 +1,6 @@
 import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -70,6 +69,7 @@ const ViewSongDetailsDialog = ({
                 >
                   Song Details
                 </Dialog.Title>
+                
                 <div className="mt-2">
                   <p className="text-sm text-gray-400">
                     {song
@@ -83,6 +83,7 @@ const ViewSongDetailsDialog = ({
                     <div className="flex gap-6">
                       <Avatar className="h-32 w-32 rounded-md bg-[#282828]">
                         <AvatarImage src={song.thumbnailUrl} alt={song.title} />
+                       
                         <AvatarFallback className="bg-[#282828]">
                           <Music className="h-10 w-10 text-gray-400" />
                         </AvatarFallback>
@@ -91,18 +92,13 @@ const ViewSongDetailsDialog = ({
                         <h2 className="text-2xl font-bold text-white">
                           {song.title}
                         </h2>
+                       
                         <p className="text-gray-400">{artist?.fullName}</p>
+                      
                         <p className="text-sm text-gray-400">
                           Album: {song.album?.title}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge
-                            variant="outline"
-                            className="text-xs border-gray-700 text-gray-400"
-                          >
-                            {song.genre}
-                          </Badge>
-                        </div>
+
                         <div className="flex gap-2 mt-4">
                           <Button
                             size="sm"
@@ -110,6 +106,7 @@ const ViewSongDetailsDialog = ({
                           >
                             <Play className="h-4 w-4" /> Play
                           </Button>
+                        
                           <Button
                             variant="outline"
                             size="sm"
@@ -118,6 +115,7 @@ const ViewSongDetailsDialog = ({
                           >
                             <ListPlus className="h-4 w-4" /> Add to Playlist
                           </Button>
+                        
                           <Button
                             variant="outline"
                             size="sm"
@@ -137,9 +135,11 @@ const ViewSongDetailsDialog = ({
                         <h3 className="text-lg font-semibold mb-2 text-white">
                           Song Information
                         </h3>
+                     
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-gray-400" />
+                         
                             <span className="text-sm font-medium text-white">
                               Duration:
                             </span>
@@ -147,39 +147,50 @@ const ViewSongDetailsDialog = ({
                               {song.duration}
                             </span>
                           </div>
+                       
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
+                         
                             <span className="text-sm font-medium text-white">
                               Release Date:
                             </span>
+                        
                             <span className="text-sm text-gray-400">
                               {song.releaseDate}
                             </span>
                           </div>
+                         
                           <div className="flex items-center gap-2">
                             <BarChart2 className="h-4 w-4 text-gray-400" />
+                         
                             <span className="text-sm font-medium text-white">
                               Plays:
                             </span>
+                          
                             <span className="text-sm text-gray-400">
                               {song.views}
                             </span>
                           </div>
+                        
                           <div className="flex items-start gap-2">
                             <Music className="h-4 w-4 text-gray-400 mt-0.5" />
+                           
                             <span className="text-sm font-medium text-white">
                               Writers:
                             </span>
+                         
                             <span className="text-sm text-gray-400">
                               {song.user.fullName}
                             </span>
                           </div>
                         </div>
                       </div>
+                    
                       <div>
                         <h3 className="text-lg font-semibold mb-2 text-white">
                           Lyrics
                         </h3>
+                      
                         <ScrollArea className="h-[200px] rounded-md border border-gray-700 bg-[#282828] p-4">
                           <div className="text-sm whitespace-pre-line text-gray-400">
                             {song.lyrics}

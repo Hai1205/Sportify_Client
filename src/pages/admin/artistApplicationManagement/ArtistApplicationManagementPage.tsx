@@ -28,7 +28,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserStore } from "@/stores/useUserStore";
@@ -234,14 +233,6 @@ export default function ArtistApplicationManagementPage() {
                         {selectedApplication.user.username} •{" "}
                         {selectedApplication.user.email}
                       </p>
-
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {selectedApplication.user.genres.map((genre, index) => (
-                          <Badge key={index} variant="outline">
-                            {genre}
-                          </Badge>
-                        ))}
-                      </div>
 
                       <div className="flex items-center gap-4 mt-3">
                         <div className="flex items-center gap-1">
@@ -778,8 +769,6 @@ export default function ArtistApplicationManagementPage() {
 
                     <TableHead>Status</TableHead>
 
-                    <TableHead>Genres</TableHead>
-
                     <TableHead>Followers</TableHead>
 
                     <TableHead>Submitted</TableHead>
@@ -838,20 +827,6 @@ export default function ArtistApplicationManagementPage() {
                             <span className="capitalize">
                               {application.status}
                             </span>
-                          </div>
-                        </TableCell>
-
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {application.user.genres.map((genre, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="text-xs"
-                              >
-                                {genre}
-                              </Badge>
-                            ))}
                           </div>
                         </TableCell>
 

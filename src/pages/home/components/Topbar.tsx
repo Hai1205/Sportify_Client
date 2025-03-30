@@ -2,7 +2,7 @@
 // import { LayoutDashboardIcon } from "lucide-react";
 // import { Link } from "react-router-dom";
 // import { cn } from "@/lib/utils";
-// // import SignInOAuthButtons from "./SignInOAuthButtons";
+// // import SignInOLoadingButtons from "./SignInOLoadingButtons";
 // import { buttonVariants } from "../../../components/ui/button";
 // import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -11,7 +11,7 @@
 
 //   return (
 //     <div
-//       className="flex items-center justify-between p-4 sticky top-0 bg-zinc-900/75 
+//       className="flex items-center justify-between p-4 sticky top-0 bg-zinc-900/75
 //       backdrop-blur-md z-10
 //     "
 //     >
@@ -32,7 +32,7 @@
 //         )}
 
 //         {/* <SignedOut> */}
-//         {/* <SignInOAuthButtons /> */}
+//         {/* <SignInOLoadingButtons /> */}
 //         {/* </SignedOut> */}
 
 //         {/* <UserButton /> */}

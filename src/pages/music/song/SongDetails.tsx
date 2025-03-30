@@ -13,7 +13,6 @@ interface Song {
   duration: string;
   releaseDate: string;
   views: number;
-  genre: string;
   lyrics: string;
   thumbnail: string;
 }
@@ -50,14 +49,11 @@ const SongDetail: React.FC = () => {
       duration: "3:45",
       releaseDate: "2023-05-15",
       views: 1245678,
-      genre: "Pop",
       lyrics:
         "Dancing in the rain\nFeeling no pain\nWashing away yesterday's sorrows\nDancing in the rain\nStarting again\nLooking forward to all our tomorrows",
       thumbnail: "/placeholder.svg?height=200&width=200",
     };
-    // const foundSong = mockSongs.find(
-    //   (s) => s.id === Number.parseInt(id || "0")
-    // );
+
     if (song) {
       setSong(song);
       setThumbnailPreview(song.thumbnail);
@@ -197,24 +193,6 @@ const SongDetail: React.FC = () => {
                   />
                 ) : (
                   <div className="text-xl font-semibold">{song.title}</div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="genre" className="block text-gray-400">
-                  Genre
-                </label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    id="genre"
-                    name="genre"
-                    value={song.genre}
-                    onChange={handleInputChange}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-md p-2 text-white"
-                  />
-                ) : (
-                  <div>{song.genre}</div>
                 )}
               </div>
 

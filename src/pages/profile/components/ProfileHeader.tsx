@@ -13,8 +13,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User } from "@/utils/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { UserListDialog } from "./UserListDialog";
+import normalizeUrl from "@/utils/service/normalizeUrl";
 
 interface ProfileHeaderProps {
   user: User;
@@ -29,71 +30,56 @@ const ProfileHeader = ({
   userAuth,
   userLoading,
   followUser,
-  getUser,
 }: ProfileHeaderProps) => {
   const [currentUser, setCurrentUser] = useState<User>(user);
   const [showFollowersDialog, setShowFollowersDialog] = useState(false);
   const [showFollowingDialog, setShowFollowingDialog] = useState(false);
 
-  useEffect(() => {
-    setCurrentUser(user);
-  }, [user]);
-
-  const followers = (currentUser?.followers || []) as User[];
+  const followers = useMemo(
+    () => (currentUser?.followers || []) as User[],
+    [currentUser?.followers]
+  );
   const following = (currentUser?.following || []) as User[];
-  const checkFollow = followers
-    ?.map((follower: User) => follower.id)
-    ?.includes(userAuth?.id);
   const isMyProfile = currentUser?.id === userAuth?.id;
+  const imIFollowed = followers.some(
+    (follower: User) => follower.id === userAuth?.id
+  );
+  useEffect(() => {
+    if (!user) return;
 
-  const [amIFollowing, setAmIFollowing] = useState(checkFollow);
+    setAmIFollowing(imIFollowed);
+    setFollowersCount(followers.length);
+  }, [user, imIFollowed, followers, userAuth?.id]);
+
+  const [amIFollowing, setAmIFollowing] = useState<boolean>(imIFollowed);
   const [followersCount, setFollowersCount] = useState(
     currentUser?.followers?.length || 0
   );
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (currentUser?.id) {
-        const updatedUser = await getUser(currentUser.id);
-        setCurrentUser(updatedUser);
-        setAmIFollowing(
-          updatedUser?.followers
-            ?.map((follower: User) => follower.id)
-            ?.includes(userAuth?.id)
-        );
-        setFollowersCount(updatedUser?.followers?.length || 0);
-      }
-    };
-
-    fetchUser();
-  }, [currentUser?.id, userAuth?.id, getUser]);
-
   const follow = async (e: any) => {
     e.preventDefault();
 
-    if (!currentUser.id) {
-      throw new Error("User ID is undefined");
-    }
-
-    if (!userAuth?.id) {
-      throw new Error("Current user ID is undefined");
+    if (!currentUser.id || !userAuth?.id) {
+      console.error("User ID hoặc Current User ID không xác định");
+      return;
     }
 
     try {
-      await followUser(userAuth?.id, currentUser.id);
+      await followUser(userAuth.id, currentUser.id);
 
       const updatedFollowers = amIFollowing
         ? followers.filter((follower) => follower.id !== userAuth.id)
         : [...followers, userAuth];
 
-      setCurrentUser({
-        ...currentUser,
+      setCurrentUser((prev) => ({
+        ...prev,
         followers: updatedFollowers,
-      });
+      }));
+
       setAmIFollowing(!amIFollowing);
       setFollowersCount(updatedFollowers.length);
     } catch (error) {
-      console.error("Failed to follow/unfollow user:", error);
+      console.error("Lỗi khi follow/unfollow:", error);
     }
   };
 
@@ -129,7 +115,9 @@ const ProfileHeader = ({
                 onClick={() => setShowFollowersDialog(true)}
               >
                 <span className="font-bold">{followersCount}</span>
-                <span className="text-gray-400 ml-1 hover:underline">Followers</span>
+                <span className="text-gray-400 ml-1 hover:underline">
+                  Followers
+                </span>
               </div>
 
               <div
@@ -139,7 +127,9 @@ const ProfileHeader = ({
                 <span className="font-bold">
                   {currentUser.following.length}
                 </span>
-                <span className="text-gray-400 ml-1 hover:underline">Following</span>
+                <span className="text-gray-400 ml-1 hover:underline">
+                  Following
+                </span>
               </div>
             </div>
 
@@ -147,10 +137,10 @@ const ProfileHeader = ({
             <div className="flex gap-2 justify-center md:justify-start mb-4">
               {currentUser.website && (
                 <a
-                  href={currentUser.website}
+                  href={normalizeUrl(currentUser.website)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-zinc-800 hover:bg-zinc-700 p-2 rounded-full transition-colors"
+                  className="bg-zinc-800 hover:bg-red-600 p-2 rounded-full transition-colors"
                 >
                   <Globe className="h-4 w-4" />
                 </a>
@@ -158,10 +148,10 @@ const ProfileHeader = ({
 
               {currentUser.instagram && (
                 <a
-                  href={currentUser.instagram}
+                  href={normalizeUrl(currentUser.instagram)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-zinc-800 hover:bg-pink-600 p-2 rounded-full transition-colors"
+                  className="bg-zinc-800 hover:bg-red-600 p-2 rounded-full transition-colors"
                 >
                   <Instagram className="h-4 w-4" />
                 </a>
@@ -169,10 +159,10 @@ const ProfileHeader = ({
 
               {currentUser.twitter && (
                 <a
-                  href={currentUser.twitter}
+                  href={normalizeUrl(currentUser.twitter)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-zinc-800 hover:bg-blue-500 p-2 rounded-full transition-colors"
+                  className="bg-zinc-800 hover:bg-red-600 p-2 rounded-full transition-colors"
                 >
                   <Twitter className="h-4 w-4" />
                 </a>
@@ -180,10 +170,10 @@ const ProfileHeader = ({
 
               {currentUser.facebook && (
                 <a
-                  href={currentUser.facebook}
+                  href={normalizeUrl(currentUser.facebook)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-zinc-800 hover:bg-blue-600 p-2 rounded-full transition-colors"
+                  className="bg-zinc-800 hover:bg-red-600 p-2 rounded-full transition-colors"
                 >
                   <Facebook className="h-4 w-4" />
                 </a>
@@ -191,7 +181,7 @@ const ProfileHeader = ({
 
               {currentUser.youtube && (
                 <a
-                  href={currentUser.youtube}
+                  href={normalizeUrl(currentUser.youtube)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-zinc-800 hover:bg-red-600 p-2 rounded-full transition-colors"

@@ -8,6 +8,8 @@ import {
   Pencil,
   Music,
   Disc,
+  UserPlus,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,8 +39,6 @@ import { Album, Song, User } from "@/utils/types";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import EditArtistDialog from "./components/EditArtistDialog";
-import AddGenreDialog from "./components/AddGenreDialog";
 import ManageSongsDialog from "../songManagement/components/ManageSongsDialog";
 import { useMusicStore } from "@/stores/useMusicStore";
 import EditSongDialog from "../songManagement/components/EditSongDialog";
@@ -48,37 +48,7 @@ import ViewAlbumDialog from "../albumManagement/components/ViewAlbumDialog";
 import ManageAlbumsDialog from "../albumManagement/components/ManageAlbumsDialog";
 import EditAlbumDialog from "../albumManagement/components/EditAlbumDialog";
 import { UserEmptyState } from "@/layout/components/EmptyState";
-
-const availableGenres: string[] = [
-  "Pop",
-  "Rock",
-  "Hip-Hop",
-  "R&B",
-  "Country",
-  "Electronic",
-  "Dance",
-  "Jazz",
-  "Classical",
-  "Folk",
-  "Indie",
-  "Alternative",
-  "Metal",
-  "Punk",
-  "Blues",
-  "Reggae",
-  "Soul",
-  "Funk",
-  "Disco",
-  "House",
-  "Techno",
-  "Trance",
-  "Ambient",
-  "Latin",
-  "K-Pop",
-  "J-Pop",
-  "Gospel",
-  "Soundtrack",
-];
+import { TableSkeleton } from "@/layout/components/TableSkeleton";
 
 export default function UserManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -86,7 +56,6 @@ export default function UserManagementPage() {
   const [searchQuery, setSearchQuery] = useState(query);
   const queryString = location.search;
 
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -95,17 +64,14 @@ export default function UserManagementPage() {
   const [openMenuFilters, setOpenMenuFilters] = useState(false);
   const closeMenuMenuFilters = () => setOpenMenuFilters(false);
 
-  const [isEditArtistOpen, setIsEditArtistOpen] = useState(false);
   const [isManageSongsOpen, setIsManageSongsOpen] = useState(false);
   const [isManageAlbumsOpen, setIsManageAlbumsOpen] = useState(false);
-  const [isAddGenreOpen, setIsAddGenreOpen] = useState(false);
   const [isEditSongOpen, setIsEditSongOpen] = useState(false);
   const [isSongDetailsOpen, setIsSongDetailsOpen] = useState(false);
   const [isAddToPlaylistOpen, setIsAddToPlaylistOpen] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<User | null>(null);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [playingSong, setPlayingSong] = useState<string | null>(null);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
 
   const [isViewAlbumOpen, setIsViewAlbumOpen] = useState(false);
@@ -117,8 +83,11 @@ export default function UserManagementPage() {
   const { isAdmin, resetPassword } = useAuthStore();
   const { albums } = useMusicStore();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchUsers = async () => {
+      setIsLoading(true);
       const params = new URLSearchParams(searchParams);
       params.set("admin", `${isAdmin}`);
       const updatedQueryString = `?${params.toString()}`;
@@ -128,6 +97,7 @@ export default function UserManagementPage() {
       } else {
         await getAllUser().then(setUsers);
       }
+      setIsLoading(false);
     };
 
     fetchUsers();
@@ -158,29 +128,13 @@ export default function UserManagementPage() {
     role: [],
   });
 
-  const toggleUserSelection = (userId: string) => {
-    if (selectedUsers.includes(userId)) {
-      setSelectedUsers(selectedUsers.filter((id) => id !== userId));
-    } else {
-      setSelectedUsers([...selectedUsers, userId]);
-    }
-  };
-
-  const toggleAllUsers = () => {
-    if (selectedUsers.length === users.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers(users.map((user) => user.id));
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
         return "bg-green-500";
       case "pending":
         return "bg-yellow-500";
-      case "locked":
+      case "lock":
         return "bg-red-500";
       default:
         return "bg-gray-500";
@@ -201,13 +155,13 @@ export default function UserManagementPage() {
     setIsEditUserOpen(true);
   };
 
-  const handleDeleteUser = (user: User) => {
+  const handleDeleteUser = async (user: User) => {
     if (!user) {
       return;
     }
 
-    deleteUser(user.id);
-    setIsEditUserOpen(true);
+    await deleteUser(user.id);
+    setUsers(users.filter((u) => u.id !== user.id));
   };
 
   // Function to toggle a filter value
@@ -259,11 +213,6 @@ export default function UserManagementPage() {
     closeMenuMenuFilters();
   };
 
-  const handleEditArtist = (artist: User) => {
-    setSelectedArtist(artist);
-    setIsEditArtistOpen(true);
-  };
-
   const handleManageSongs = (artist: User) => {
     setSelectedArtist(artist);
     setIsManageSongsOpen(true);
@@ -272,11 +221,6 @@ export default function UserManagementPage() {
   const handleManageAlbums = (artist: User) => {
     setSelectedArtist(artist);
     setIsManageAlbumsOpen(true);
-  };
-
-  const handleAddGenre = (artist: User) => {
-    setSelectedArtist(artist);
-    setIsAddGenreOpen(true);
   };
 
   const handleEditSong = (song: Song) => {
@@ -299,14 +243,6 @@ export default function UserManagementPage() {
       setPlayingSong(null);
     } else {
       setPlayingSong(songId);
-    }
-  };
-
-  const toggleGenreSelection = (genre: string) => {
-    if (selectedGenres.includes(genre)) {
-      setSelectedGenres(selectedGenres.filter((g) => g !== genre));
-    } else {
-      setSelectedGenres([...selectedGenres, genre]);
     }
   };
 
@@ -338,17 +274,24 @@ export default function UserManagementPage() {
     setAlbumSongs(albumSongs.filter((song) => song.id !== songId));
   };
 
+  const handleUserAdded = (newUser: User) => {
+    setUsers([...users, newUser]);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Users</h2>
 
         <div className="flex items-center gap-2">
-          {/* Add User Dialog */}
-          <AddUserDialog
-            isOpen={isAddUserOpen}
-            onOpenChange={setIsAddUserOpen}
-          />
+          <Button
+            size="sm"
+            className="h-8 gap-1"
+            onClick={() => setIsAddUserOpen(true)}
+          >
+            <UserPlus className="h-4 w-4" />
+            Add User
+          </Button>
         </div>
       </div>
 
@@ -359,30 +302,12 @@ export default function UserManagementPage() {
         user={selectedUser}
       />
 
-      {/* Edit Artist Dialog */}
-      <EditArtistDialog
-        isOpen={isEditArtistOpen}
-        onOpenChange={setIsEditArtistOpen}
-        handleAddGenre={handleAddGenre}
-        selectedArtist={selectedArtist}
-      />
-
-      {/* Add Genre Dialog */}
-      <AddGenreDialog
-        isOpen={isAddGenreOpen}
-        onOpenChange={setIsAddGenreOpen}
-        toggleGenreSelection={toggleGenreSelection}
-        availableGenres={availableGenres}
-        selectedArtist={selectedArtist}
-      />
-
       {/* Manage Songs Dialog */}
       <ManageSongsDialog
         isOpen={isManageSongsOpen}
         onOpenChange={setIsManageSongsOpen}
         artist={selectedArtist}
         playingSong={playingSong}
-        // handleAddSong={handleAddSong}
         togglePlaySong={togglePlaySong}
         handleEditSong={handleEditSong}
         handleViewSongDetails={handleViewSongDetails}
@@ -395,7 +320,6 @@ export default function UserManagementPage() {
         onOpenChange={setIsEditSongOpen}
         song={selectedSong}
         albums={albums}
-        genres={availableGenres}
       />
 
       {/* View Song Details Dialog */}
@@ -448,7 +372,6 @@ export default function UserManagementPage() {
         onOpenChange={setIsEditAlbumOpen}
         selectedAlbum={selectedAlbum}
         albumSongs={albumSongs}
-        availableGenres={availableGenres}
         handleEditSong={handleEditSong}
         handleRemoveSongFromAlbum={handleRemoveSongFromAlbum}
       />
@@ -477,6 +400,16 @@ export default function UserManagementPage() {
                       />
                     </div>
                   </form>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 gap-1"
+                    onClick={clearFilters}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh
+                  </Button>
 
                   <DropdownMenu
                     open={openMenuFilters}
@@ -532,14 +465,14 @@ export default function UserManagementPage() {
                           <div className="flex items-center">
                             <Checkbox
                               id="status-lock"
-                              checked={activeFilters.status.includes("locked")}
+                              checked={activeFilters.status.includes("lock")}
                               onCheckedChange={() =>
-                                toggleFilter("status", "locked")
+                                toggleFilter("status", "lock")
                               }
                               className="mr-2"
                             />
 
-                            <label htmlFor="status-lock">Locked</label>
+                            <label htmlFor="status-lock">lock</label>
                           </div>
                         </div>
                       </div>
@@ -548,6 +481,7 @@ export default function UserManagementPage() {
 
                       <div className="p-2">
                         <h4 className="mb-2 text-sm font-medium">Role</h4>
+
                         <div className="space-y-2">
                           <div className="flex items-center">
                             <Checkbox
@@ -558,6 +492,7 @@ export default function UserManagementPage() {
                               }
                               className="mr-2"
                             />
+
                             <label htmlFor="role-user">User</label>
                           </div>
 
@@ -607,64 +542,58 @@ export default function UserManagementPage() {
                 </div>
               </div>
             </CardHeader>
+
             <ScrollArea className="h-[calc(100vh-340px)] w-full rounded-xl">
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[40px]">
-                        <Checkbox
-                          checked={selectedUsers.length === users.length}
-                          onCheckedChange={toggleAllUsers}
-                        />
-                      </TableHead>
+                      <TableHead className="text-center">User</TableHead>
 
-                      <TableHead>User</TableHead>
+                      <TableHead className="text-center">Role</TableHead>
 
-                      <TableHead>Role</TableHead>
+                      <TableHead className="text-center">Country</TableHead>
 
-                      <TableHead>Country</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
 
-                      <TableHead>Status</TableHead>
+                      <TableHead className="text-center">Join Date</TableHead>
 
-                      <TableHead>Join Date</TableHead>
-
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
+
                   <TableBody>
-                    {users.length > 0 ? (
+                    {isLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={7}>
+                          <TableSkeleton />
+                        </TableCell>
+                      </TableRow>
+                    ) : users.length > 0 ? (
                       users.map((user) => (
                         <TableRow key={user.id}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedUsers.includes(user.id)}
-                              onCheckedChange={() =>
-                                toggleUserSelection(user.id)
-                              }
-                            />
-                          </TableCell>
-
                           <TableCell>
                             <Link to={`/profile/${user?.id}`}>
                               <div className="flex items-center gap-3">
                                 <Avatar className="h-9 w-9">
                                   <AvatarImage
-                                    src={user.avatarUrl}
-                                    alt={user.fullName}
+                                    src={user?.avatarUrl}
+                                    alt={user?.fullName || "User"}
                                   />
                                   <AvatarFallback>
-                                    {user.fullName.substring(0, 2)}
+                                    {user?.fullName
+                                      ? user.fullName.substring(0, 2)
+                                      : "U"}
                                   </AvatarFallback>
                                 </Avatar>
 
                                 <div className="flex flex-col">
                                   <span className="font-medium hover:underline">
-                                    {user.fullName}
+                                    {user?.fullName || "Unknown User"}
                                   </span>
 
                                   <span className="text-sm text-muted-foreground hover:underline">
-                                    {user.email}
+                                    @{user?.username || "unknown"}
                                   </span>
                                 </div>
                               </div>
@@ -690,7 +619,7 @@ export default function UserManagementPage() {
                             </div>
                           </TableCell>
 
-                          <TableCell>{user.created_at}</TableCell>
+                          <TableCell>{user.joinDate}</TableCell>
 
                           <TableCell className="text-right">
                             <DropdownMenu>
@@ -709,19 +638,20 @@ export default function UserManagementPage() {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                                {user.role === "artist" ? (
+                                <DropdownMenuItem
+                                  onClick={() => handleEditUser(user)}
+                                  className="cursor-pointer"
+                                >
+                                  <Pencil className="mr-2 h-4 w-4 cursor-pointer" />{" "}
+                                  Edit
+                                </DropdownMenuItem>
+
+                                {(user.role === "artist" ||
+                                  user.role === "admin") && (
                                   <>
                                     <DropdownMenuItem
-                                      onClick={() => handleEditArtist(user)}
-                                    >
-                                      <Pencil className="mr-2 h-4 w-4" /> Edit
-                                      artist
-                                    </DropdownMenuItem>
-
-                                    <DropdownMenuSeparator />
-
-                                    <DropdownMenuItem
                                       onClick={() => handleManageSongs(user)}
+                                      className="cursor-pointer"
                                     >
                                       <Music className="mr-2 h-4 w-4" /> Manage
                                       songs
@@ -729,33 +659,28 @@ export default function UserManagementPage() {
 
                                     <DropdownMenuItem
                                       onClick={() => handleManageAlbums(user)}
+                                      className="cursor-pointer"
                                     >
                                       <Disc className="mr-2 h-4 w-4" /> Manage
                                       albums
                                     </DropdownMenuItem>
                                   </>
-                                ) : (
-                                  <DropdownMenuItem
-                                    onClick={() => handleEditUser(user)}
-                                  >
-                                    <Pencil className="mr-2 h-4 w-4" /> Edit
-                                    user
-                                  </DropdownMenuItem>
                                 )}
 
                                 <DropdownMenuSeparator />
 
                                 <DropdownMenuItem
                                   onClick={() => handleResetPassword(user)}
+                                  className="cursor-pointer"
                                 >
                                   Reset password
                                 </DropdownMenuItem>
 
-                                <DropdownMenuItem className="text-red-600">
-                                  <Trash
-                                    onClick={() => handleDeleteUser(user)}
-                                    className="mr-2 h-4 w-4"
-                                  />{" "}
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteUser(user)}
+                                  className="text-red-600 cursor-pointer"
+                                >
+                                  <Trash className="mr-2 h-4 w-4" />
                                   Delete user
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -777,6 +702,13 @@ export default function UserManagementPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Add User Dialog */}
+      <AddUserDialog
+        isOpen={isAddUserOpen}
+        onOpenChange={setIsAddUserOpen}
+        onUserAdded={handleUserAdded}
+      />
     </div>
   );
 }

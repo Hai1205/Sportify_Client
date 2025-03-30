@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import Input from "./components/Input";
-import Button from "./components/Button";
+import LoadingButton from "../../layout/components/LoadingButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const ForgotPasswordPage: React.FC = () => {
@@ -58,7 +58,7 @@ const ForgotPasswordPage: React.FC = () => {
           error={error}
         />
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="primary"
           fullWidth
@@ -66,7 +66,7 @@ const ForgotPasswordPage: React.FC = () => {
           isLoading={isLoading}
         >
           SEND CODE
-        </Button>
+        </LoadingButton>
 
         <div className="text-center">
           <a
@@ -75,7 +75,9 @@ const ForgotPasswordPage: React.FC = () => {
 
               if (!isLoading) navigate("/login");
             }}
-            className={`text-white hover:text-[#1DB954] text-sm underline cursor-pointer ${isLoading ? "pointer-events-none opacity-70" : ""}`}
+            className={`text-white hover:text-[#1DB954] text-sm underline cursor-pointer ${
+              isLoading ? "pointer-events-none opacity-70" : ""
+            }`}
           >
             Back to login
           </a>

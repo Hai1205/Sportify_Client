@@ -1,13 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import {
-  MoreHorizontal,
-  Music,
-  Pause,
-  Play,
-  Search,
-  Trash,
-} from "lucide-react";
+import { MoreHorizontal, Music, Search, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,31 +26,42 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import AddAlbumDialog from "./components/AddAlbumDialog";
 import { AlbumsEmptyState } from "@/layout/components/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Album } from "@/utils/types";
+import { TableSkeleton } from "../../../layout/components/TableSkeleton";
 
 export default function AlbumManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
+  const queryString = location.search;
 
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
   const [isAddSongOpen, setIsAddSongOpen] = useState(false);
-  const [playingSong, setPlayingSong] = useState<string | null>(null);
+  const [albums, setAlbums] = useState<Album[] | []>([]);
 
-  const { albums, getAllAlbum, searchAlbums } = useMusicStore();
-
-  useEffect(() => {
-    getAllAlbum();
-  }, [getAllAlbum]);
+  const { isLoading, getAllAlbum, searchAlbums } = useMusicStore();
 
   useEffect(() => {
-    setSearchQuery(query);
-    searchAlbums(query);
-  }, [query, searchAlbums]);
+    const fetchAlbums = async () => {
+      if (queryString) {
+        await searchAlbums(queryString).then(setAlbums);
+      } else {
+        await getAllAlbum().then(setAlbums);
+      }
+    };
+
+    fetchAlbums();
+  }, [getAllAlbum, query, queryString, searchAlbums]);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      setSearchParams({ query: searchQuery.trim() });
+
+      if (searchQuery.trim()) {
+        setSearchParams({ query: searchQuery.trim() });
+      } else {
+        setSearchParams();
+      }
     },
     [searchQuery, setSearchParams]
   );
@@ -75,14 +79,6 @@ export default function AlbumManagementPage() {
       setSelectedSongs([]);
     } else {
       setSelectedSongs(albums.map((song) => song.id));
-    }
-  };
-
-  const togglePlaySong = (songId: string) => {
-    if (playingSong === songId) {
-      setPlayingSong(null);
-    } else {
-      setPlayingSong(songId);
     }
   };
 
@@ -113,6 +109,8 @@ export default function AlbumManagementPage() {
                     type="search"
                     placeholder="Search albums..."
                     className="w-full pl-8"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
               </form>
@@ -124,59 +122,51 @@ export default function AlbumManagementPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40px]">
+                  <TableHead className="w-[40px] text-center">
                     <Checkbox
                       checked={selectedSongs.length === albums.length}
                       onCheckedChange={toggleAllSongs}
                     />
                   </TableHead>
 
-                  <TableHead className="w-[40px]"></TableHead>
+                  <TableHead className="w-[40px] text-center">
+                    Thumbnail
+                  </TableHead>
 
-                  <TableHead>Title</TableHead>
+                  <TableHead className="text-center">Title</TableHead>
 
-                  <TableHead>Artist</TableHead>
+                  <TableHead className="text-center">Artist</TableHead>
 
-                  <TableHead>Release Date</TableHead>
+                  <TableHead className="text-center">Release Date</TableHead>
 
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
-                {albums.length > 0 ? (
-                  albums.map((song) => (
-                    <TableRow key={song.id}>
-                      <TableCell>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <TableSkeleton />
+                    </TableCell>
+                  </TableRow>
+                ) : albums.length > 0 ? (
+                  albums.map((album) => (
+                    <TableRow key={album.id}>
+                      <TableCell className="text-center">
                         <Checkbox
-                          checked={selectedSongs.includes(song.id)}
-                          onCheckedChange={() => toggleSongSelection(song.id)}
+                          checked={selectedSongs.includes(album.id)}
+                          onCheckedChange={() => toggleSongSelection(album.id)}
                         />
                       </TableCell>
 
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-full"
-                          onClick={() => togglePlaySong(song.id)}
-                        >
-                          {playingSong === song.id ? (
-                            <Pause className="h-4 w-4" />
-                          ) : (
-                            <Play className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </TableCell>
-
-                      <TableCell>
-                        <div className="flex items-center gap-3">
+                      <TableCell className="text-center">
+                        <div className="flex justify-center">
                           <Avatar className="h-9 w-9 rounded-md">
                             <AvatarImage
-                              src={song.thumbnailUrl}
-                              alt={song.title}
+                              src={album.thumbnailUrl}
+                              alt={album.title}
                             />
-
                             <AvatarFallback>
                               <Music className="h-4 w-4" />
                             </AvatarFallback>
@@ -184,44 +174,46 @@ export default function AlbumManagementPage() {
                         </div>
                       </TableCell>
 
-                      <TableCell>{song.user.fullName}</TableCell>
+                      <TableCell className="text-center">
+                        {album.title}
+                      </TableCell>
 
-                      <TableCell>{song.releaseDate}</TableCell>
+                      <TableCell className="text-center">
+                        {album.user.fullName}
+                      </TableCell>
 
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Open menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
+                      <TableCell className="text-center">
+                        {album.releaseDate}
+                      </TableCell>
 
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
 
-                            <DropdownMenuItem>View details</DropdownMenuItem>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                            <DropdownMenuItem>Edit metadata</DropdownMenuItem>
+                              <DropdownMenuItem>Manage</DropdownMenuItem>
 
-                            <DropdownMenuSeparator />
+                              <DropdownMenuSeparator />
 
-                            <DropdownMenuItem>Add to playlist</DropdownMenuItem>
-
-                            <DropdownMenuItem>Download</DropdownMenuItem>
-
-                            <DropdownMenuSeparator />
-
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash className="mr-2 h-4 w-4" />
-                              Delete song
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                              <DropdownMenuItem className="text-red-600">
+                                <Trash className="mr-2 h-4 w-4" />
+                                Delete album
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
