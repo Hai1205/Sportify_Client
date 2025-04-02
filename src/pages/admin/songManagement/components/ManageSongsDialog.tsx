@@ -21,28 +21,22 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
-  // Plus,
-  Play,
-  Pause,
   Search,
   MoreHorizontal,
   Pencil,
-  Info,
   ListPlus,
   Trash,
+  Music,
+  Download,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Song, User } from "@/utils/types";
+import { Link } from "react-router-dom";
 
 interface ManageSongsDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   artist?: User | null;
-  playingSong?: string | null;
-  // handleAddSong: () => void;
-  togglePlaySong: (id: string) => void;
   handleEditSong: (song: Song) => void;
-  handleViewSongDetails: (song: Song) => void;
   handleAddToPlaylist: (song: Song) => void;
 }
 
@@ -50,11 +44,7 @@ const ManageSongsDialog = ({
   isOpen,
   onOpenChange,
   artist,
-  // handleAddSong,
-  togglePlaySong,
-  playingSong,
   handleEditSong,
-  handleViewSongDetails,
   handleAddToPlaylist,
 }: ManageSongsDialogProps) => {
   const handleClose = () => {
@@ -124,13 +114,6 @@ const ManageSongsDialog = ({
                           </p>
                         </div>
                       </div>
-                      {/* <Button
-                        size="sm"
-                        className="gap-1 bg-[#1DB954] hover:bg-[#1ed760] text-white"
-                        onClick={handleAddSong}
-                      >
-                        <Plus className="h-4 w-4" /> Add Song
-                      </Button> */}
                     </div>
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
@@ -144,16 +127,24 @@ const ManageSongsDialog = ({
                       <Table>
                         <TableHeader>
                           <TableRow className="border-gray-700">
-                            <TableHead className="w-[40px]"></TableHead>
-                            <TableHead className="text-white">Title</TableHead>
-                            <TableHead className="text-white">Album</TableHead>
-                            <TableHead className="text-white">
+                            <TableHead className="w-[40px]">
+                              Thumbnail
+                            </TableHead>
+
+                            <TableHead className="text-center">Title</TableHead>
+
+                            <TableHead className="text-center">Album</TableHead>
+
+                            <TableHead className="text-center">
                               Duration
                             </TableHead>
-                            <TableHead className="text-white">Plays</TableHead>
-                            <TableHead className="text-white">
+
+                            <TableHead className="text-center">Views</TableHead>
+
+                            <TableHead className="text-center">
                               Release Date
                             </TableHead>
+
                             <TableHead className="text-right text-white">
                               Actions
                             </TableHead>
@@ -169,44 +160,45 @@ const ManageSongsDialog = ({
                                   className="border-gray-700"
                                 >
                                   <TableCell>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 rounded-full hover:bg-[#282828]"
-                                      onClick={() => togglePlaySong(song.id)}
-                                    >
-                                      {playingSong === song.id ? (
-                                        <Pause className="h-4 w-4 text-white" />
-                                      ) : (
-                                        <Play className="h-4 w-4 text-white" />
-                                      )}
-                                    </Button>
+                                    <Link to={`/song-detail/${song.id}`}>
+                                      <div className="flex justify-center">
+                                        <Avatar className="h-9 w-9 rounded-md">
+                                          <AvatarImage
+                                            src={song.thumbnailUrl}
+                                            alt={song.title}
+                                          />
+                                          <AvatarFallback>
+                                            <Music className="h-4 w-4" />
+                                          </AvatarFallback>
+                                        </Avatar>
+                                      </div>
+                                    </Link>
                                   </TableCell>
-                                  <TableCell>
-                                    <div className="flex flex-col">
-                                      <span className="font-medium text-white">
-                                        {song.title}
-                                      </span>
-                                      <Badge
-                                        variant="outline"
-                                        className="w-fit text-xs border-gray-700 text-gray-400"
-                                      >
-                                        Explicit
-                                      </Badge>
-                                    </div>
+
+                                  <TableCell className="text-center hover:underline">
+                                    <Link to={`/song-detail/${song.id}`}>
+                                      {song.title}
+                                    </Link>
                                   </TableCell>
-                                  <TableCell className="text-white">
-                                    {song.album?.title}
+
+                                  <TableCell className="text-center hover:underline">
+                                    <Link to={`/album-detail/${song?.album?.id}`}>
+                                      {song.album?.title}
+                                    </Link>
                                   </TableCell>
-                                  <TableCell className="text-white">
+                                
+                                  <TableCell className="text-center">
                                     {song.duration}
                                   </TableCell>
-                                  <TableCell className="text-white">
+                                 
+                                  <TableCell className="text-center">
                                     {song.views}
                                   </TableCell>
-                                  <TableCell className="text-white">
+                                 
+                                  <TableCell className="text-center">
                                     {song.releaseDate}
                                   </TableCell>
+                                 
                                   <TableCell className="text-right">
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
@@ -216,51 +208,52 @@ const ManageSongsDialog = ({
                                           className="h-8 w-8 p-0 hover:bg-[#282828]"
                                         >
                                           <MoreHorizontal className="h-4 w-4 text-white" />
-                                          <span className="sr-only">
+                                          {/* <span className="sr-only">
                                             Open menu
-                                          </span>
+                                          </span> */}
                                         </Button>
                                       </DropdownMenuTrigger>
+                                    
                                       <DropdownMenuContent
                                         align="end"
                                         className="bg-[#282828] border-gray-700"
                                       >
-                                        <DropdownMenuLabel className="text-white">
+                                        <DropdownMenuLabel>
                                           Actions
                                         </DropdownMenuLabel>
+                                        
                                         <DropdownMenuItem
                                           onClick={() => handleEditSong(song)}
-                                          className="text-white hover:bg-[#1DB954] hover:text-white"
+                                          className="text-white hover:text-white cursor-pointer"
                                         >
-                                          <Pencil className="mr-2 h-4 w-4" />{" "}
-                                          Edit song
+                                          <Pencil className="mr-2 h-4 w-4" />
+                                         
+                                          {" Edit"}
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                          onClick={() =>
-                                            handleViewSongDetails(song)
-                                          }
-                                          className="text-white hover:bg-[#1DB954] hover:text-white"
-                                        >
-                                          <Info className="mr-2 h-4 w-4" /> View
-                                          details
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator className="bg-gray-700" />
+                                      
                                         <DropdownMenuItem
                                           onClick={() =>
                                             handleAddToPlaylist(song)
                                           }
-                                          className="text-white hover:bg-[#1DB954] hover:text-white"
+                                          className="text-white hover:text-white cursor-pointer"
                                         >
-                                          <ListPlus className="mr-2 h-4 w-4" />{" "}
-                                          Add to playlist
+                                          <ListPlus className="mr-2 h-4 w-4" />
+                                          
+                                          {" Add to album"}
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="text-white hover:bg-[#1DB954] hover:text-white">
-                                          Download
+                                        
+                                        <DropdownMenuItem className="text-white hover:text-white cursor-pointer">
+                                          <Download className="mr-2 h-4 w-4" />
+                                          
+                                          {" Download"}
                                         </DropdownMenuItem>
+                                        
                                         <DropdownMenuSeparator className="bg-gray-700" />
-                                        <DropdownMenuItem className="text-red-600 hover:bg-red-500 hover:text-white">
-                                          <Trash className="mr-2 h-4 w-4" />{" "}
-                                          Delete song
+                                       
+                                        <DropdownMenuItem className="text-red-600 hover:text-white cursor-pointer">
+                                          <Trash className="mr-2 h-4 w-4" />
+                                          
+                                          {" Delete"}
                                         </DropdownMenuItem>
                                       </DropdownMenuContent>
                                     </DropdownMenu>

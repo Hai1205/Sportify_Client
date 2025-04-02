@@ -23,8 +23,10 @@ import {
 	downloadSong,
 	searchSongs,
 	increaseSongView,
-	uploadSong
+	uploadSong,
+	likeSong
 } from "@/utils/api/songApi";
+import { useAuthStore } from "./useAuthStore";
 
 interface MusicStore {
 	isLoading: boolean;
@@ -53,6 +55,7 @@ interface MusicStore {
 	deleteSong: (id: string) => Promise<any>;
 	searchSongs: (query: string) => Promise<any>;
 	increaseSongView: (songID: string) => Promise<any>;
+    likeSong: (userId: string, songId: string) => Promise<any>;
 	reset: () => any;
 }
 
@@ -272,9 +275,9 @@ export const useMusicStore = create<MusicStore>()(
 
 				try {
 					const response = await getUserAlbums(userId);
-					const { album } = response.data;
+					const { albums } = response.data;
 
-					return album;
+					return albums;
 				} catch (error: any) {
 					console.error(error)
 					const { message } = error.response.data;
@@ -468,6 +471,26 @@ export const useMusicStore = create<MusicStore>()(
 					set({ isLoading: false });
 				}
 			},
+			
+            likeSong: async (userId, songId) => {
+                set({ error: null });
+
+                try {
+                    const response = await likeSong(userId, songId);
+                    const { user, message } = response.data;
+
+                    useAuthStore.getState().setUserAuth(user);
+                    toast.success(message);
+                    return user;
+                } catch (error: any) {
+                    console.error(error)
+                    const { message } = error.response.data;
+                    set({ error: message });
+
+                    toast.error(message);
+                    return false;
+                }
+            },
 
 			reset: () => {
 				set({

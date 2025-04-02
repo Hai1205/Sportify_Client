@@ -3,30 +3,38 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUserStore } from "@/stores/useUserStore";
 import React, { useEffect, useState } from "react";
-import { User as USER } from "@/utils/types";
-import GeneralSettings from "@/pages/settings/components/GeneralSettings";
-import SecuritySettings from "@/pages/settings/components/SecuritySettings";
-import ArtistApplication from "@/pages/settings/components/ArtistApplication";
+import { ArtistApplication, User as USER } from "@/utils/types";
+import GeneralTab from "@/pages/settings/components/GeneralTab";
+import SecurityTab from "@/pages/settings/components/SecurityTab";
+import ArtistApplicationTab from "./components/ArtistApplicationTab";
 
-type SongSample = {
+export interface SongSample {
   title: string;
   file?: File | null;
-};
+}
 
-type ChangePassword = {
+export interface ChangePassword {
   currentPassword: string;
   newPassword: string;
   rePassword: string;
-};
-
-type ArtistApplication = {
-  biography: string;
-  achievements: string;
-  reason: string;
-};
+}
 
 const SettingPage = () => {
-  const [userData, setUserData] = useState<USER | null>(null);
+  const {
+    isAdmin,
+    isArtist,
+    user: userAuth,
+    isLoading: isAuthLoading,
+    changePassword,
+  } = useAuthStore();
+  const {
+    isLoading: isUserLoading,
+    updateUser,
+    getArtistApplication,
+    requireUpdateUserToArtist,
+  } = useUserStore();
+
+  const [userData, setUserData] = useState<USER | null>(userAuth);
   const [changePasswordData, setChangePasswordData] = useState<ChangePassword>({
     currentPassword: "",
     newPassword: "",
@@ -34,8 +42,13 @@ const SettingPage = () => {
   });
   const [applicationData, setApplicationData] = useState<ArtistApplication>({
     achievements: "",
-    biography: "",
     reason: "",
+    id: "",
+    user: null,
+    songs: [],
+    biography: "",
+    status: "",
+    submitDate: "",
   });
   const [songData, setSongData] = useState<SongSample[]>([
     { title: "", file: null },
@@ -45,25 +58,24 @@ const SettingPage = () => {
   const [previewAvatar, setPreviewAvatar] = useState<string>("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-  const {
-    isAdmin,
-    isArtist,
-    user: userAuth,
-    isLoading: isAuthLoading,
-  } = useAuthStore();
-  const {
-    isLoading: isUserLoading,
-    updateUser,
-    getArtistApplication,
-  } = useUserStore();
-
   // Initialize userData when userAuth is available or changes
   useEffect(() => {
-    if (userAuth) {
-      setUserData(userAuth);
-      getArtistApplication(userAuth.id).then(setApplicationData);
+    const fetchData = async () => {
+      if (!userAuth) {
+        return;
+      }
+
+      const res = await getArtistApplication(userAuth.id);
+      if(!res){
+        return;
+      }
+
+      setApplicationData(res)
+      setSongData(res.songs || [])
       setPreviewAvatar(userAuth.avatarUrl || "");
     }
+
+    fetchData();
   }, [getArtistApplication, userAuth]);
 
   const handleInfoChange = (field: keyof USER, value: string | File | null) => {
@@ -93,7 +105,11 @@ const SettingPage = () => {
         if (!updatedSongs[index]) {
           updatedSongs[index] = { title: "", file: null }; // Initialize if undefined
         }
-        updatedSongs[index] = { ...updatedSongs[index], [field]: value };
+        if (field === "File") {
+          updatedSongs[index].file = value as File;
+        } else {
+          updatedSongs[index] = { ...updatedSongs[index], [field]: value };
+        }
         return updatedSongs;
       });
     } else {
@@ -131,7 +147,7 @@ const SettingPage = () => {
     }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (changePasswordData && userAuth) {
       const formData = new FormData();
       formData.append(
@@ -141,14 +157,22 @@ const SettingPage = () => {
       formData.append("newPassword", changePasswordData.newPassword || "");
       formData.append("rePassword", changePasswordData.rePassword || "");
 
-      // changePassword(userAuth.id, formData);
+      const res = await changePassword(userAuth.id, formData);
+      if (!res) {
+        return;
+      }
+
+      setChangePasswordData({
+        currentPassword: "",
+        newPassword: "",
+        rePassword: "",
+      });
     }
   };
 
   const handleRequireApplication = () => {
     if (userData && userAuth) {
       const formData = new FormData();
-      formData.append("biography", applicationData?.biography || "");
       formData.append("achievements", applicationData?.achievements || "");
       formData.append("reason", applicationData?.reason || "");
       formData.append("song1Title", songData[0].title || "");
@@ -156,16 +180,16 @@ const SettingPage = () => {
       formData.append("song3Title", songData[2].title || "");
 
       if (songData[0].file) {
-        formData.append("song3Audio", songData[0].file);
+        formData.append("song1Audio", songData[0].file);
       }
       if (songData[1].file) {
-        formData.append("song3Audio", songData[1].file);
+        formData.append("song2Audio", songData[1].file);
       }
       if (songData[2].file) {
         formData.append("song3Audio", songData[2].file);
       }
 
-      // requireUpdateUserToArtist(userAuth.id, formData);
+      requireUpdateUserToArtist(userAuth.id, formData);
     }
   };
 
@@ -206,7 +230,7 @@ const SettingPage = () => {
         </TabsList>
 
         {userData && userAuth && (
-          <GeneralSettings
+          <GeneralTab
             userData={userData}
             handleInfoChange={handleInfoChange}
             handleSaveInfo={handleSaveInfo}
@@ -217,14 +241,14 @@ const SettingPage = () => {
           />
         )}
 
-        <SecuritySettings
+        <SecurityTab
           changePasswordData={changePasswordData}
           handleSecurityChange={handleSecurityChange}
           handleChangePassword={handleChangePassword}
           isAuthLoading={isAuthLoading}
         />
 
-        <ArtistApplication
+        <ArtistApplicationTab
           applicationData={applicationData}
           songData={songData}
           handleApplicationChange={handleApplicationChange}

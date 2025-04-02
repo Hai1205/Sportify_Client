@@ -39,7 +39,7 @@ export interface AuthStore {
 	login: (formData: FormData) => Promise<any>;
 	loginWithGoogle: (formData: FormData) => Promise<any>;
 	logout: () => Promise<any>;
-	forgotPassword: (userId: string, formData: FormData) => Promise<any>;
+	forgotPassword: (formData: FormData) => Promise<any>;
 	changePassword: (userId: string, formData: FormData) => Promise<any>;
 	resetPassword: (userId: string) => Promise<any>;
 	refreshToken: () => Promise<any>;
@@ -127,7 +127,7 @@ export const useAuthStore = create<AuthStore>()(
 					const response = await checkOTP(email, OTP);
 					const { message } = response.data;
 
-                    toast.success(message);
+					toast.success(message);
 					return true;
 				} catch (error: any) {
 					console.error(error)
@@ -146,10 +146,10 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					const response = await register(formData);
-					const data = response.data.message;
+					const { message } = response.data;
 
-					toast.success(data);
-					return data;
+					toast.success(message);
+					return message;
 				} catch (error: any) {
 					console.error(error)
 					const { message } = error.response.data;
@@ -237,8 +237,10 @@ export const useAuthStore = create<AuthStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await changePassword(userId, formData);
+					const response = await changePassword(userId, formData);
+					const { message } = response.data;
 
+					toast.success(message);
 					return true;
 				} catch (error: any) {
 					console.error(error)
@@ -252,11 +254,12 @@ export const useAuthStore = create<AuthStore>()(
 				}
 			},
 
-			forgotPassword: async (userId, formData) => {
+			forgotPassword: async (formData) => {
 				set({ isLoading: true, error: null });
 
 				try {
-					const {message} = await forgotPassword(userId, formData);
+					const response = await forgotPassword(formData);
+					const { message } = response.data;
 
 					toast.success(message);
 					return true;
@@ -276,8 +279,10 @@ export const useAuthStore = create<AuthStore>()(
 				set({ isLoading: true, error: null });
 
 				try {
-					await resetPassword(userId);
+					const response = await resetPassword(userId);
+					const { message } = response.data;
 
+					toast.success(message);
 					return true;
 				} catch (error: any) {
 					console.error(error)

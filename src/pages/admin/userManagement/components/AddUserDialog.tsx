@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { useUserStore } from "@/stores/useUserStore";
 import { User } from "@/utils/types";
+import LoadingSpinner from "@/components/ui/loading";
+import { Save } from "lucide-react";
 
 interface AddUserDialogProps {
   isOpen: boolean;
@@ -242,14 +244,21 @@ const AddUserDialog = ({
             Cancel
           </Button>
 
-          <Button onClick={handleCreateUser} disabled={isLoading}>
+          <Button
+            onClick={handleCreateUser}
+            className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+            disabled={isLoading}
+          >
             {isLoading ? (
               <>
-                <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                <LoadingSpinner />
                 Creating...
               </>
             ) : (
-              <>Create User</>
+              <>
+                <Save className="h-4 w-4" />
+                Create
+              </>
             )}
           </Button>
         </DialogFooter>

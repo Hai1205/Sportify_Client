@@ -19,7 +19,7 @@ interface ChangePasswordData {
   rePassword: string;
 }
 
-interface SecuritySettingsProps {
+interface SecurityTabProps {
   changePasswordData: ChangePasswordData;
   handleSecurityChange: (
     field: keyof ChangePasswordData,
@@ -29,12 +29,12 @@ interface SecuritySettingsProps {
   isAuthLoading: boolean;
 }
 
-const SecuritySettings = ({
+const SecurityTab = ({
   changePasswordData,
   handleSecurityChange,
   handleChangePassword,
   isAuthLoading,
-}: SecuritySettingsProps) => {
+}: SecurityTabProps) => {
   return (
     <TabsContent value="security">
       <Card>
@@ -92,8 +92,17 @@ const SecuritySettings = ({
             disabled={isAuthLoading}
             className="gap-1"
           >
-            {isAuthLoading ? <LoadingSpinner /> : <Save className="h-4 w-4" />}
-            Save Changes
+            {isAuthLoading ? (
+              <>
+                <LoadingSpinner />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Save
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
@@ -101,4 +110,4 @@ const SecuritySettings = ({
   );
 };
 
-export default SecuritySettings;
+export default SecurityTab;

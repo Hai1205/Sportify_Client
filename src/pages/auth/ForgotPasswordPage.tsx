@@ -29,14 +29,19 @@ const ForgotPasswordPage: React.FC = () => {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    sendOTP(email);
 
     if (!validate()) {
       return;
     }
+
+    const res = await sendOTP(email);
+
+    if (!res) {
+      return;
+    }
+
     navigate("/verify-otp", { state: { email, isPasswordReset: true } });
   };
 

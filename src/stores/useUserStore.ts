@@ -41,7 +41,7 @@ interface UserStore {
     followUser: (currentUserId: string, opponentId: string) => Promise<any>;
     getSuggestedUsers: (userId: string) => Promise<any>;
     requireUpdateUserToArtist: (userId: string, formData: FormData) => Promise<any>;
-    responseUpdateUserToArtist: (userId: string) => Promise<any>;
+    responseUpdateUserToArtist: (userId: string, formData: FormData) => Promise<any>;
     searchUsers: (query: string) => Promise<any>;
     getArtistApplications: (status: string) => Promise<any>;
     getArtistApplication: (userId: string) => Promise<any>;
@@ -185,7 +185,7 @@ export const useUserStore = create<UserStore>()(
             },
 
             updateUser: async (userId, formData) => {
-                set({ isLoading: true, error: null });
+                set({ error: null });
 
                 try {
                     const response = await updateUser(userId, formData);
@@ -252,11 +252,11 @@ export const useUserStore = create<UserStore>()(
                 }
             },
 
-            responseUpdateUserToArtist: async (userId) => {
+            responseUpdateUserToArtist: async (userId, formData: FormData) => {
                 set({ isLoading: true, error: null });
 
                 try {
-                    const response = await responseUpdateUserToArtist(userId);
+                    const response = await responseUpdateUserToArtist(userId, formData);
                     const { message } = response.data;
 
                     toast.success(message);
@@ -320,7 +320,6 @@ export const useUserStore = create<UserStore>()(
                     const response = await getArtistApplication(userId);
                     const { artistApplication } = response.data;
 
-                    set({ artistApplication: artistApplication });
                     return artistApplication;
                 } catch (error: any) {
                     console.error(error)

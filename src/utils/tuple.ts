@@ -1,9 +1,9 @@
-interface Tuple {
+export interface TupleChoice {
     value: string;
     label: string;
 }
 
-export const COUNTRY_CHOICE: Tuple[] = [
+export const COUNTRY_CHOICE: TupleChoice[] = [
     { value: "vietnam", label: "Vietnam" },
     { value: "usa", label: "United States" },
     { value: "uk", label: "United Kingdom" },
@@ -29,8 +29,18 @@ export const COUNTRY_CHOICE: Tuple[] = [
     { value: "south_africa", label: "South Africa" },
 ];
 
-export const STATUS_CHOICE: Tuple[] = [
+export const STATUS_CHOICE: TupleChoice[] = [
     { value: "active", label: "Active" },
     { value: "lock", label: "Lock" },
     { value: "pending", label: "Pending" },
 ];
+
+export const REJECTION_REASON_CHOICE: TupleChoice[] = [
+    { value: "insufficient-content", label: "Insufficient content" },
+    { value: "quality-issues", label: "Quality issues" },
+    { value: "incomplete-information", label: "Incomplete profile" },
+    { value: "copyright-concerns", label: "Copyright concerns" },
+    { value: "platform-fit", label: "Not a good fit" },
+    { value: "other", label: "Other (please specify)" },
+];
+

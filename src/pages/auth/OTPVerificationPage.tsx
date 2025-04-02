@@ -8,16 +8,17 @@ import { useAuthStore } from "@/stores/useAuthStore";
 
 const OTPVerificationPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [error, setError] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
+  
   // Countdown timer state - 5 minutes (300 seconds)
   const [timeLeft, setTimeLeft] = useState(300);
   const [isExpired, setIsExpired] = useState(false);
-
+  
   // Get email and isPasswordReset from location state
+  const location = useLocation(); 
   const email = location.state?.email || "";
   const isPasswordReset = location.state?.isPasswordReset || false;
 
@@ -105,20 +106,17 @@ const OTPVerificationPage: React.FC = () => {
 
     if (!res) {
       setOtp(Array(6).fill(""));
-
       return;
     }
 
     if (isExpired) {
       setError("The verification code has expired. Please request a new one.");
       setOtp(Array(6).fill(""));
-
       return;
     }
 
     if (isPasswordReset) {
-      navigate("/reset-password");
-
+      navigate("/reset-password", { state: { email } });
       return;
     }
 

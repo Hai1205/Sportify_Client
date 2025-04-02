@@ -53,8 +53,8 @@ export const requireUpdateUserToArtist = async (userId: string, formData: FormDa
   return await axiosInstance.post(`/api/users/require-update-user-to-artist/${userId}/`, formData);
 };
 
-export const responseUpdateUserToArtist = async (userId: string): Promise<any> => {
-  return await axiosInstance.post(`/api/users/response-update-user-to-artist/${userId}/`);
+export const responseUpdateUserToArtist = async (userId: string, formData: FormData): Promise<any> => {
+  return await axiosInstance.put(`/api/users/response-update-user-to-artist/${userId}/`, formData);
 };
 
 export const searchUsers = async (queryString: string): Promise<any> => {

@@ -2,6 +2,7 @@ export interface User {
 	id: string;
 	albums: Album[] | string[];
 	songs: Song[] | string[];
+	likedSongs: Song[] | string[];
 	followers: User[] | string[];
 	following: User[] | string[];
 	username: string;
@@ -45,12 +46,12 @@ export interface Song {
 
 export interface ArtistApplication {
 	id: string;
-	user: User;
+	user: User | null;
 	songs: Song[];
 	biography: string;
 	achievements: string;
 	reason: string;
-	created_at: string;
+	submitDate: string;
 	status: string;
 }
 

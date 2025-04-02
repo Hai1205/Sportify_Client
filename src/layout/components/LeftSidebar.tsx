@@ -1,29 +1,25 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { HomeIcon, Library, MessageCircle, Music, Search } from "lucide-react";
-import PlaylistSkeleton from "@/components/skeletons/PlaylistSkeleton";
+import { HomeIcon, Library, MessageCircle, Music, Search, Album as AlbumIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useMusicStore } from "@/stores/useMusicStore";
 import { Album } from "@/utils/types";
 
 const LeftSidebar = () => {
-  const { getAllAlbum, isLoading } = useMusicStore();
-  const { isAuth, isArtist, isAdmin } = useAuthStore();
+  const { isAuth, isArtist, isAdmin, user: userAuth } = useAuthStore();
 
   const [albums, setAlbums] = useState<Album[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchAlbums = await getAllAlbum();
-
-      setAlbums(fetchAlbums);
+      const userAlbums = (userAuth?.albums || []) as Album[];
+      setAlbums(userAlbums);
     };
 
     fetchData();
-  }, [getAllAlbum]);
+  }, [userAuth]);
 
   return (
     <div className="h-full flex flex-col gap-2">
@@ -107,32 +103,42 @@ const LeftSidebar = () => {
         </div>
 
         <ScrollArea className="h-[calc(100vh-300px)]">
+          {isAuth && (
+            <div className="space-y-2">
+              <Link
+                to={`/favorite-songs`}
+                className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
+              >
+                <AlbumIcon className="size-5" />
+                <div className="flex-1 min-w-0 hidden md:block">
+                  <p className="font-low truncate">Favorite songs</p>
+                </div>
+              </Link>
+            </div>
+          )}
+
           <div className="space-y-2">
-            {isLoading ? (
-              <PlaylistSkeleton />
-            ) : (
-              albums.map((album) => (
-                <Link
-                  to={`/album/${album.id}`}
-                  key={album.id}
-                  className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
-                >
-                  <img
-                    src={album.thumbnailUrl}
-                    alt={album.title}
-                    className="size-12 rounded-md flex-shrink-0 object-cover"
-                  />
+            {albums.map((album) => (
+              <Link
+                to={`/album/${album.id}`}
+                key={album.id}
+                className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
+              >
+                <img
+                  src={album.thumbnailUrl}
+                  alt={album.title}
+                  className="size-12 rounded-md flex-shrink-0 object-cover"
+                />
 
-                  <div className="flex-1 min-w-0 hidden md:block">
-                    <p className="font-medium truncate">{album.title}</p>
+                <div className="flex-1 min-w-0 hidden md:block">
+                  <p className="font-low truncate">{album.title}</p>
 
-                    <p className="text-sm text-zinc-400 truncate">
-                      Disc3 • {album.user.fullName}
-                    </p>
-                  </div>
-                </Link>
-              ))
-            )}
+                  <p className="text-sm text-zinc-400 truncate">
+                    Disc3 • {album.user.fullName}
+                  </p>
+                </div>
+              </Link>
+            ))}
           </div>
         </ScrollArea>
       </div>

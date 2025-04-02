@@ -9,21 +9,21 @@ import { Music, Search, Plus } from "lucide-react";
 import { Song, User } from "@/utils/types";
 import { useMusicStore } from "@/stores/useMusicStore";
 
-interface AddToPlaylistDialogProps {
+interface AddToAlbumDialogProps {
   isOpen: boolean;
   song?: Song | null;
   onOpenChange: (open: boolean) => void;
-  togglePlaylistSelection: (playlistId: string) => void;
+  toggleAlbumSelection: (albumId: string) => void;
   artist?: User | null;
 }
 
-const AddToPlaylistDialog = ({
+const AddToAlbumDialog = ({
   isOpen,
   onOpenChange,
-  togglePlaylistSelection,
+  toggleAlbumSelection,
   song,
   artist,
-}: AddToPlaylistDialogProps) => {
+}: AddToAlbumDialogProps) => {
   const { albums } = useMusicStore();
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
 
@@ -125,7 +125,7 @@ const AddToPlaylistDialog = ({
                                   playlist.id
                                 )}
                                 onCheckedChange={() =>
-                                  togglePlaylistSelection(playlist.id)
+                                  toggleAlbumSelection(playlist.id)
                                 }
                                 className="border-gray-700 data-[state=checked]:bg-[#1DB954] data-[state=checked]:border-[#1DB954]"
                               />
@@ -203,4 +203,4 @@ const AddToPlaylistDialog = ({
   );
 };
 
-export default AddToPlaylistDialog;
+export default AddToAlbumDialog;

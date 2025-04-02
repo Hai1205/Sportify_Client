@@ -1,12 +1,15 @@
 import type React from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
 import Input from "./components/Input";
 import LoadingButton from "../../layout/components/LoadingButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const ResetPasswordPage: React.FC = () => {
+  const location = useLocation();
+  const email = location.state?.email || "";
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     newPassword: "",
@@ -14,7 +17,7 @@ const ResetPasswordPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { isLoading, user: userAuth, forgotPassword } = useAuthStore();
+  const { isLoading, forgotPassword } = useAuthStore();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,22 +46,23 @@ const ResetPasswordPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!userAuth) {
-      return;
-    }
 
     if (!validate()) {
       return;
     }
 
     const data = new FormData();
+    data.append("email", email);
     data.append("newPassword", formData.newPassword);
     data.append("rePassword", formData.rePassword);
 
-    forgotPassword(userAuth?.id, data);
+    const res = await forgotPassword(data);
+
+    if (!res) {
+      return;
+    }
 
     navigate("/login");
   };

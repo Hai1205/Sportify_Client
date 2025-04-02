@@ -18,18 +18,18 @@ import AdminDashboardPage from "./pages/admin/adminDashboard/AdminDashboardPage"
 import AdminLayout from "./layout/AdminLayout";
 import AlbumManagementPage from "./pages/admin/albumManagement/AlbumManagementPage";
 import ArtistApplicationManagementPage from "./pages/admin/artistApplicationManagement/ArtistApplicationManagementPage";
-// import ArtistManagementPage from "./pages/admin/artistManagement/ArtistManagementPage";
 import SongManagementPage from "./pages/admin/songManagement/SongManagementPage";
 import UserManagementPage from "./pages/admin/userManagement/UserManagementPage";
 import PrivateRoute from "./layout/components/PrivateRoute";
 import AuthRoute from "./layout/components/AuthRoute";
 import AdminRoute from "./layout/components/AdminRoute";
 import ProfilePage from "./pages/profile/ProfilePage";
-import SongDetails from "./pages/music/song/SongDetails";
 import AlbumDetails from "./pages/music/album/AlbumDetails";
 import MusicUploaderPage from "./pages/music/MusicUploaderPage";
 import MusicPlayer from "./pages/music/MusicPlayer";
 import { useAuthStore } from "./stores/useAuthStore";
+import FavoriteSongs from "./pages/music/song/FavoriteSongsPage";
+import SongDetailsPage from "./pages/music/song/SongDetailsPage";
 
 function App() {
   const { isAuth, refreshToken } = useAuthStore();
@@ -70,7 +70,9 @@ function App() {
 
           <Route path="/music-uploader" element={<MusicUploaderPage />} />
 
-          <Route path="/song-detail/:songId" element={<SongDetails />} />
+          <Route path="/favorite-songs" element={<FavoriteSongs />} />
+
+          <Route path="/song-detail/:songId" element={<SongDetailsPage />} />
 
           <Route path="/album-detail/:albumId" element={<AlbumDetails />} />
 
@@ -94,11 +96,6 @@ function App() {
             <Route path="user-management" element={<UserManagementPage />} />
 
             <Route path="search" element={<SearchResult />} />
-
-            {/* <Route
-              path="artist-management"
-              element={<ArtistManagementPage />}
-            /> */}
 
             <Route path="song-management" element={<SongManagementPage />} />
 

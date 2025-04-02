@@ -40,7 +40,7 @@ interface ViewAlbumDialogProps {
   songs: Song[];
   playingSong: string | null;
   togglePlaySong: (id: string) => void;
-  handleViewSongDetails: (song: Song) => void;
+  // handleViewSongDetails: (song: Song) => void;
   handleEditSong: (song: Song) => void;
   handleAddToPlaylist: (song: Song) => void;
 }
@@ -54,7 +54,7 @@ const ViewAlbumDialog = ({
   songs,
   playingSong,
   togglePlaySong,
-  handleViewSongDetails,
+  // handleViewSongDetails,
   handleEditSong,
   handleAddToPlaylist,
 }: ViewAlbumDialogProps) => {
@@ -203,9 +203,9 @@ const ViewAlbumDialog = ({
                                       Actions
                                     </DropdownMenuLabel>
                                     <DropdownMenuItem
-                                      onClick={() =>
-                                        handleViewSongDetails(song)
-                                      }
+                                      // onClick={() =>
+                                      //   handleViewSongDetails(song)
+                                      // }
                                       className="text-white hover:bg-[#1DB954] hover:text-white"
                                     >
                                       <Info className="mr-2 h-4 w-4" /> View

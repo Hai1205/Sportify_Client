@@ -23,32 +23,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Save } from "lucide-react";
 import LoadingSpinner from "@/components/ui/loading";
+import { User } from "@/utils/types";
 
-interface UserData {
-  username: string;
-  email: string;
-  fullName: string;
-  country: string;
-  biography: string;
-  avatarUrl: string;
-  instagram?: string;
-  twitter?: string;
-  youtube?: string;
-  facebook?: string;
-  website?: string;
-}
-
-interface GeneralSettingsProps {
-  userData: UserData;
-  handleInfoChange: (field: keyof UserData, value: string) => void;
+interface GeneralTabProps {
+  userData: User;
+  handleInfoChange: (field: keyof User, value: string) => void;
   handleSaveInfo: () => void;
   isUserLoading: boolean;
   previewAvatar: string;
-  userAuth: UserData;
+  userAuth: User;
   handleAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const GeneralSettings = ({
+const GeneralTab = ({
   userData,
   handleInfoChange,
   handleSaveInfo,
@@ -56,7 +43,7 @@ const GeneralSettings = ({
   previewAvatar,
   userAuth,
   handleAvatarChange,
-}: GeneralSettingsProps) => {
+}: GeneralTabProps) => {
   return (
     <TabsContent value="general">
       <Card>
@@ -242,8 +229,17 @@ const GeneralSettings = ({
             disabled={isUserLoading}
             className="gap-1"
           >
-            {isUserLoading ? <LoadingSpinner /> : <Save className="h-4 w-4" />}
-            Save Changes
+            {isUserLoading ? (
+              <>
+                <LoadingSpinner />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Save
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
@@ -251,4 +247,4 @@ const GeneralSettings = ({
   );
 };
 
-export default GeneralSettings;
+export default GeneralTab;

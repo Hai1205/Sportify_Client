@@ -42,13 +42,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ManageSongsDialog from "../songManagement/components/ManageSongsDialog";
 import { useMusicStore } from "@/stores/useMusicStore";
 import EditSongDialog from "../songManagement/components/EditSongDialog";
-import ViewSongDetailsDialog from "../songManagement/components/ViewSongDetailsDialog";
-import AddToPlaylistDialog from "../songManagement/components/AddToPlaylistDialog";
 import ViewAlbumDialog from "../albumManagement/components/ViewAlbumDialog";
 import ManageAlbumsDialog from "../albumManagement/components/ManageAlbumsDialog";
 import EditAlbumDialog from "../albumManagement/components/EditAlbumDialog";
 import { UserEmptyState } from "@/layout/components/EmptyState";
 import { TableSkeleton } from "@/layout/components/TableSkeleton";
+import AddToAlbumDialog from "../songManagement/components/AddToAlbumDialog";
 
 export default function UserManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -67,7 +66,7 @@ export default function UserManagementPage() {
   const [isManageSongsOpen, setIsManageSongsOpen] = useState(false);
   const [isManageAlbumsOpen, setIsManageAlbumsOpen] = useState(false);
   const [isEditSongOpen, setIsEditSongOpen] = useState(false);
-  const [isSongDetailsOpen, setIsSongDetailsOpen] = useState(false);
+  // const [isSongDetailsOpen, setIsSongDetailsOpen] = useState(false);
   const [isAddToPlaylistOpen, setIsAddToPlaylistOpen] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<User | null>(null);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
@@ -79,15 +78,12 @@ export default function UserManagementPage() {
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [albumSongs, setAlbumSongs] = useState<Song[]>([]);
 
-  const { searchUsers, deleteUser, getAllUser } = useUserStore();
+  const { isLoading, searchUsers, deleteUser, getAllUser } = useUserStore();
   const { isAdmin, resetPassword } = useAuthStore();
   const { albums } = useMusicStore();
 
-  const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     const fetchUsers = async () => {
-      setIsLoading(true);
       const params = new URLSearchParams(searchParams);
       params.set("admin", `${isAdmin}`);
       const updatedQueryString = `?${params.toString()}`;
@@ -97,7 +93,6 @@ export default function UserManagementPage() {
       } else {
         await getAllUser().then(setUsers);
       }
-      setIsLoading(false);
     };
 
     fetchUsers();
@@ -152,7 +147,6 @@ export default function UserManagementPage() {
     }
 
     resetPassword(user.id);
-    setIsEditUserOpen(true);
   };
 
   const handleDeleteUser = async (user: User) => {
@@ -228,10 +222,10 @@ export default function UserManagementPage() {
     setIsEditSongOpen(true);
   };
 
-  const handleViewSongDetails = (song: Song) => {
-    setSelectedSong(song);
-    setIsSongDetailsOpen(true);
-  };
+  // const handleViewSongDetails = (song: Song) => {
+  //   setSelectedSong(song);
+  //   setIsSongDetailsOpen(true);
+  // };
 
   const handleAddToPlaylist = (song: Song) => {
     setSelectedSong(song);
@@ -246,7 +240,7 @@ export default function UserManagementPage() {
     }
   };
 
-  const togglePlaylistSelection = (playlistId: string) => {
+  const toggleAlbumSelection = (playlistId: string) => {
     if (selectedPlaylists.includes(playlistId)) {
       setSelectedPlaylists(selectedPlaylists.filter((id) => id !== playlistId));
     } else {
@@ -278,6 +272,12 @@ export default function UserManagementPage() {
     setUsers([...users, newUser]);
   };
 
+  const handleUserUpdated = (updatedUser: User) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -300,6 +300,7 @@ export default function UserManagementPage() {
         isOpen={isEditUserOpen}
         onOpenChange={setIsEditUserOpen}
         user={selectedUser}
+        onUserUpdated={handleUserUpdated}
       />
 
       {/* Manage Songs Dialog */}
@@ -307,10 +308,10 @@ export default function UserManagementPage() {
         isOpen={isManageSongsOpen}
         onOpenChange={setIsManageSongsOpen}
         artist={selectedArtist}
-        playingSong={playingSong}
-        togglePlaySong={togglePlaySong}
+        // playingSong={playingSong}
+        // togglePlaySong={togglePlaySong}
         handleEditSong={handleEditSong}
-        handleViewSongDetails={handleViewSongDetails}
+        // handleViewSongDetails={handleViewSongDetails}
         handleAddToPlaylist={handleAddToPlaylist}
       />
 
@@ -319,24 +320,14 @@ export default function UserManagementPage() {
         isOpen={isEditSongOpen}
         onOpenChange={setIsEditSongOpen}
         song={selectedSong}
-        albums={albums}
-      />
-
-      {/* View Song Details Dialog */}
-      <ViewSongDetailsDialog
-        isOpen={isSongDetailsOpen}
-        onOpenChange={setIsSongDetailsOpen}
-        song={selectedSong}
-        artist={selectedArtist}
-        onAddToPlaylist={handleAddToPlaylist}
-        onEditSong={handleEditSong}
+        // albums={albums}
       />
 
       {/* Add to Playlist Dialog */}
-      <AddToPlaylistDialog
+      <AddToAlbumDialog
         isOpen={isAddToPlaylistOpen}
         onOpenChange={setIsAddToPlaylistOpen}
-        togglePlaylistSelection={togglePlaylistSelection}
+        toggleAlbumSelection={toggleAlbumSelection}
         song={selectedSong}
         artist={selectedArtist}
       />
@@ -361,7 +352,7 @@ export default function UserManagementPage() {
         songs={albumSongs}
         playingSong={playingSong}
         togglePlaySong={togglePlaySong}
-        handleViewSongDetails={handleViewSongDetails}
+        // handleViewSongDetails={handleViewSongDetails}
         handleEditSong={handleEditSong}
         handleAddToPlaylist={handleAddToPlaylist}
       />

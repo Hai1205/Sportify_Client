@@ -46,10 +46,10 @@ export const changePassword = async (userId: string, formData: FormData): Promis
   return await axiosInstance.put(`/api/auth/change-password/${userId}/`, formData);
 };
 
-export const forgotPassword = async (userId: string, formData: FormData): Promise<any> => {
-  return await axiosInstance.put(`/api/auth/forgot-password/${userId}/`, formData);
+export const forgotPassword = async (formData: FormData): Promise<any> => {
+  return await axiosInstance.put(`/api/auth/forgot-password/`, formData);
 };
 
 export const resetPassword = async (userId: string): Promise<any> => {
-  return await axiosInstance.post(`/api/auth/reset-password/${userId}/`);
+  return await axiosInstance.put(`/api/auth/reset-password/${userId}/`);
 };

@@ -16,22 +16,27 @@ import { User } from "@/utils/types";
 import { useUserStore } from "@/stores/useUserStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { COUNTRY_CHOICE, STATUS_CHOICE } from "@/utils/tuple";
+import LoadingSpinner from "@/components/ui/loading";
+import { Save } from "lucide-react";
 
 interface EditUserDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   user: User | null;
+  onUserUpdated: (updatedUser: User) => void;
 }
 
 const EditUserDialog = ({
   isOpen,
   onOpenChange,
   user,
+  onUserUpdated,
 }: EditUserDialogProps) => {
   const [userData, setUserData] = useState<User | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [previewAvatar, setPreviewAvatar] = useState<string>("");
   const { updateUser } = useUserStore();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -63,7 +68,7 @@ const EditUserDialog = ({
     onOpenChange(false);
   };
 
-  const handleSave = () => {
+  const handleSaveEdit = async () => {
     if (userData && user) {
       const formData = new FormData();
       formData.append("fullName", userData.fullName);
@@ -81,8 +86,16 @@ const EditUserDialog = ({
         formData.append("avatar", avatarFile);
       }
 
-      updateUser(user.id, formData);
-      handleClose();
+      setIsLoading(true);
+      const res = await updateUser(user.id, formData);
+      setIsLoading(false);
+
+      if (!res) {
+        return;
+      }
+
+      onUserUpdated({ ...user, ...userData });
+      // handleClose();
     }
   };
 
@@ -337,10 +350,21 @@ const EditUserDialog = ({
                   </Button>
 
                   <Button
-                    onClick={handleSave}
+                    onClick={handleSaveEdit}
                     className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                    disabled={isLoading}
                   >
-                    Save Changes
+                    {isLoading ? (
+                      <>
+                        <LoadingSpinner />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Save
+                      </>
+                    )}
                   </Button>
                 </div>
               </Dialog.Panel>

@@ -1,107 +1,126 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Fragment } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { ArtistApplication } from "@/utils/types";
+import { ApplicationData } from "../ArtistApplicationManagementPage";
 
 interface ApproveArtistDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedApplication: {
-    user: {
-      fullName: string;
-      avatarUrl: string;
-      email: string;
-    };
-  } | null;
-  confirmApprove: () => void;
+  selectedApplication: ArtistApplication | null;
+  onConfirm: (status: string) => void;
+  applicationData: ApplicationData;
+  handleApplicationChange: (field: keyof ApplicationData, value: string) => void;
 }
 
 export default function ApproveArtistDialog({
   isOpen,
   onOpenChange,
   selectedApplication,
-  confirmApprove
+  onConfirm,
+  applicationData,
+  handleApplicationChange,
 }: ApproveArtistDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Approve Artist Application</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to approve{" "}
-            {selectedApplication?.user.fullName}'s application?
-          </DialogDescription>
-        </DialogHeader>
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog
+        as="div"
+        className="relative z-50"
+        onClose={() => onOpenChange(false)}
+      >
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30"
+            aria-hidden="true"
+          />
+        </Transition.Child>
 
-        {selectedApplication && (
-          <div className="py-4">
-            <div className="flex items-center gap-4 mb-4">
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src={selectedApplication.user.avatarUrl}
-                  alt={selectedApplication.user.fullName}
-                />
-                <AvatarFallback>
-                  {selectedApplication.user.fullName.substring(0, 2)}
-                </AvatarFallback>
-              </Avatar>
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title className="text-lg font-bold text-white">
+                  Approve Artist Application
+                </Dialog.Title>
+                <Dialog.Description className="text-white">
+                  Are you sure you want to approve{" "}
+                  {selectedApplication?.user.fullName}'s application?
+                </Dialog.Description>
 
-              <div>
-                <h3 className="font-medium">{selectedApplication.user.fullName}</h3>
-                <p className="text-sm text-muted-foreground">{selectedApplication.user.email}</p>
-              </div>
-            </div>
+                {selectedApplication && (
+                  <div className="py-4">
+                    <div className="flex items-center gap-4 mb-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage
+                          src={selectedApplication.user.avatarUrl}
+                          alt={selectedApplication.user.fullName}
+                        />
+                        <AvatarFallback>
+                          {selectedApplication.user.fullName.substring(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
 
-            <div className="space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="artist-tier">Artist Tier</Label>
-                <Select defaultValue="standard">
-                  <SelectTrigger id="artist-tier">
-                    <SelectValue placeholder="Select tier" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="standard">Standard Artist</SelectItem>
-                    <SelectItem value="verified">Verified Artist</SelectItem>
-                    <SelectItem value="featured">Featured Artist</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  This determines the artist's visibility and features
-                </p>
-              </div>
+                      <div>
+                        <h3 className="font-medium text-white">
+                          {selectedApplication.user.fullName}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedApplication.user.email}
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="approval-notes">Approval Notes (Optional)</Label>
-                <Textarea
-                  id="approval-notes"
-                  placeholder="Add any notes or special instructions for this artist"
-                  rows={3}
-                />
-              </div>
+                    <div className="space-y-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="approval-notes" className="text-white">
+                          Approval Notes (Optional)
+                        </Label>
+                        <Textarea
+                          id="approval-notes"
+                          placeholder="Add any notes or special instructions for this artist"
+                          rows={4}
+                          value={applicationData.details}
+                          onChange={(e) =>
+                            handleApplicationChange("details", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-              <div className="flex items-center space-x-2">
-                <Checkbox id="send-welcome" defaultChecked />
-                <label
-                  htmlFor="send-welcome"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Send welcome email with onboarding instructions
-                </label>
-              </div>
-            </div>
+                <div className="flex justify-between sm:justify-between p-4">
+                  <Button variant="outline" onClick={() => onOpenChange(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => onConfirm("approve")}>
+                    Approve Application
+                  </Button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
-        )}
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={confirmApprove}>Approve Application</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </Dialog>
+    </Transition>
   );
 }

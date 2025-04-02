@@ -4,6 +4,10 @@ export const getAllSong = async (): Promise<any> => {
     return await axiosInstance.get(`/api/songs/`)
 }
 
+export const likeSong = async (userId: string, songId: string): Promise<any> => {
+    return await axiosInstance.post(`/api/songs/like-song/${userId}/${songId}/`);
+  };
+
 export const uploadSong = async (
     userId: string,
     formData: FormData

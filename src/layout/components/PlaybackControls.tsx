@@ -3,6 +3,7 @@ import {
   Laptop2,
   ListMusic,
   Mic2,
+  Music,
   Pause,
   Play,
   Repeat,
@@ -17,6 +18,7 @@ import { Slider } from "@/components/ui/slider";
 import formatTime from "@/utils/service/formatTime";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const PlaybackControls = () => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
@@ -88,19 +90,29 @@ export const PlaybackControls = () => {
         <div className="hidden sm:flex items-center gap-4 min-w-[180px] w-[30%]">
           {currentSong && (
             <>
-              <img
-                src={currentSong.thumbnailUrl}
-                alt={currentSong.title}
-                className="w-14 h-14 object-cover rounded-md"
-              />
+              <Link to={`/song-detail/${currentSong.id}`} className="w-14 h-14 object-cover rounded-md">
+                <div className="flex justify-center">
+                  <Avatar className="h-9 w-9 rounded-md">
+                    <AvatarImage src={currentSong.thumbnailUrl} alt={currentSong.title} />
+                    
+                    <AvatarFallback>
+                      <Music className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              </Link>
 
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate hover:underline cursor-pointer">
+                <Link to={`/song-detail/${currentSong.id}`} className="w-14 h-14 object-cover rounded-md">
                   {currentSong.title}
+                </Link>
                 </div>
 
                 <div className="text-sm text-zinc-400 truncate hover:underline cursor-pointer">
+                <Link to={`/profile/${currentSong.user.id}`} className="w-14 h-14 object-cover rounded-md">
                   {currentSong.user.fullName}
+                  </Link>
                 </div>
               </div>
             </>
