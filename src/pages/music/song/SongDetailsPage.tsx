@@ -1,27 +1,35 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, Pencil, Clock, Calendar, BarChart2, Music } from "lucide-react";
-import { Song } from "@/utils/types";
+import {
+  Play,
+  Pencil,
+  Clock,
+  Calendar,
+  BarChart2,
+  Music,
+  Disc3,
+  MicVocal,
+  Heart,
+} from "lucide-react";
+import { Song, User } from "@/utils/types";
 import formatTime from "@/utils/service/formatTime";
 import { useMusicStore } from "@/stores/useMusicStore";
 import EditSongDialog from "@/pages/admin/songManagement/components/EditSongDialog";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function SongDetailsPage() {
   const { songId } = useParams<{ songId: string }>();
   const [song, setSong] = useState<Song | null>(null);
-  const { getSong } = useMusicStore();
-  const { user: userAuth } = useUserStore();
+  const { getSong, likeSong } = useMusicStore();
+  const { user: userAuth } = useAuthStore();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const isMySong = song?.user?.id === userAuth?.id;
-  console.log(">>> song?.user?.id ", song?.user?.id);
-  console.log(">>> userAuth?.id ", userAuth?.id);
-  console.log(">>> isMySong ", isMySong);
+  const [amILiking, setAmILiking] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSong = async () => {
@@ -35,6 +43,40 @@ export default function SongDetailsPage() {
 
     fetchSong();
   }, [songId, getSong]);
+
+  const checkLiked = useCallback(
+    (user: User) => {
+      const likedList = (user?.likedSongs || []) as Song[];
+      const isLiked = likedList.some(
+        (likedSong: Song) => likedSong.id === song?.id
+      );
+
+      setAmILiking(isLiked);
+    },
+    [song]
+  );
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (userAuth) {
+        checkLiked(userAuth);
+      }
+    };
+    
+    fetchUser();
+  }, [checkLiked, userAuth]);
+
+  const handleLike = async (song: Song) => {
+    if (!userAuth) {
+      return;
+    }
+
+    const user = await likeSong(userAuth?.id, song.id);
+
+    if (user) {
+      checkLiked(user);
+    }
+  };
 
   return (
     <div className="h-full flex items-stretch justify-center">
@@ -62,14 +104,6 @@ export default function SongDetailsPage() {
               <div className="flex flex-col justify-between">
                 <h2 className="text-2xl font-bold text-white">{song.title}</h2>
 
-                <p className="text-gray-400">
-                  Artist: {song.user.fullName}
-                </p>
-
-                <p className="text-sm text-gray-400">
-                  Album: {song.album?.title}
-                </p>
-
                 <div className="flex gap-2 mt-4">
                   <Button
                     size="sm"
@@ -78,7 +112,7 @@ export default function SongDetailsPage() {
                     <Play className="h-4 w-4" /> Play
                   </Button>
 
-                  {isMySong && (
+                  {isMySong ? (
                     <Button
                       variant="outline"
                       size="sm"
@@ -87,6 +121,16 @@ export default function SongDetailsPage() {
                     >
                       <Pencil className="h-4 w-4" /> Edit
                     </Button>
+                  ) : (
+                    <button
+                      onClick={() => handleLike(song)}
+                      className="rounded-full p-1 hover:text-white"
+                    >
+                      <Heart
+                        className="h-6 w-6"
+                        fill={amILiking ? "#1DB954" : "transparent"}
+                      />
+                    </button>
                   )}
                 </div>
               </div>
@@ -102,6 +146,32 @@ export default function SongDetailsPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
+                    <MicVocal className="h-4 w-4 text-gray-400" />
+
+                    <span className="text-sm font-medium text-white">
+                      Artist:
+                    </span>
+
+                    <span className="text-sm text-gray-400">
+                      {song.user.fullName}
+                    </span>
+                  </div>
+
+                  {song.album && (
+                    <div className="flex items-center gap-2">
+                      <Disc3 className="h-4 w-4 text-gray-400" />
+
+                      <span className="text-sm font-medium text-white">
+                        Album:
+                      </span>
+
+                      <span className="text-sm text-gray-400">
+                        {song.album?.title}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-gray-400" />
 
                     <span className="text-sm font-medium text-white">
@@ -114,6 +184,16 @@ export default function SongDetailsPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <BarChart2 className="h-4 w-4 text-gray-400" />
+
+                    <span className="text-sm font-medium text-white">
+                      Views:
+                    </span>
+
+                    <span className="text-sm text-gray-400">{song.views}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
 
                     <span className="text-sm font-medium text-white">
@@ -123,16 +203,6 @@ export default function SongDetailsPage() {
                     <span className="text-sm text-gray-400">
                       {song.releaseDate}
                     </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <BarChart2 className="h-4 w-4 text-gray-400" />
-
-                    <span className="text-sm font-medium text-white">
-                      Views:
-                    </span>
-
-                    <span className="text-sm text-gray-400">{song.views}</span>
                   </div>
                 </div>
               </div>

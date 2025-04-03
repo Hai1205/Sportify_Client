@@ -24,20 +24,19 @@ import {
   Search,
   MoreHorizontal,
   Pencil,
-  ListPlus,
   Trash,
   Music,
   Download,
 } from "lucide-react";
 import { Song, User } from "@/utils/types";
 import { Link } from "react-router-dom";
+import { useMusicStore } from "@/stores/useMusicStore";
 
 interface ManageSongsDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   artist?: User | null;
   handleEditSong: (song: Song) => void;
-  handleAddToPlaylist: (song: Song) => void;
 }
 
 const ManageSongsDialog = ({
@@ -45,10 +44,27 @@ const ManageSongsDialog = ({
   onOpenChange,
   artist,
   handleEditSong,
-  handleAddToPlaylist,
 }: ManageSongsDialogProps) => {
+  const { deleteSong, downloadSong } = useMusicStore();
+
   const handleClose = () => {
     onOpenChange(false);
+  };
+
+  const handleDownloadSong = async (song: Song) => {
+    if (!song) {
+      return;
+    }
+
+    await downloadSong(song.id);
+  };
+
+  const handleDeleteSong = async (song: Song) => {
+    if (!song) {
+      return;
+    }
+
+    await deleteSong(song.id);
   };
 
   return (
@@ -160,7 +176,7 @@ const ManageSongsDialog = ({
                                   className="border-gray-700"
                                 >
                                   <TableCell>
-                                    <Link to={`/song-detail/${song.id}`}>
+                                    <Link to={`/song-details/${song.id}`}>
                                       <div className="flex justify-center">
                                         <Avatar className="h-9 w-9 rounded-md">
                                           <AvatarImage
@@ -176,29 +192,31 @@ const ManageSongsDialog = ({
                                   </TableCell>
 
                                   <TableCell className="text-center hover:underline">
-                                    <Link to={`/song-detail/${song.id}`}>
+                                    <Link to={`/song-details/${song.id}`}>
                                       {song.title}
                                     </Link>
                                   </TableCell>
 
                                   <TableCell className="text-center hover:underline">
-                                    <Link to={`/album-detail/${song?.album?.id}`}>
+                                    <Link
+                                      to={`/album-details/${song?.album?.id}`}
+                                    >
                                       {song.album?.title}
                                     </Link>
                                   </TableCell>
-                                
+
                                   <TableCell className="text-center">
                                     {song.duration}
                                   </TableCell>
-                                 
+
                                   <TableCell className="text-center">
                                     {song.views}
                                   </TableCell>
-                                 
+
                                   <TableCell className="text-center">
                                     {song.releaseDate}
                                   </TableCell>
-                                 
+
                                   <TableCell className="text-right">
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
@@ -208,12 +226,9 @@ const ManageSongsDialog = ({
                                           className="h-8 w-8 p-0 hover:bg-[#282828]"
                                         >
                                           <MoreHorizontal className="h-4 w-4 text-white" />
-                                          {/* <span className="sr-only">
-                                            Open menu
-                                          </span> */}
                                         </Button>
                                       </DropdownMenuTrigger>
-                                    
+
                                       <DropdownMenuContent
                                         align="end"
                                         className="bg-[#282828] border-gray-700"
@@ -221,38 +236,33 @@ const ManageSongsDialog = ({
                                         <DropdownMenuLabel>
                                           Actions
                                         </DropdownMenuLabel>
-                                        
+
                                         <DropdownMenuItem
                                           onClick={() => handleEditSong(song)}
                                           className="text-white hover:text-white cursor-pointer"
                                         >
                                           <Pencil className="mr-2 h-4 w-4" />
-                                         
+
                                           {" Edit"}
                                         </DropdownMenuItem>
-                                      
+
                                         <DropdownMenuItem
                                           onClick={() =>
-                                            handleAddToPlaylist(song)
+                                            handleDownloadSong(song)
                                           }
-                                          className="text-white hover:text-white cursor-pointer"
+                                          className="cursor-pointer"
                                         >
-                                          <ListPlus className="mr-2 h-4 w-4" />
-                                          
-                                          {" Add to album"}
-                                        </DropdownMenuItem>
-                                        
-                                        <DropdownMenuItem className="text-white hover:text-white cursor-pointer">
                                           <Download className="mr-2 h-4 w-4" />
-                                          
                                           {" Download"}
                                         </DropdownMenuItem>
-                                        
+
                                         <DropdownMenuSeparator className="bg-gray-700" />
-                                       
-                                        <DropdownMenuItem className="text-red-600 hover:text-white cursor-pointer">
+
+                                        <DropdownMenuItem
+                                          onClick={() => handleDeleteSong(song)}
+                                          className="text-red-600 cursor-pointer"
+                                        >
                                           <Trash className="mr-2 h-4 w-4" />
-                                          
                                           {" Delete"}
                                         </DropdownMenuItem>
                                       </DropdownMenuContent>

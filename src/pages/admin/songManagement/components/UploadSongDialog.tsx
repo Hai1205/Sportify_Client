@@ -11,26 +11,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Album } from "@/utils/types";
+import { Album, Song } from "@/utils/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserStore } from "@/stores/useUserStore";
-import { Music } from "lucide-react";
+import { Music, Save } from "lucide-react";
+import LoadingSpinner from "@/components/ui/loading";
+import { useMusicStore } from "@/stores/useMusicStore";
 
 interface UploadSongDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpload: (formData: FormData) => void;
+  onSongUploaded: (song: Song) => void;
 }
 
 const UploadSongDialog = ({
   isOpen,
   onOpenChange,
-  onUpload,
+  onSongUploaded,
 }: UploadSongDialogProps) => {
   const { user: userAuth } = useUserStore();
+  const {uploadSong} = useMusicStore()
   const albums: Album[] = (userAuth?.albums || []) as Album[];
   const [previewAvatar, setPreviewAvatar] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const [songData, setSongData] = useState({
     title: "",
     lyrics: "",
@@ -54,7 +58,7 @@ const UploadSongDialog = ({
     setFile((prev) => ({ ...prev, [type]: file }));
   };
 
-  const handleUpload = () => {
+  const handleUpload = async() => {
     const formData = new FormData();
     formData.append("title", songData.title);
     formData.append("lyrics", songData.lyrics);
@@ -67,7 +71,20 @@ const UploadSongDialog = ({
     if (songData.albumId) {
       formData.append("albumId", songData.albumId);
     }
-    onUpload(formData);
+
+    if(!userAuth){
+      return;
+    }
+
+    setIsLoading(true);
+    const song = await uploadSong(userAuth.id, formData);
+
+    if(song){
+      onSongUploaded(song);
+    }
+
+    setIsLoading(false);
+
     handleClose();
   };
 
@@ -222,12 +239,29 @@ const UploadSongDialog = ({
                       Cancel
                     </Button>
 
-                    <Button
+                    {/* <Button
                       onClick={handleUpload}
                       className="bg-[#22c55ee8] hover:bg-[#1ed760] text-white"
                     >
                       Upload Song
-                    </Button>
+                    </Button> */}
+                    <Button
+                    onClick={handleUpload}
+                    className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <LoadingSpinner />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Upload
+                      </>
+                    )}
+                  </Button>
                   </div>
                 </ScrollArea>
               </Dialog.Panel>

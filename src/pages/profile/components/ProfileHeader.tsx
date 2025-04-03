@@ -41,17 +41,17 @@ const ProfileHeader = ({
   );
   const following = (currentUser?.following || []) as User[];
   const isMyProfile = currentUser?.id === userAuth?.id;
-  const imIFollowed = followers.some(
+  const amIFollowed = followers.some(
     (follower: User) => follower.id === userAuth?.id
   );
   useEffect(() => {
     if (!user) return;
 
-    setAmIFollowing(imIFollowed);
+    setAmIFollowing(amIFollowed);
     setFollowersCount(followers.length);
-  }, [user, imIFollowed, followers, userAuth?.id]);
+  }, [user, amIFollowed, followers, userAuth?.id]);
 
-  const [amIFollowing, setAmIFollowing] = useState<boolean>(imIFollowed);
+  const [amIFollowing, setAmIFollowing] = useState<boolean>(amIFollowed);
   const [followersCount, setFollowersCount] = useState(
     currentUser?.followers?.length || 0
   );

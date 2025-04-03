@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { BarChart3, Users, Music, Disc, FileUser } from "lucide-react";
+import { BarChart3, Users, Music, Disc3, FileUser } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function SidebarMenuAdmin() {
@@ -46,7 +46,7 @@ export function SidebarMenuAdmin() {
           className="justify-start gap-2 h-10"
           onClick={() => navigate("/admin/album-management")}
         >
-          <Disc className="h-4 w-4" />
+          <Disc3 className="h-4 w-4" />
           Albums
         </Button>
 

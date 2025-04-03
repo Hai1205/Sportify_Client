@@ -3,6 +3,14 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
@@ -17,27 +25,24 @@ import {
   MoreHorizontal,
   Pencil,
   Trash,
-  Disc,
+  Music,
 } from "lucide-react";
 import { Album, User } from "@/utils/types";
+import { Link } from "react-router-dom";
 
-interface ManageAlbumsDialogProps {
+interface ManageSongsDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   artist?: User | null;
-  albums: Album[];
-  handleViewAlbum: (album: Album) => void;
-  handleEditAlbum: (album: Album) => void;
+  handleEditAlbum: (song: Album) => void;
 }
 
-export default function ManageAlbumsDialog({
+const ManageAlbumsDialog = ({
   isOpen,
   onOpenChange,
   artist,
-  albums,
-  handleViewAlbum,
   handleEditAlbum,
-}: ManageAlbumsDialogProps) {
+}: ManageSongsDialogProps) => {
   const handleClose = () => {
     onOpenChange(false);
   };
@@ -73,13 +78,13 @@ export default function ManageAlbumsDialog({
                   as="h3"
                   className="text-lg font-medium leading-6 text-white"
                 >
-                  Manage Albums
+                  Manage Songs
                 </Dialog.Title>
                 <div className="mt-2">
                   <p className="text-sm text-gray-400">
                     {artist
-                      ? `Manage albums for ${artist.fullName}`
-                      : "Manage artist albums"}
+                      ? `Manage songs for ${artist.fullName}`
+                      : "Manage artist songs"}
                   </p>
                 </div>
 
@@ -87,12 +92,12 @@ export default function ManageAlbumsDialog({
                   <div className="grid gap-4 py-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-12 w-12 bg-[#282828]">
+                        <Avatar className="h-12 w-12">
                           <AvatarImage
                             src={artist.avatarUrl}
                             alt={artist.fullName}
                           />
-                          <AvatarFallback className="bg-[#282828] text-gray-400">
+                          <AvatarFallback>
                             {artist.fullName.substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
@@ -101,7 +106,7 @@ export default function ManageAlbumsDialog({
                             {artist.fullName}
                           </h3>
                           <p className="text-sm text-gray-400">
-                            {Math.ceil(artist.songs.length / 12)} albums
+                            {artist.songs.length} songs
                           </p>
                         </div>
                       </div>
@@ -110,95 +115,114 @@ export default function ManageAlbumsDialog({
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
                       <Input
                         type="search"
-                        placeholder="Search albums..."
-                        className="pl-8 bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
+                        placeholder="Search songs..."
+                        className="pl-8 bg-[#282828] text-white border-gray-700"
                       />
                     </div>
                     <ScrollArea className="h-[400px]">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {albums.map((album) => (
-                          <div
-                            key={album.id}
-                            className="flex items-start gap-3 p-3 rounded-lg border border-gray-700 bg-[#282828] hover:bg-[#333333] transition-colors"
-                          >
-                            <Avatar className="h-16 w-16 rounded-md bg-[#1a1a1a]">
-                              <AvatarImage
-                                src={album.thumbnailUrl}
-                                alt={album.title}
-                              />
-                              <AvatarFallback className="bg-[#1a1a1a]">
-                                <Disc className="h-6 w-6 text-gray-400" />
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div className="flex items-start justify-between">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 w-8 p-0 hover:bg-[#1a1a1a]"
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-gray-700">
+                            <TableHead className="w-[40px]">
+                              Thumbnail
+                            </TableHead>
+
+                            <TableHead className="text-center">Title</TableHead>
+
+                            <TableHead className="text-center">
+                              Release Date
+                            </TableHead>
+
+                            <TableHead className="text-right text-white">
+                              Actions
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {Array.isArray(artist.albums) &&
+                            artist.albums.map((album) => {
+                              if (typeof album === "string") return null;
+                              return (
+                                <TableRow
+                                  key={album.id}
+                                  className="border-gray-700"
+                                >
+                                  <TableCell>
+                                    <Link to={`/album-details/${album.id}`}>
+                                      <div className="flex justify-center">
+                                        <Avatar className="h-9 w-9 rounded-md">
+                                          <AvatarImage
+                                            src={album.thumbnailUrl}
+                                            alt={album.title}
+                                          />
+                                          <AvatarFallback>
+                                            <Music className="h-4 w-4" />
+                                          </AvatarFallback>
+                                        </Avatar>
+                                      </div>
+                                    </Link>
+                                  </TableCell>
+
+                                  <TableCell className="text-center hover:underline">
+                                    <Link
+                                      to={`/album-details/${album?.id}`}
                                     >
-                                      <MoreHorizontal className="h-4 w-4 text-white" />
-                                      <span className="sr-only">Open menu</span>
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent
-                                    align="end"
-                                    className="bg-[#282828] border-gray-700"
-                                  >
-                                    <DropdownMenuLabel className="text-white">
-                                      Actions
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuItem className="text-white hover:bg-[#1DB954] hover:text-white">
-                                      <Pencil className="mr-2 h-4 w-4" /> Edit
-                                      album
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="text-white hover:bg-[#1DB954] hover:text-white">
-                                      View tracks
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-gray-700" />
-                                    <DropdownMenuItem className="text-white hover:bg-[#1DB954] hover:text-white">
-                                      Change cover
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="text-white hover:bg-[#1DB954] hover:text-white">
-                                      Update metadata
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-gray-700" />
-                                    <DropdownMenuItem className="text-red-600 hover:bg-red-500 hover:text-white">
-                                      <Trash className="mr-2 h-4 w-4" /> Delete
-                                      album
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                              <div className="flex gap-2 mt-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-7 px-2 text-xs border-gray-700 text-white hover:bg-[#1DB954] hover:text-white hover:border-transparent"
-                                  onClick={() => handleViewAlbum(album)}
-                                >
-                                  View Tracks
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-7 px-2 text-xs border-gray-700 text-white hover:bg-[#1DB954] hover:text-white hover:border-transparent"
-                                  onClick={() => handleEditAlbum(album)}
-                                >
-                                  Edit
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                                      {album?.title}
+                                    </Link>
+                                  </TableCell>
+
+                                  <TableCell className="text-center">
+                                    {album.releaseDate}
+                                  </TableCell>
+
+                                  <TableCell className="text-right">
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-8 w-8 p-0 hover:bg-[#282828]"
+                                        >
+                                          <MoreHorizontal className="h-4 w-4 text-white" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+
+                                      <DropdownMenuContent
+                                        align="end"
+                                        className="bg-[#282828] border-gray-700"
+                                      >
+                                        <DropdownMenuLabel>
+                                          Actions
+                                        </DropdownMenuLabel>
+
+                                        <DropdownMenuItem
+                                          onClick={() => handleEditAlbum(album)}
+                                          className="text-white hover:text-white cursor-pointer"
+                                        >
+                                          <Pencil className="mr-2 h-4 w-4" />
+
+                                          {" Edit"}
+                                        </DropdownMenuItem>
+
+                                        <DropdownMenuSeparator className="bg-gray-700" />
+
+                                        <DropdownMenuItem className="text-red-600 hover:text-white cursor-pointer">
+                                          <Trash className="mr-2 h-4 w-4" />
+
+                                          {" Delete"}
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                        </TableBody>
+                      </Table>
                     </ScrollArea>
                   </div>
                 )}
-
-                <div className="mt-4 flex justify-end">
+                <div className="mt-4 flex justify-end gap-2">
                   <Button
                     variant="outline"
                     onClick={handleClose}
@@ -214,4 +238,6 @@ export default function ManageAlbumsDialog({
       </Dialog>
     </Transition>
   );
-}
+};
+
+export default ManageAlbumsDialog;

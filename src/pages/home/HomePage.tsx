@@ -15,6 +15,7 @@ const HomePage = () => {
   const [madeForYouSongs, setMadeForYouSongs] = useState<Song[]>([]);
   const [featuredSongs, setFeaturedSongs] = useState<Song[]>([]);
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
+  const [greeting, setGreeting] = useState("");
 
   // Call API when component mount
   useEffect(() => {
@@ -47,15 +48,27 @@ const HomePage = () => {
     }
   }, [initializeQueue, madeForYouSongs, trendingSongs, featuredSongs]);
 
+  
+  useEffect(() => {
+    const updateGreeting = () => {
+      const currentHour = new Date().getHours();
+      if (currentHour < 12) {
+        setGreeting("Morning");
+      } else if (currentHour < 18) {
+        setGreeting("Afternoon");
+      } else {
+        setGreeting("Evening");
+      }
+    };
+    
+    updateGreeting();
+  }, []);
+
   return (
     <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900">
-      {/* <Topbar /> */}
-
       <ScrollArea className="h-[calc(100vh-180px)]">
         <div className="p-4 sm:p-6">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-6">
-            Good afternoon
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6">Good {greeting}</h1>
 
           <FeaturedSection />
 

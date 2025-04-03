@@ -1,7 +1,9 @@
 import { Song } from "@/utils/types";
-import { Button } from "@/components/ui/button";
 import SectionGridSkeleton from "./SectionGridSkeleton";
 import PlayButton from "./PlayButton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Music } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type SectionGridProps = {
   title: string;
@@ -16,12 +18,6 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl sm:text-2xl font-bold">{title}</h2>
-        <Button
-          variant="link"
-          className="text-sm text-zinc-400 hover:text-white"
-        >
-          Show all
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -32,19 +28,27 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
           >
             <div className="relative mb-4">
               <div className="aspect-square rounded-md shadow-lg overflow-hidden">
-                <img
-                  src={song.thumbnailUrl}
-                  alt={song.title}
-                  className="w-full h-full object-cover transition-transform duration-300 
-									group-hover:scale-105"
-                />
+                <Link to={`/song-details/${song.id}`}>
+                  <Avatar className="h-full w-full rounded-md bg-[#282828]">
+                    <AvatarImage src={song.thumbnailUrl} alt={song.title} />
+
+                    <AvatarFallback className="bg-[#282828]">
+                      <Music className="h-10 w-10 text-gray-400" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
               </div>
+
               <PlayButton song={song} />
             </div>
-           
-            <h3 className="font-medium mb-2 truncate">{song.title}</h3>
-         
-            <p className="text-sm text-zinc-400 truncate">{song.user.fullName}</p>
+
+            <h3 className="font-medium mb-2 truncate hover:underline">
+              <Link to={`/song-details/${song.id}`}>{song.title}</Link>
+            </h3>
+
+            <p className="text-sm text-zinc-400 truncate hover:underline">
+              <Link to={`/profile/${song.user.id}`}>{song.user.fullName}</Link>
+            </p>
           </div>
         ))}
       </div>

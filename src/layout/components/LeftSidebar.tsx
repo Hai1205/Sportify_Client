@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { HomeIcon, Library, MessageCircle, Music, Search, Album as AlbumIcon } from "lucide-react";
+import {
+  HomeIcon,
+  Library,
+  MessageCircle,
+  Music,
+  Search,
+  Album as AlbumIcon,
+  Disc3,
+} from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Album } from "@/utils/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const LeftSidebar = () => {
   const { isAuth, isArtist, isAdmin, user: userAuth } = useAuthStore();
@@ -15,6 +24,7 @@ const LeftSidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       const userAlbums = (userAuth?.albums || []) as Album[];
+      console.log(userAuth);
       setAlbums(userAlbums);
     };
 
@@ -120,23 +130,19 @@ const LeftSidebar = () => {
           <div className="space-y-2">
             {albums.map((album) => (
               <Link
-                to={`/album/${album.id}`}
+                to={`/album-details/${album.id}`}
                 key={album.id}
                 className="p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer"
               >
-                <img
-                  src={album.thumbnailUrl}
-                  alt={album.title}
-                  className="size-12 rounded-md flex-shrink-0 object-cover"
-                />
+                <Avatar className="h-9 w-9 rounded-md">
+                  <AvatarImage src={album.thumbnailUrl} alt={album.title} />
+                
+                  <AvatarFallback>
+                    <Disc3 className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
 
-                <div className="flex-1 min-w-0 hidden md:block">
-                  <p className="font-low truncate">{album.title}</p>
-
-                  <p className="text-sm text-zinc-400 truncate">
-                    Disc3 • {album.user.fullName}
-                  </p>
-                </div>
+                <p className="font-low truncate">{album.title}</p>
               </Link>
             ))}
           </div>

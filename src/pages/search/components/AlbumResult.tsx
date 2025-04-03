@@ -1,4 +1,4 @@
-import { Play, Disc } from "lucide-react";
+import { Play, Disc3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Album } from "@/utils/types";
 import { Link } from "react-router-dom";
@@ -12,7 +12,7 @@ export function AlbumResults({ albums, query }: AlbumResultsProps) {
   if (albums.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Disc className="h-12 w-12 text-muted-foreground mb-4" />
+        <Disc3 className="h-12 w-12 text-muted-foreground mb-4" />
 
         <h3 className="text-lg font-medium">No albums found</h3>
 

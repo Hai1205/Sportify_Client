@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Save } from "lucide-react";
+import { Save, User as UserIcon } from "lucide-react";
 import LoadingSpinner from "@/components/ui/loading";
 import { User } from "@/utils/types";
 
@@ -57,33 +57,38 @@ const GeneralTab = ({
             {userAuth && (
               <div className="grid gap-4">
                 {/* Avatar */}
-                <div className="flex flex-col items-center gap-4">
-                  <Avatar className="h-20 w-20 rounded-full">
-                    <AvatarImage
-                      src={previewAvatar || userAuth.avatarUrl}
-                      alt={userAuth.fullName}
-                    />
-                    <AvatarFallback>
-                      {userAuth.fullName.substring(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id="avatar-upload"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        document.getElementById("avatar-upload")?.click()
-                      }
-                    >
-                      Change Avatar
-                    </Button>
+                <div className="flex items-center justify-center col-span-1 row-span-3">
+                  <div className="relative w-40 h-40 border border-gray-700 rounded-full overflow-hidden flex items-center justify-center bg-[#282828]">
+                    <Avatar className="rounded-full object-cover w-full h-full">
+                      <AvatarImage
+                        src={previewAvatar ? previewAvatar : "/placeholder.svg"}
+                        alt={userData.fullName}
+                      />
+                      <AvatarFallback>
+                        <UserIcon />
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
+                        onClick={() =>
+                          document.getElementById("avatar-input")?.click()
+                        }
+                      >
+                        Change
+                      </Button>
+
+                      <input
+                        id="avatar-input"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                      />
+                    </div>
                   </div>
                 </div>
 

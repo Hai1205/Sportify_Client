@@ -1,39 +1,87 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Upload, Pencil, Trash } from "lucide-react";
-import { Album, Song } from "@/utils/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Album } from "@/utils/types";
+import LoadingSpinner from "@/components/ui/loading";
+import { Music, Save } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useMusicStore } from "@/stores/useMusicStore";
 
-interface EditAlbumDialogProps {
+type EditAlbumDialogProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedAlbum: Album | null;
-  albumSongs: Song[];
-  handleEditSong: (song: Song) => void;
-  handleRemoveSongFromAlbum: (songId: string) => void;
-}
+  album: Album | null;
+  onAlbumUpdated?: (updatedAlbum: Album) => void;
+};
 
 const EditAlbumDialog = ({
   isOpen,
   onOpenChange,
-  selectedAlbum,
-  albumSongs,
-  handleEditSong,
-  handleRemoveSongFromAlbum,
+  album,
+  onAlbumUpdated,
 }: EditAlbumDialogProps) => {
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [albumData, setAlbumData] = useState({
+    title: album?.title || "",
+  });
+
+  const { updateSong } = useMusicStore();
+  useEffect(() => {
+    if (album) {
+      setAlbumData({
+        title: album.title,
+      });
+
+      setThumbnail(null);
+    }
+  }, [album]);
+
+  const handleChange = (field: keyof typeof albumData, value: string) => {
+    setAlbumData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  if (!album) {
+    return null;
+  }
+
+  const handleUpdateAlbum = async () => {
+    const formData = new FormData();
+    formData.append("title", albumData.title || "");
+    if (thumbnail) {
+      formData.append("thumbnail", thumbnail);
+    }
+
+    setIsLoading(true);
+    const res = await updateSong(album?.id, formData);
+    setIsLoading(false);
+
+    if (!res) {
+      return;
+    }
+
+    if (onAlbumUpdated) {
+      onAlbumUpdated({ ...album, ...albumData });
+    }
+
+    handleClose();
+  };
+
   const handleClose = () => {
     onOpenChange(false);
+    setThumbnail(null);
+  };
+
+  const handleThumbnailChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setThumbnail(file);
+    }
   };
 
   return (
@@ -62,192 +110,77 @@ const EditAlbumDialog = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-[800px] transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-[600px] transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title
                   as="h3"
                   className="text-lg font-medium leading-6 text-white"
                 >
                   Edit Album
                 </Dialog.Title>
-             
                 <div className="mt-2">
                   <p className="text-sm text-gray-400">
-                    {selectedAlbum
-                      ? `Edit details for "${selectedAlbum.title}"`
-                      : "Edit album details"}
+                    Edit details for "{album.title}"
                   </p>
                 </div>
 
-                {selectedAlbum && (
-                  <div className="grid gap-6 py-4">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="flex flex-col gap-4">
-                        <div className="relative w-full h-48 border border-gray-700 rounded-lg flex items-center justify-center overflow-hidden bg-[#282828]">
-                          <img
-                            src={
-                              selectedAlbum.thumbnailUrl || "/placeholder.svg"
-                            }
-                            alt={selectedAlbum.title}
-                            className="object-cover w-full h-full"
-                          />
-                         
+                <ScrollArea className="max-h-[70vh] mt-4">
+                  <div className="grid gap-4 py-4 px-1">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center justify-center col-span-1 row-span-3">
+                        <div className="relative w-full h-40 border border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-[#282828]">
+                          <Avatar className="rounded-md object-cover w-full h-full">
+                            <AvatarImage
+                              src={
+                                thumbnail
+                                  ? URL.createObjectURL(thumbnail)
+                                  : album.thumbnailUrl || "/placeholder.svg"
+                              }
+                              alt={album.title}
+                            />
+                            <AvatarFallback>
+                              <Music />
+                            </AvatarFallback>
+                          </Avatar>
+
                           <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
                             <Button
                               variant="secondary"
                               size="sm"
                               className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
+                              onClick={() =>
+                                document
+                                  .getElementById("thumbnail-input")
+                                  ?.click()
+                              }
                             >
-                              Change Cover
+                              Change
                             </Button>
+
+                            <input
+                              id="thumbnail-input"
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleThumbnailChange}
+                            />
                           </div>
                         </div>
-                     
-                        <label
-                          htmlFor="album-cover"
-                          className="flex flex-col items-center justify-center w-full h-12 border-2 border-dashed border-gray-700 rounded-lg cursor-pointer bg-[#282828] hover:bg-[#333333] transition-colors"
-                        >
-                          <div className="flex items-center justify-center">
-                            <Upload className="w-4 h-4 mr-2 text-gray-400" />
-                         
-                            <p className="text-sm text-gray-400">
-                              Upload New Cover
-                            </p>
-                          </div>
-                         
-                          <Input
-                            id="album-cover"
-                            type="file"
-                            className="hidden"
-                          />
-                        </label>
                       </div>
-                    
-                      <div className="flex flex-col gap-4">
-                        <Label
-                          htmlFor="edit-album-title"
-                          className="text-white"
-                        >
-                          Album Title
-                        </Label>
-                       
-                        <Input
-                          id="edit-album-title"
-                          defaultValue={selectedAlbum.title}
-                          className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
-                        />
 
-                        <Label
-                          htmlFor="edit-album-release-date"
-                          className="text-white"
-                        >
-                          Release Date
-                        </Label>
-                      
-                        <Input
-                          id="edit-album-release-date"
-                          type="date"
-                          defaultValue={selectedAlbum.releaseDate}
-                          className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
-                        />
+                      {/* <div className="grid gap-2"> */}
+                      <Label htmlFor="edit-album-title" className="text-white">
+                        Album Title
+                      </Label>
 
-                        <Label
-                          htmlFor="edit-album-record-label"
-                          className="text-white"
-                        >
-                          Record Label
-                        </Label>
-                     
-                        <Input
-                          id="edit-album-record-label"
-                          placeholder="Enter record label"
-                          defaultValue="Republic Records"
-                          className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
-                        />
-                      </div>
-                    </div>
-
-                    <Separator className="bg-gray-700" />
-
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-white">
-                          Album Songs
-                        </h3>
-                      </div>
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-gray-700">
-                            <TableHead className="text-white">Title</TableHead>
-                            
-                            <TableHead className="text-white">
-                              Duration
-                            </TableHead>
-                           
-                            <TableHead className="text-white">
-                              Song #
-                            </TableHead>
-                           
-                            <TableHead className="text-right text-white">
-                              Actions
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                       
-                        <TableBody>
-                          {albumSongs.length > 0 ? (
-                            albumSongs.map((song) => (
-                              <TableRow
-                                key={song.id}
-                                className="border-gray-700"
-                              >
-                                <TableCell>
-                                  <span className="font-medium text-white">
-                                    {song.title}
-                                  </span>
-                                </TableCell>
-                               
-                                <TableCell className="text-white">
-                                  {song.duration}
-                                </TableCell>
-                             
-                                <TableCell className="text-right">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 hover:bg-[#282828]"
-                                    onClick={() => handleEditSong(song)}
-                                  >
-                                    <Pencil className="h-4 w-4 text-white" />
-                                  </Button>
-                               
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-red-500 hover:bg-red-500 hover:text-white"
-                                    onClick={() =>
-                                      handleRemoveSongFromAlbum(song.id)
-                                    }
-                                  >
-                                    <Trash className="h-4 w-4" />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))
-                          ) : (
-                            <TableRow className="border-gray-700">
-                              <TableCell
-                                colSpan={4}
-                                className="text-center py-4 text-gray-400"
-                              >
-                                No tracks added
-                              </TableCell>
-                            </TableRow>
-                          )}
-                        </TableBody>
-                      </Table>
+                      <Input
+                        id="edit-album-title"
+                        value={albumData.title}
+                        onChange={(e) => handleChange("title", e.target.value)}
+                        className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
+                      />
                     </div>
                   </div>
-                )}
+                </ScrollArea>
 
                 <div className="mt-4 flex justify-end gap-2">
                   <Button
@@ -257,11 +190,23 @@ const EditAlbumDialog = ({
                   >
                     Cancel
                   </Button>
+
                   <Button
-                    onClick={handleClose}
-                    className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
+                    onClick={handleUpdateAlbum}
+                    className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                    disabled={isLoading}
                   >
-                    Save Changes
+                    {isLoading ? (
+                      <>
+                        <LoadingSpinner />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Update
+                      </>
+                    )}
                   </Button>
                 </div>
               </Dialog.Panel>

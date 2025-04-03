@@ -1,99 +1,60 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { Album, Song } from "@/utils/types";
 import LoadingSpinner from "@/components/ui/loading";
 import { Music, Save } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useMusicStore } from "@/stores/useMusicStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { Album } from "@/utils/types";
 
-type EditSongDialogProps = {
+type UploadAlbumDialogProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  song: Song | null;
-  onSongUpdated?: (updatedSong: Song) => void;
+  onAlbumUploaded: (album: Album) => void;
 };
 
-const EditSongDialog = ({
+const UploadAlbumDialog = ({
   isOpen,
   onOpenChange,
-  song,
-  onSongUpdated,
-}: EditSongDialogProps) => {
+  onAlbumUploaded,
+}: UploadAlbumDialogProps) => {
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [songData, setSongData] = useState({
-    title: song?.title || "",
-    lyrics: song?.lyrics || "",
-    albumId: song?.album?.id || "",
+  const [albumData, setAlbumData] = useState({
+    title: "",
   });
 
-  const { updateSong, getUserAlbums } = useMusicStore();
-  const [albums, setAlbums] = useState<Album[]>([]);
+  const { uploadAlbum } = useMusicStore();
+  const { user: userAuth } = useAuthStore();
 
-  useEffect(() => {
-    const fetchAlbums = async () => {
-      if (song && song.user) {
-        const albums = await getUserAlbums(song.user.id);
-        setAlbums(albums || []);
-      }
-    };
-
-    fetchAlbums();
-  }, [getUserAlbums, song]);
-
-  useEffect(() => {
-    if (song) {
-      setSongData({
-        title: song.title,
-        lyrics: song.lyrics,
-        albumId: song.album?.id || "",
-      });
-
-      setThumbnail(null);
-    }
-  }, [song]);
-
-  const handleChange = (field: keyof typeof songData, value: string) => {
-    setSongData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof typeof albumData, value: string) => {
+    setAlbumData((prev) => ({ ...prev, [field]: value }));
   };
 
-  if (!song) {
-    return null;
-  }
-
-  const handleUpdateSong = async () => {
-    
+  const handleUploadAlbum = async () => {
     const formData = new FormData();
-    formData.append("albumId", songData.albumId || "");
-    formData.append("title", songData.title || "");
-    formData.append("lyrics", songData.lyrics || "");
+    formData.append("title", albumData.title || "");
     if (thumbnail) {
       formData.append("thumbnail", thumbnail);
     }
-    
+
+    if (!userAuth?.id) {
+      return;
+    }
+
     setIsLoading(true);
-    const res = await updateSong(song?.id, formData);
+    const res = await uploadAlbum(userAuth?.id, formData);
     setIsLoading(false);
 
     if (!res) {
       return;
     }
 
-    if (onSongUpdated) {
-      onSongUpdated({ ...song, ...songData });
-    }
+    onAlbumUploaded(res);
     handleClose();
   };
 
@@ -142,11 +103,11 @@ const EditSongDialog = ({
                   as="h3"
                   className="text-lg font-medium leading-6 text-white"
                 >
-                  Edit Song
+                  Edit Album
                 </Dialog.Title>
                 <div className="mt-2">
                   <p className="text-sm text-gray-400">
-                    Edit details for "{song.title}"
+                    Edit details for "{albumData.title}"
                   </p>
                 </div>
 
@@ -160,9 +121,9 @@ const EditSongDialog = ({
                               src={
                                 thumbnail
                                   ? URL.createObjectURL(thumbnail)
-                                  : song.thumbnailUrl || "/placeholder.svg"
+                                  : "/placeholder.svg"
                               }
-                              alt={song.title}
+                              alt={albumData.title}
                             />
                             <AvatarFallback>
                               <Music />
@@ -194,61 +155,15 @@ const EditSongDialog = ({
                         </div>
                       </div>
 
-                      <div className="grid gap-2">
-                        <Label htmlFor="edit-song-title" className="text-white">
-                          Song Title
-                        </Label>
-                        <Input
-                          id="edit-song-title"
-                          value={songData.title}
-                          onChange={(e) =>
-                            handleChange("title", e.target.value)
-                          }
-                          className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
-                        />
-                      </div>
-
-                      <div className="grid gap-2">
-                        <Label htmlFor="edit-song-album" className="text-white">
-                          Album
-                        </Label>
-                        <Select
-                          value={songData.albumId}
-                          onValueChange={(value) =>
-                            handleChange("albumId", value)
-                          }
-                        >
-                          <SelectTrigger
-                            id="edit-song-album"
-                            className="bg-[#282828] text-white border-gray-700"
-                          >
-                            <SelectValue placeholder="Select album" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#282828] border-gray-700">
-                            {albums.map((album) => (
-                              <SelectItem
-                                key={album.id}
-                                value={album.id}
-                                className="text-white hover:bg-[#1DB954] hover:text-white"
-                              >
-                                {album.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-song-lyrics" className="text-white">
-                        Lyrics
+                      {/* <div className="grid gap-2"> */}
+                      <Label htmlFor="edit-album-title" className="text-white">
+                        Album Title
                       </Label>
 
-                      <Textarea
-                        id="edit-song-lyrics"
-                        value={songData.lyrics}
-                        onChange={(e) => handleChange("lyrics", e.target.value)}
-                        rows={5}
+                      <Input
+                        id="edit-album-title"
+                        value={albumData.title}
+                        onChange={(e) => handleChange("title", e.target.value)}
                         className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
                       />
                     </div>
@@ -265,16 +180,19 @@ const EditSongDialog = ({
                   </Button>
 
                   <Button
-                    onClick={handleUpdateSong}
+                    onClick={handleUploadAlbum}
                     className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                      <LoadingSpinner />
+                      <>
+                        <LoadingSpinner />
+                        Uploading...
+                      </>
                     ) : (
                       <>
                         <Save className="h-4 w-4" />
-                        Save
+                        Upload
                       </>
                     )}
                   </Button>
@@ -288,4 +206,4 @@ const EditSongDialog = ({
   );
 };
 
-export default EditSongDialog;
+export default UploadAlbumDialog;

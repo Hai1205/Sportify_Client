@@ -28,7 +28,6 @@ const ProfilePage = () => {
     fetchUser();
   }, [getUser, userId]);
 
-  // Hiển thị skeleton khi đang load data
   if (authLoading || userLoading || !userAuth || !currentUser) {
     return (
       <ScrollArea className="flex-1 h-full">

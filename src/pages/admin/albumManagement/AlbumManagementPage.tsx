@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { MoreHorizontal, Music, Search, Trash } from "lucide-react";
+import { MoreHorizontal, Music, Plus, Search, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,11 +23,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useMusicStore } from "@/stores/useMusicStore";
-import AddAlbumDialog from "./components/AddAlbumDialog";
 import { AlbumsEmptyState } from "@/layout/components/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Album } from "@/utils/types";
 import { TableSkeleton } from "../../../layout/components/TableSkeleton";
+import UploadAlbumDialog from "./components/UploadAlbumDialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 export default function AlbumManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -82,16 +83,34 @@ export default function AlbumManagementPage() {
     }
   };
 
+  const handleAlbumUploaded = (newAlbum: Album) => {
+    setAlbums([...albums, newAlbum]);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Albums</h2>
 
         <div className="flex items-center gap-2">
-          <AddAlbumDialog
+        <Dialog open={isAddSongOpen} onOpenChange={setIsAddSongOpen}>
+            <DialogTrigger asChild>
+              <Button
+                onClick={() => setIsAddSongOpen(true)}
+                size="sm"
+                className="h-8 gap-1"
+              >
+                <Plus className="h-4 w-4" />
+                Upload Album
+              </Button>
+            </DialogTrigger>
+
+            <UploadAlbumDialog
             isOpen={isAddSongOpen}
             onOpenChange={setIsAddSongOpen}
+            onAlbumUploaded={handleAlbumUploaded}
           />
+          </Dialog>
         </div>
       </div>
 

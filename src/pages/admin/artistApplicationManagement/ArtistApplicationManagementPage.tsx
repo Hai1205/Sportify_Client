@@ -5,7 +5,6 @@ import {
   MoreHorizontal,
   Search,
   Filter,
-  Calendar,
   FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,8 @@ export interface ApplicationData {
 }
 
 export default function ArtistApplicationManagementPage() {
-  const { isLoading, getArtistApplications, responseUpdateUserToArtist } = useUserStore();
+  const { isLoading, getArtistApplications, responseUpdateUserToArtist } =
+    useUserStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
@@ -75,11 +75,10 @@ export default function ArtistApplicationManagementPage() {
     fetchUsers();
   }, [query, queryString, searchParams, getArtistApplications]);
 
-  const [applicationData, setApplicationData] =
-    useState<ApplicationData>({
-      rejectionReason: "",
-      details: "",
-    });
+  const [applicationData, setApplicationData] = useState<ApplicationData>({
+    rejectionReason: "",
+    details: "",
+  });
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
@@ -118,24 +117,27 @@ export default function ArtistApplicationManagementPage() {
   };
 
   const confirm = async (status: string) => {
-    if(!selectedApplication){
+    if (!selectedApplication) {
       return;
     }
 
     const formData = new FormData();
     formData.append("details", applicationData.details || "");
     formData.append("status", status);
-    if(status === "reject"){
+    if (status === "reject") {
       formData.append("rejectionReason", applicationData.rejectionReason || "");
     }
 
-    const res = await responseUpdateUserToArtist(selectedApplication?.id, formData);
+    const res = await responseUpdateUserToArtist(
+      selectedApplication?.id,
+      formData
+    );
 
-    if(!res){
+    if (!res) {
       return;
     }
 
-    if(status === "reject"){
+    if (status === "reject") {
       setIsRejectDialogOpen(false);
     } else {
       setIsApproveDialogOpen(false);
@@ -351,7 +353,7 @@ export default function ArtistApplicationManagementPage() {
 
                     <TableHead className="text-center">Submitted</TableHead>
 
-                    <TableHead className="text-center">Actions</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -370,50 +372,45 @@ export default function ArtistApplicationManagementPage() {
                             <div className="flex items-center gap-3">
                               <Avatar className="h-9 w-9">
                                 <AvatarImage
-                                  src={application.user.avatarUrl}
-                                  alt={application.user.fullName}
+                                  src={application?.user?.avatarUrl}
+                                  alt={application?.user?.fullName}
                                 />
 
                                 <AvatarFallback>
-                                  {application.user.fullName.substring(0, 2)}
+                                  {application?.user?.fullName?.substring(0, 2)}
                                 </AvatarFallback>
                               </Avatar>
 
                               <div className="flex flex-col">
                                 <span className="font-medium hover:underline">
-                                  {application.user.fullName}
+                                  {application?.user?.fullName}
                                 </span>
 
                                 <span className="text-sm text-muted-foreground hover:underline">
-                                  @{application.user.username}
+                                  @{application?.user?.username}
                                 </span>
                               </div>
                             </div>
                           </Link>
                         </TableCell>
 
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`h-2 w-2 rounded-full ${getStatusColor(
-                                application.status
-                              )}`}
-                            />
-                            <span className="capitalize">
-                              {application.status}
-                            </span>
-                          </div>
+                        <TableCell className="flex items-center justify-center gap-2">
+                          <span
+                            className={`h-2 w-2 rounded-full ${getStatusColor(
+                              application.status
+                            )}`}
+                          />
+                          <span className="capitalize">
+                            {application.status}
+                          </span>
                         </TableCell>
 
                         <TableCell className="text-center">
                           {application?.user?.followers.length}
                         </TableCell>
 
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>{application.submitDate}</span>
-                          </div>
+                        <TableCell className="flex items-center justify-center gap-1">
+                          {application.submitDate}
                         </TableCell>
 
                         <TableCell className="text-right">

@@ -10,7 +10,6 @@ import OTPVerificationPage from "./pages/auth/OTPVerificationPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import HomePage from "@/pages/home/HomePage";
 import ChatPage from "@/pages/chat/ChatPage";
-import AlbumPage from "@/pages/music/album/AlbumPage";
 import NotFoundPage from "@/pages/404/NotFoundPage";
 import SettingPage from "./pages/settings/SettingPage";
 import SearchResult from "./pages/search/SearchResults";
@@ -24,12 +23,12 @@ import PrivateRoute from "./layout/components/PrivateRoute";
 import AuthRoute from "./layout/components/AuthRoute";
 import AdminRoute from "./layout/components/AdminRoute";
 import ProfilePage from "./pages/profile/ProfilePage";
-import AlbumDetails from "./pages/music/album/AlbumDetails";
 import MusicUploaderPage from "./pages/music/MusicUploaderPage";
 import MusicPlayer from "./pages/music/MusicPlayer";
 import { useAuthStore } from "./stores/useAuthStore";
 import FavoriteSongs from "./pages/music/song/FavoriteSongsPage";
 import SongDetailsPage from "./pages/music/song/SongDetailsPage";
+import AlbumDetailsPage from "@/pages/music/album/AlbumDetailsPage";
 
 function App() {
   const { isAuth, refreshToken } = useAuthStore();
@@ -72,13 +71,11 @@ function App() {
 
           <Route path="/favorite-songs" element={<FavoriteSongs />} />
 
-          <Route path="/song-detail/:songId" element={<SongDetailsPage />} />
+          <Route path="/song-details/:songId" element={<SongDetailsPage />} />
 
-          <Route path="/album-detail/:albumId" element={<AlbumDetails />} />
+          <Route path="/album-details/:albumId" element={<AlbumDetailsPage />} />
 
           <Route path="/song-player/:songId" element={<MusicPlayer />} />
-
-          <Route path="/album/:albumId" element={<AlbumPage />} />
 
           <Route element={<PrivateRoute />}>
             <Route path="/chat" element={<ChatPage />} />

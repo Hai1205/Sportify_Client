@@ -1,6 +1,3 @@
-// Sportify_Client/src/pages/music/MusicUploaderPage.tsx
-"use client";
-
 import type React from "react";
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";

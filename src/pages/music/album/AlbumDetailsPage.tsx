@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Clock, Pause, Play } from "lucide-react";
+import { Clock, Pause, Pencil, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDuration } from "@/utils/service/formatDuration";
@@ -8,7 +8,7 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Album } from "@/utils/types";
 
-const AlbumPage = () => {
+export default function AlbumDetailsPage() {
   const { albumId } = useParams();
   const { getAlbum, isLoading } = useMusicStore();
   const { currentSong, isPlaying, playAlbum, togglePlay } = usePlayerStore();
@@ -37,7 +37,6 @@ const AlbumPage = () => {
     );
     if (isCurrentAlbumPlaying) togglePlay();
     else {
-      // start playing the album from the beginning
       playAlbum(currentAlbum?.songs, 0);
     }
   };
@@ -53,7 +52,6 @@ const AlbumPage = () => {
       <ScrollArea className="h-full rounded-md">
         {/* Main Content */}
         <div className="relative min-h-full">
-          {/* bg gradient */}
           <div
             className="absolute inset-0 bg-gradient-to-b from-[#5038a0]/80 via-zinc-900/80
 					 to-zinc-900 pointer-events-none"
@@ -89,6 +87,15 @@ const AlbumPage = () => {
                   <span>• {currentAlbum?.releaseDate}</span>
                 </div>
               </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                // onClick={() => setIsEditDialogOpen(true)}
+                className="gap-1 border-gray-700 text-white hover:bg-[#282828]"
+              >
+                <Pencil className="h-4 w-4" /> Edit
+              </Button>
             </div>
 
             {/* play button */}
@@ -188,6 +195,4 @@ const AlbumPage = () => {
       </ScrollArea>
     </div>
   );
-};
-
-export default AlbumPage;
+}

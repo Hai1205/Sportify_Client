@@ -7,7 +7,7 @@ import {
   Trash,
   Pencil,
   Music,
-  Disc,
+  Disc3,
   UserPlus,
   RefreshCw,
 } from "lucide-react";
@@ -40,14 +40,11 @@ import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ManageSongsDialog from "../songManagement/components/ManageSongsDialog";
-import { useMusicStore } from "@/stores/useMusicStore";
 import EditSongDialog from "../songManagement/components/EditSongDialog";
-import ViewAlbumDialog from "../albumManagement/components/ViewAlbumDialog";
 import ManageAlbumsDialog from "../albumManagement/components/ManageAlbumsDialog";
-import EditAlbumDialog from "../albumManagement/components/EditAlbumDialog";
 import { UserEmptyState } from "@/layout/components/EmptyState";
 import { TableSkeleton } from "@/layout/components/TableSkeleton";
-import AddToAlbumDialog from "../songManagement/components/AddToAlbumDialog";
+import EditAlbumDialog from "../albumManagement/components/EditAlbumDialog";
 
 export default function UserManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,21 +63,14 @@ export default function UserManagementPage() {
   const [isManageSongsOpen, setIsManageSongsOpen] = useState(false);
   const [isManageAlbumsOpen, setIsManageAlbumsOpen] = useState(false);
   const [isEditSongOpen, setIsEditSongOpen] = useState(false);
-  // const [isSongDetailsOpen, setIsSongDetailsOpen] = useState(false);
-  const [isAddToPlaylistOpen, setIsAddToPlaylistOpen] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<User | null>(null);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
-  const [playingSong, setPlayingSong] = useState<string | null>(null);
-  const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
 
-  const [isViewAlbumOpen, setIsViewAlbumOpen] = useState(false);
   const [isEditAlbumOpen, setIsEditAlbumOpen] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
-  const [albumSongs, setAlbumSongs] = useState<Song[]>([]);
 
   const { isLoading, searchUsers, deleteUser, getAllUser } = useUserStore();
   const { isAdmin, resetPassword } = useAuthStore();
-  const { albums } = useMusicStore();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -222,50 +212,9 @@ export default function UserManagementPage() {
     setIsEditSongOpen(true);
   };
 
-  // const handleViewSongDetails = (song: Song) => {
-  //   setSelectedSong(song);
-  //   setIsSongDetailsOpen(true);
-  // };
-
-  const handleAddToPlaylist = (song: Song) => {
-    setSelectedSong(song);
-    setIsAddToPlaylistOpen(true);
-  };
-
-  const togglePlaySong = (songId: string) => {
-    if (playingSong === songId) {
-      setPlayingSong(null);
-    } else {
-      setPlayingSong(songId);
-    }
-  };
-
-  const toggleAlbumSelection = (playlistId: string) => {
-    if (selectedPlaylists.includes(playlistId)) {
-      setSelectedPlaylists(selectedPlaylists.filter((id) => id !== playlistId));
-    } else {
-      setSelectedPlaylists([...selectedPlaylists, playlistId]);
-    }
-  };
-
-  // Add these handler functions after the existing handler functions
-  const handleViewAlbum = (album: Album) => {
-    setSelectedAlbum(album);
-    // Filter songs that belong to this album
-    // const songViews = songs.filter((song) => song.album === album.title)
-
-    setAlbumSongs(album.songs);
-    setIsViewAlbumOpen(true);
-  };
-
   const handleEditAlbum = (album: Album) => {
     setSelectedAlbum(album);
-    setAlbumSongs(album.songs);
     setIsEditAlbumOpen(true);
-  };
-
-  const handleRemoveSongFromAlbum = (songId: string) => {
-    setAlbumSongs(albumSongs.filter((song) => song.id !== songId));
   };
 
   const handleUserAdded = (newUser: User) => {
@@ -308,11 +257,7 @@ export default function UserManagementPage() {
         isOpen={isManageSongsOpen}
         onOpenChange={setIsManageSongsOpen}
         artist={selectedArtist}
-        // playingSong={playingSong}
-        // togglePlaySong={togglePlaySong}
         handleEditSong={handleEditSong}
-        // handleViewSongDetails={handleViewSongDetails}
-        handleAddToPlaylist={handleAddToPlaylist}
       />
 
       {/* Edit Song Dialog */}
@@ -320,16 +265,6 @@ export default function UserManagementPage() {
         isOpen={isEditSongOpen}
         onOpenChange={setIsEditSongOpen}
         song={selectedSong}
-        // albums={albums}
-      />
-
-      {/* Add to Playlist Dialog */}
-      <AddToAlbumDialog
-        isOpen={isAddToPlaylistOpen}
-        onOpenChange={setIsAddToPlaylistOpen}
-        toggleAlbumSelection={toggleAlbumSelection}
-        song={selectedSong}
-        artist={selectedArtist}
       />
 
       {/* Manage Albums Dialog */}
@@ -337,34 +272,14 @@ export default function UserManagementPage() {
         isOpen={isManageAlbumsOpen}
         onOpenChange={setIsManageAlbumsOpen}
         artist={selectedArtist}
-        albums={albums}
-        handleViewAlbum={handleViewAlbum}
         handleEditAlbum={handleEditAlbum}
-      />
-
-      {/* View Album Dialog */}
-      <ViewAlbumDialog
-        isOpen={isViewAlbumOpen}
-        onOpenChange={setIsViewAlbumOpen}
-        onEdit={handleEditAlbum}
-        album={selectedAlbum}
-        artist={selectedArtist}
-        songs={albumSongs}
-        playingSong={playingSong}
-        togglePlaySong={togglePlaySong}
-        // handleViewSongDetails={handleViewSongDetails}
-        handleEditSong={handleEditSong}
-        handleAddToPlaylist={handleAddToPlaylist}
       />
 
       {/* Edit Album Dialog */}
       <EditAlbumDialog
         isOpen={isEditAlbumOpen}
         onOpenChange={setIsEditAlbumOpen}
-        selectedAlbum={selectedAlbum}
-        albumSongs={albumSongs}
-        handleEditSong={handleEditSong}
-        handleRemoveSongFromAlbum={handleRemoveSongFromAlbum}
+        album={selectedAlbum}
       />
 
       <Tabs defaultValue="all-users" className="space-y-4">
@@ -549,7 +464,7 @@ export default function UserManagementPage() {
 
                       <TableHead className="text-center">Join Date</TableHead>
 
-                      <TableHead className="text-center">Actions</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -591,26 +506,26 @@ export default function UserManagementPage() {
                             </Link>
                           </TableCell>
 
-                          <TableCell className="capitalize">
+                          <TableCell className="capitalize text-center">
                             {user.role}
                           </TableCell>
 
-                          <TableCell className="capitalize">
+                          <TableCell className="capitalize text-center">
                             {user.country}
                           </TableCell>
 
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`h-2 w-2 rounded-full ${getStatusColor(
-                                  user.status
-                                )}`}
-                              />
-                              <span className="capitalize">{user.status}</span>
-                            </div>
+                          <TableCell className="capitalize text-center flex items-center justify-center gap-2">
+                            <span
+                              className={`h-2 w-2 rounded-full ${getStatusColor(
+                                user.status
+                              )}`}
+                            />
+                            <span className="capitalize">{user.status}</span>
                           </TableCell>
 
-                          <TableCell>{user.joinDate}</TableCell>
+                          <TableCell className="text-center">
+                            {user.joinDate}
+                          </TableCell>
 
                           <TableCell className="text-right">
                             <DropdownMenu>
@@ -652,7 +567,7 @@ export default function UserManagementPage() {
                                       onClick={() => handleManageAlbums(user)}
                                       className="cursor-pointer"
                                     >
-                                      <Disc className="mr-2 h-4 w-4" /> Manage
+                                      <Disc3 className="mr-2 h-4 w-4" /> Manage
                                       albums
                                     </DropdownMenuItem>
                                   </>

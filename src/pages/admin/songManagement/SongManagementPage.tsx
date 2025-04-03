@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   Clock,
+  Download,
   MoreHorizontal,
   Music,
   Plus,
@@ -32,7 +33,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { Song } from "@/utils/types";
-import { useAuthStore } from "@/stores/useAuthStore";
 import formatTime from "@/utils/service/formatTime";
 import { SongsEmptyState } from "@/layout/components/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -56,12 +56,9 @@ export default function SongManagementPage() {
     isLoading,
     getAllSong,
     searchSongs,
-    uploadSong,
     deleteSong,
     downloadSong,
   } = useMusicStore();
-
-  const { user: userAuth } = useAuthStore();
 
   useEffect(() => {
     const fetchSongs = async () => {
@@ -88,29 +85,24 @@ export default function SongManagementPage() {
     [searchQuery, setSearchParams]
   );
 
-  const handleDownloadSong = (song: Song) => {
+  const handleDownloadSong = async (song: Song) => {
     if (!song) {
       return;
     }
 
-    downloadSong(song.id);
+    await downloadSong(song.id);
   };
 
-  const handleDeleteSong = (song: Song) => {
+  const handleDeleteSong = async (song: Song) => {
     if (!song) {
       return;
     }
 
-    deleteSong(song.id);
+    await deleteSong(song.id);
   };
 
-  const handleUploadSong = (formData: FormData) => {
-    if (!userAuth) {
-      return;
-    }
-
-    uploadSong(userAuth.id, formData);
-    setIsAddSongOpen(false);
+  const handleSongUploaded = (newSong: Song) => {
+    setSongs([...songs, newSong]);
   };
 
   const handleEditSong = (song: Song) => {
@@ -132,14 +124,14 @@ export default function SongManagementPage() {
                 className="h-8 gap-1"
               >
                 <Plus className="h-4 w-4" />
-                Add Song
+                Upload Song
               </Button>
             </DialogTrigger>
 
             <UploadSongDialog
               isOpen={isAddSongOpen}
               onOpenChange={setIsAddSongOpen}
-              onUpload={handleUploadSong}
+              onSongUploaded={handleSongUploaded}
             />
           </Dialog>
         </div>
@@ -211,7 +203,7 @@ export default function SongManagementPage() {
                       songs.map((song) => (
                         <TableRow key={song.id}>
                           <TableCell className="text-center">
-                            <Link to={`/song-detail/${song.id}`}>
+                            <Link to={`/song-details/${song.id}`}>
                               <div className="flex justify-center">
                                 <Avatar className="h-9 w-9 rounded-md">
                                   <AvatarImage
@@ -227,7 +219,7 @@ export default function SongManagementPage() {
                           </TableCell>
 
                           <TableCell className="text-center hover:underline">
-                            <Link to={`/song-detail/${song.id}`}>
+                            <Link to={`/song-details/${song.id}`}>
                               {song.title}
                             </Link>
                           </TableCell>
@@ -239,7 +231,7 @@ export default function SongManagementPage() {
                           </TableCell>
 
                           <TableCell className="text-center hover:underline">
-                            <Link to={`/album-detail/${song.album?.id}`}>
+                            <Link to={`/album-details/${song.album?.id}`}>
                               {song.album?.title}
                             </Link>
                           </TableCell>
@@ -287,7 +279,8 @@ export default function SongManagementPage() {
                                     onClick={() => handleDownloadSong(song)}
                                     className="cursor-pointer"
                                   >
-                                    Download
+                                    <Download className="mr-2 h-4 w-4" />
+                                    {" Download"}
                                   </DropdownMenuItem>
 
                                   <DropdownMenuSeparator />
@@ -297,7 +290,7 @@ export default function SongManagementPage() {
                                     className="text-red-600 cursor-pointer"
                                   >
                                     <Trash className="mr-2 h-4 w-4" />
-                                    {" Delete song"}
+                                    {" Delete"}
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>

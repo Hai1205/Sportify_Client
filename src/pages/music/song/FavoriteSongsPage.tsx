@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Clock, Heart, Music, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,8 @@ export default function FavoriteSongsPage() {
 
   const [songs, setSongs] = useState<Song[] | []>([]);
 
-  const { isLoading, likeSong, searchSongs } = useMusicStore();
+  const { isLoading, likeSong, searchSongs, getUserLikedSong } =
+    useMusicStore();
 
   const { user: userAuth } = useAuthStore();
 
@@ -38,13 +39,18 @@ export default function FavoriteSongsPage() {
       if (queryString) {
         await searchSongs(queryString).then(setSongs);
       } else {
-        const likedSongs = (userAuth?.likedSongs || []) as Song[];
-        setSongs(likedSongs);
+        if (userAuth?.id) {
+          const likedSongs = await getUserLikedSong(userAuth?.id);
+
+          if (likedSongs) {
+            setSongs(likedSongs);
+          }
+        }
       }
     };
 
     fetchSongs();
-  }, [likeSong, query, queryString, searchSongs, userAuth]);
+  }, [getUserLikedSong, likeSong, query, queryString, searchSongs, userAuth]);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
@@ -59,11 +65,11 @@ export default function FavoriteSongsPage() {
     [searchQuery, setSearchParams]
   );
 
-  const toggleLike = async (song: Song) => {
-    if(!userAuth){
-        return;
+  const handleLike = async (song: Song) => {
+    if (!userAuth) {
+      return;
     }
-    
+
     await likeSong(userAuth?.id, song.id);
     setSongs(songs.filter((s) => s.id !== song.id));
   };
@@ -141,28 +147,36 @@ export default function FavoriteSongsPage() {
                         <TableRow key={song.id}>
                           <TableCell className="text-center">
                             <div className="flex justify-center">
-                              <Avatar className="h-9 w-9 rounded-md">
-                                <AvatarImage
-                                  src={song.thumbnailUrl}
-                                  alt={song.title}
-                                />
-                                <AvatarFallback>
-                                  <Music className="h-4 w-4" />
-                                </AvatarFallback>
-                              </Avatar>
+                              <Link to={`/song-details/${song.id}`}>
+                                <Avatar className="h-9 w-9 rounded-md">
+                                  <AvatarImage
+                                    src={song.thumbnailUrl}
+                                    alt={song.title}
+                                  />
+                                  <AvatarFallback>
+                                    <Music className="h-4 w-4" />
+                                  </AvatarFallback>
+                                </Avatar>
+                              </Link>
                             </div>
                           </TableCell>
 
-                          <TableCell className="text-center">
-                            {song.title}
+                          <TableCell className="text-center hover:underline">
+                            <Link to={`/song-details/${song.id}`}>
+                              {song.title}
+                            </Link>
                           </TableCell>
 
-                          <TableCell className="text-center">
-                            {song.user.fullName}
+                          <TableCell className="text-center hover:underline">
+                            <Link to={`/profile/${song.user?.id}`}>
+                              {song.user?.fullName}
+                            </Link>
                           </TableCell>
 
-                          <TableCell className="text-center">
-                            {song.album?.title}
+                          <TableCell className="text-center hover:underline">
+                            <Link to={`/album-details/${song.album?.id}`}>
+                              {song.album?.title}
+                            </Link>
                           </TableCell>
 
                           <TableCell className="text-center">
@@ -182,7 +196,7 @@ export default function FavoriteSongsPage() {
 
                           <TableCell className="text-center">
                             <button
-                              onClick={() => toggleLike(song)}
+                              onClick={() => handleLike(song)}
                               className="rounded-full p-1 hover:text-white"
                             >
                               <Heart className="h-4 w-4" fill={"#1DB954"} />
