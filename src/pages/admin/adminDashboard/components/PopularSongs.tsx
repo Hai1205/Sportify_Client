@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStatStore } from "@/stores/useStatStore";
 import PlayButton from "@/pages/home/components/PlayButton";
+import { Link } from "react-router-dom";
 
 export function PopularSongs() {
   const { songs, getPopularSongsStat } = useStatStore();
@@ -15,9 +16,9 @@ export function PopularSongs() {
       <div className="space-y-4">
         {songs.map((song) => (
           <div
-          key={song.id}
-          className="relative flex items-center justify-between gap-4 rounded-lg border p-3 pr-12 hover:bg-muted/50 group"
-        >
+            key={song.id}
+            className="relative flex items-center justify-between gap-4 rounded-lg border p-3 pr-12 hover:bg-muted/50 group"
+          >
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 rounded-md">
                 <AvatarImage src={song.thumbnailUrl} alt={song.title} />
@@ -26,10 +27,22 @@ export function PopularSongs() {
               </Avatar>
 
               <div>
-                <div className="font-medium">{song.title}</div>
+                <div>
+                  <Link
+                    to={`/song-details/${song.id}`}
+                    className="font-medium hover:underline"
+                  >
+                    {song.title}
+                  </Link>
+                </div>
 
-                <div className="text-sm text-muted-foreground">
-                  {song.user.fullName}
+                <div>
+                  <Link
+                    to={`/profile/${song.user.id}`}
+                    className="text-sm text-muted-foreground hover:underline"
+                  >
+                    {song.user.fullName}
+                  </Link>
                 </div>
               </div>
             </div>
@@ -41,6 +54,7 @@ export function PopularSongs() {
                 {song.duration}
               </div>
             </div>
+
             <PlayButton song={song} />
           </div>
         ))}

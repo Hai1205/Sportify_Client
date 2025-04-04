@@ -16,6 +16,7 @@ import { User } from "@/utils/types";
 import { useState, useEffect, useMemo } from "react";
 import { UserListDialog } from "./UserListDialog";
 import normalizeUrl from "@/utils/service/normalizeUrl";
+import { toast } from "react-toastify";
 
 interface ProfileHeaderProps {
   user: User;
@@ -41,46 +42,47 @@ const ProfileHeader = ({
   );
   const following = (currentUser?.following || []) as User[];
   const isMyProfile = currentUser?.id === userAuth?.id;
-  const amIFollowed = followers.some(
-    (follower: User) => follower.id === userAuth?.id
-  );
-  useEffect(() => {
-    if (!user) return;
 
-    setAmIFollowing(amIFollowed);
-    setFollowersCount(followers.length);
-  }, [user, amIFollowed, followers, userAuth?.id]);
-
-  const [amIFollowing, setAmIFollowing] = useState<boolean>(amIFollowed);
+  const [amIFollowing, setAmIFollowing] = useState<boolean>(false);
   const [followersCount, setFollowersCount] = useState(
     currentUser?.followers?.length || 0
   );
+
+  useEffect(() => {
+    if (!user || !userAuth) return;
+    const amIFollowed = userAuth
+      ? followers.some((follower: User) => follower.id === userAuth.id)
+      : false;
+
+    setAmIFollowing(amIFollowed);
+    setFollowersCount(followers.length);
+  }, [user, followers, userAuth]);
 
   const follow = async (e: any) => {
     e.preventDefault();
 
     if (!currentUser.id || !userAuth?.id) {
-      console.error("User ID hoặc Current User ID không xác định");
+      toast.error("User must be logged in to follow");
       return;
     }
 
-    try {
-      await followUser(userAuth.id, currentUser.id);
+    const res = await followUser(userAuth.id, currentUser.id);
 
-      const updatedFollowers = amIFollowing
-        ? followers.filter((follower) => follower.id !== userAuth.id)
-        : [...followers, userAuth];
-
-      setCurrentUser((prev) => ({
-        ...prev,
-        followers: updatedFollowers,
-      }));
-
-      setAmIFollowing(!amIFollowing);
-      setFollowersCount(updatedFollowers.length);
-    } catch (error) {
-      console.error("Lỗi khi follow/unfollow:", error);
+    if (!res) {
+      return;
     }
+
+    const updatedFollowers = amIFollowing
+      ? followers.filter((follower) => follower.id !== userAuth.id)
+      : [...followers, userAuth];
+
+    setCurrentUser((prev) => ({
+      ...prev,
+      followers: updatedFollowers,
+    }));
+
+    setAmIFollowing(!amIFollowing);
+    setFollowersCount(updatedFollowers.length);
   };
 
   return (

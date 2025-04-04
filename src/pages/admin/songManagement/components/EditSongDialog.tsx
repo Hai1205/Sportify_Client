@@ -74,7 +74,6 @@ const EditSongDialog = ({
   }
 
   const handleUpdateSong = async () => {
-    
     const formData = new FormData();
     formData.append("albumId", songData.albumId || "");
     formData.append("title", songData.title || "");
@@ -82,7 +81,7 @@ const EditSongDialog = ({
     if (thumbnail) {
       formData.append("thumbnail", thumbnail);
     }
-    
+
     setIsLoading(true);
     const res = await updateSong(song?.id, formData);
     setIsLoading(false);

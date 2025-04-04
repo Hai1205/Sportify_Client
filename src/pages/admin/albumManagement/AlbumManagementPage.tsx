@@ -1,6 +1,6 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { MoreHorizontal, Music, Plus, Search, Trash } from "lucide-react";
+import { MoreHorizontal, Music, Pencil, Plus, Search, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { AlbumsEmptyState } from "@/layout/components/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -29,6 +28,7 @@ import { Album } from "@/utils/types";
 import { TableSkeleton } from "../../../layout/components/TableSkeleton";
 import UploadAlbumDialog from "./components/UploadAlbumDialog";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import EditAlbumDialog from "./components/EditAlbumDialog";
 
 export default function AlbumManagementPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,9 +36,11 @@ export default function AlbumManagementPage() {
   const [searchQuery, setSearchQuery] = useState(query);
   const queryString = location.search;
 
-  const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
-  const [isAddSongOpen, setIsAddSongOpen] = useState(false);
+  const [isAddAlbumOpen, setIsAddAlbumOpen] = useState(false);
   const [albums, setAlbums] = useState<Album[] | []>([]);
+
+  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { isLoading, getAllAlbum, searchAlbums } = useMusicStore();
 
@@ -67,24 +69,13 @@ export default function AlbumManagementPage() {
     [searchQuery, setSearchParams]
   );
 
-  const toggleSongSelection = (songId: string) => {
-    if (selectedSongs.includes(songId)) {
-      setSelectedSongs(selectedSongs.filter((id) => id !== songId));
-    } else {
-      setSelectedSongs([...selectedSongs, songId]);
-    }
-  };
-
-  const toggleAllSongs = () => {
-    if (selectedSongs.length === albums.length) {
-      setSelectedSongs([]);
-    } else {
-      setSelectedSongs(albums.map((song) => song.id));
-    }
-  };
-
   const handleAlbumUploaded = (newAlbum: Album) => {
     setAlbums([...albums, newAlbum]);
+  };
+
+  const handleEditAlbum = (album: Album) => {
+    setSelectedAlbum(album);
+    setIsEditDialogOpen(true);
   };
 
   return (
@@ -93,10 +84,10 @@ export default function AlbumManagementPage() {
         <h2 className="text-3xl font-bold tracking-tight">Albums</h2>
 
         <div className="flex items-center gap-2">
-        <Dialog open={isAddSongOpen} onOpenChange={setIsAddSongOpen}>
+          <Dialog open={isAddAlbumOpen} onOpenChange={setIsAddAlbumOpen}>
             <DialogTrigger asChild>
               <Button
-                onClick={() => setIsAddSongOpen(true)}
+                onClick={() => setIsAddAlbumOpen(true)}
                 size="sm"
                 className="h-8 gap-1"
               >
@@ -106,10 +97,10 @@ export default function AlbumManagementPage() {
             </DialogTrigger>
 
             <UploadAlbumDialog
-            isOpen={isAddSongOpen}
-            onOpenChange={setIsAddSongOpen}
-            onAlbumUploaded={handleAlbumUploaded}
-          />
+              isOpen={isAddAlbumOpen}
+              onOpenChange={setIsAddAlbumOpen}
+              onAlbumUploaded={handleAlbumUploaded}
+            />
           </Dialog>
         </div>
       </div>
@@ -142,13 +133,6 @@ export default function AlbumManagementPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[40px] text-center">
-                    <Checkbox
-                      checked={selectedSongs.length === albums.length}
-                      onCheckedChange={toggleAllSongs}
-                    />
-                  </TableHead>
-
-                  <TableHead className="w-[40px] text-center">
                     Thumbnail
                   </TableHead>
 
@@ -173,32 +157,31 @@ export default function AlbumManagementPage() {
                   albums.map((album) => (
                     <TableRow key={album.id}>
                       <TableCell className="text-center">
-                        <Checkbox
-                          checked={selectedSongs.includes(album.id)}
-                          onCheckedChange={() => toggleSongSelection(album.id)}
-                        />
-                      </TableCell>
-
-                      <TableCell className="text-center">
                         <div className="flex justify-center">
-                          <Avatar className="h-9 w-9 rounded-md">
-                            <AvatarImage
-                              src={album.thumbnailUrl}
-                              alt={album.title}
-                            />
-                            <AvatarFallback>
-                              <Music className="h-4 w-4" />
-                            </AvatarFallback>
-                          </Avatar>
+                          <Link to={`/album-details/${album.id}`}>
+                            <Avatar className="h-9 w-9 rounded-md">
+                              <AvatarImage
+                                src={album.thumbnailUrl}
+                                alt={album.title}
+                              />
+                              <AvatarFallback>
+                                <Music className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </Link>
                         </div>
                       </TableCell>
 
-                      <TableCell className="text-center">
-                        {album.title}
+                      <TableCell className="text-center hover:underline">
+                        <Link to={`/album-details/${album.id}`}>
+                          {album.title}
+                        </Link>
                       </TableCell>
 
-                      <TableCell className="text-center">
-                        {album.user.fullName}
+                      <TableCell className="text-center hover:underline">
+                        <Link to={`/profile/${album.user.id}`}>
+                          {album.user.fullName}
+                        </Link>
                       </TableCell>
 
                       <TableCell className="text-center">
@@ -222,13 +205,19 @@ export default function AlbumManagementPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                              <DropdownMenuItem>Manage</DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleEditAlbum(album)}
+                                className="cursor-pointer"
+                              >
+                                <Pencil className="mr-2 h-4 w-4 cursor-pointer" />
+                                {" Edit"}
+                              </DropdownMenuItem>
 
                               <DropdownMenuSeparator />
 
                               <DropdownMenuItem className="text-red-600">
                                 <Trash className="mr-2 h-4 w-4" />
-                                Delete album
+                                {" Delete"}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -248,6 +237,12 @@ export default function AlbumManagementPage() {
           </CardContent>
         </ScrollArea>
       </Card>
+
+      <EditAlbumDialog
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        album={selectedAlbum}
+      />
     </div>
   );
 }

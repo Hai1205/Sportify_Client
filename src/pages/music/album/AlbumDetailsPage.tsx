@@ -7,12 +7,18 @@ import { formatDuration } from "@/utils/service/formatDuration";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Album } from "@/utils/types";
+import { useAuthStore } from "@/stores/useAuthStore";
+import EditAlbumDialog from "@/pages/admin/albumManagement/components/EditAlbumDialog";
 
 export default function AlbumDetailsPage() {
   const { albumId } = useParams();
   const { getAlbum, isLoading } = useMusicStore();
   const { currentSong, isPlaying, playAlbum, togglePlay } = usePlayerStore();
+  const { user: userAuth } = useAuthStore();
   const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const isMyAlbum = currentAlbum?.user?.id === userAuth?.id;
 
   useEffect(() => {
     const fetchAlbum = async () => {
@@ -88,14 +94,18 @@ export default function AlbumDetailsPage() {
                 </div>
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
-                // onClick={() => setIsEditDialogOpen(true)}
-                className="gap-1 border-gray-700 text-white hover:bg-[#282828]"
-              >
-                <Pencil className="h-4 w-4" /> Edit
-              </Button>
+              {isMyAlbum && (
+                <div className="absolute top-4 right-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditDialogOpen(true)}
+                    className="gap-1 border-gray-700 text-white hover:bg-[#282828] h-10"
+                  >
+                    <Pencil className="h-4 w-4" /> Edit
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* play button */}
@@ -193,6 +203,12 @@ export default function AlbumDetailsPage() {
           </div>
         </div>
       </ScrollArea>
+
+      <EditAlbumDialog
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        album={currentAlbum}
+      />
     </div>
   );
 }

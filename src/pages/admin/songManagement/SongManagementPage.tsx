@@ -5,6 +5,7 @@ import {
   Download,
   MoreHorizontal,
   Music,
+  Pencil,
   Plus,
   Search,
   Trash,
@@ -272,7 +273,8 @@ export default function SongManagementPage() {
                                     onClick={() => handleEditSong(song)}
                                     className="cursor-pointer"
                                   >
-                                    Edit
+                                    <Pencil className="mr-2 h-4 w-4 cursor-pointer" />
+                                    {" Edit"}
                                   </DropdownMenuItem>
 
                                   <DropdownMenuItem

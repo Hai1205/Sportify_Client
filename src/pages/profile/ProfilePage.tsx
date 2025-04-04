@@ -6,11 +6,13 @@ import { useParams } from "react-router-dom";
 import { ProfileSkeleton } from "./components/ProfileSkeleton";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { User } from "@/utils/types";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState<"albums" | "songs">("albums");
   const { userId } = useParams();
   const { user: userAuth, isLoading: authLoading } = useAuthStore();
+
   const {
     isLoading: userLoading,
     user: currentUser,
@@ -28,7 +30,7 @@ const ProfilePage = () => {
     fetchUser();
   }, [getUser, userId]);
 
-  if (authLoading || userLoading || !userAuth || !currentUser) {
+  if (authLoading || userLoading || !currentUser) {
     return (
       <ScrollArea className="flex-1 h-full">
         <ProfileSkeleton />
@@ -41,7 +43,7 @@ const ProfilePage = () => {
       <div className="relative pb-20">
         <ProfileHeader
           user={currentUser}
-          userAuth={userAuth}
+          userAuth={userAuth as User}
           userLoading={userLoading}
           followUser={followUser}
           getUser={getUser}

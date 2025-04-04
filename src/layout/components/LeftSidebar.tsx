@@ -24,7 +24,6 @@ const LeftSidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       const userAlbums = (userAuth?.albums || []) as Album[];
-      console.log(userAuth);
       setAlbums(userAlbums);
     };
 

@@ -103,13 +103,8 @@ const UploadAlbumDialog = ({
                   as="h3"
                   className="text-lg font-medium leading-6 text-white"
                 >
-                  Edit Album
+                  Upload New Album
                 </Dialog.Title>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-400">
-                    Edit details for "{albumData.title}"
-                  </p>
-                </div>
 
                 <ScrollArea className="max-h-[70vh] mt-4">
                   <div className="grid gap-4 py-4 px-1">
@@ -155,13 +150,12 @@ const UploadAlbumDialog = ({
                         </div>
                       </div>
 
-                      {/* <div className="grid gap-2"> */}
-                      <Label htmlFor="edit-album-title" className="text-white">
+                      <Label htmlFor="upload-album-title" className="text-white">
                         Album Title
                       </Label>
 
                       <Input
-                        id="edit-album-title"
+                        id="upload-album-title"
                         value={albumData.title}
                         onChange={(e) => handleChange("title", e.target.value)}
                         className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"

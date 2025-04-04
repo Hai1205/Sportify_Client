@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Play,
   Pencil,
   Clock,
   Calendar,
@@ -20,6 +19,8 @@ import formatTime from "@/utils/service/formatTime";
 import { useMusicStore } from "@/stores/useMusicStore";
 import EditSongDialog from "@/pages/admin/songManagement/components/EditSongDialog";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { toast } from "react-toastify";
+import PlayMusic from "../../../layout/components/PlayMusic";
 
 export default function SongDetailsPage() {
   const { songId } = useParams<{ songId: string }>();
@@ -62,12 +63,14 @@ export default function SongDetailsPage() {
         checkLiked(userAuth);
       }
     };
-    
+
     fetchUser();
   }, [checkLiked, userAuth]);
 
   const handleLike = async (song: Song) => {
     if (!userAuth) {
+      toast.error("User must logged to like song");
+
       return;
     }
 
@@ -80,7 +83,7 @@ export default function SongDetailsPage() {
 
   return (
     <div className="h-full flex items-stretch justify-center">
-      <div className="w-full max-w-full transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
+      <div className="relative w-full max-w-full transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
         <h3 className="text-lg font-medium leading-6 text-white">
           Song Details
         </h3>
@@ -105,29 +108,26 @@ export default function SongDetailsPage() {
                 <h2 className="text-2xl font-bold text-white">{song.title}</h2>
 
                 <div className="flex gap-2 mt-4">
-                  <Button
-                    size="sm"
-                    className="gap-1 bg-[#1DB954] text-white hover:bg-[#1ed760]"
-                  >
-                    <Play className="h-4 w-4" /> Play
-                  </Button>
+                  <PlayMusic song={song} size="lg" />
 
                   {isMySong ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsEditDialogOpen(true)}
-                      className="gap-1 border-gray-700 text-white hover:bg-[#282828]"
-                    >
-                      <Pencil className="h-4 w-4" /> Edit
-                    </Button>
+                    <div className="absolute top-4 right-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsEditDialogOpen(true)}
+                        className="gap-1 border-gray-700 text-white hover:bg-[#282828] h-10"
+                      >
+                        <Pencil className="h-4 w-4" /> Edit
+                      </Button>
+                    </div>
                   ) : (
                     <button
                       onClick={() => handleLike(song)}
                       className="rounded-full p-1 hover:text-white"
                     >
                       <Heart
-                        className="h-6 w-6"
+                        className="h-8 w-8"
                         fill={amILiking ? "#1DB954" : "transparent"}
                       />
                     </button>
@@ -145,20 +145,26 @@ export default function SongDetailsPage() {
                 </h3>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
+                  <Link
+                    to={`/profile/${song.user.id}`}
+                    className="flex items-center gap-2"
+                  >
                     <MicVocal className="h-4 w-4 text-gray-400" />
 
                     <span className="text-sm font-medium text-white">
                       Artist:
                     </span>
 
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-gray-400 hover:underline">
                       {song.user.fullName}
                     </span>
-                  </div>
+                  </Link>
 
                   {song.album && (
-                    <div className="flex items-center gap-2">
+                    <Link
+                      to={`/album-details/${song.album.id}`}
+                      className="flex items-center gap-2"
+                    >
                       <Disc3 className="h-4 w-4 text-gray-400" />
 
                       <span className="text-sm font-medium text-white">
@@ -168,7 +174,7 @@ export default function SongDetailsPage() {
                       <span className="text-sm text-gray-400">
                         {song.album?.title}
                       </span>
-                    </div>
+                    </Link>
                   )}
 
                   <div className="flex items-center gap-2">
