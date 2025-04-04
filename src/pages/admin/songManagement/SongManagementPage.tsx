@@ -53,13 +53,8 @@ export default function SongManagementPage() {
 
   const [songs, setSongs] = useState<Song[] | []>([]);
 
-  const {
-    isLoading,
-    getAllSong,
-    searchSongs,
-    deleteSong,
-    downloadSong,
-  } = useMusicStore();
+  const { isLoading, getAllSong, searchSongs, deleteSong, downloadSong } =
+    useMusicStore();
 
   useEffect(() => {
     const fetchSongs = async () => {
@@ -140,7 +135,7 @@ export default function SongManagementPage() {
 
       <Tabs defaultValue="all-songs" className="space-y-4">
         <TabsContent value="all-songs" className="space-y-4">
-          <Card>
+          <Card className="bg-zinc-900">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle>Song Management</CardTitle>
@@ -231,10 +226,16 @@ export default function SongManagementPage() {
                             </Link>
                           </TableCell>
 
-                          <TableCell className="text-center hover:underline">
-                            <Link to={`/album-details/${song.album?.id}`}>
-                              {song.album?.title}
-                            </Link>
+                          <TableCell>
+                            {song.album ? (
+                              <Link to={`/album-details/${song.album.id}`}>
+                                <span className="text-center hover:underline">
+                                  {song.album.title}
+                                </span>
+                              </Link>
+                            ) : (
+                              <span className="text-center">No Album</span>
+                            )}
                           </TableCell>
 
                           <TableCell className="text-center">

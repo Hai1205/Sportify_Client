@@ -1,16 +1,32 @@
-import { Play, Music } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2, Music } from "lucide-react";
 import { Song } from "@/utils/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 
 interface SongResultsProps {
   songs: Song[];
   query: string;
+  isLoading: boolean;
 }
 
-export function SongResults({ songs, query }: SongResultsProps) {
+export function SongResults({ songs, query, isLoading }: SongResultsProps) {
+  if (isLoading) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center py-20 text-center"
+        style={{ marginTop: "100px" }}
+      >
+        <Loader2 className="h-12 w-12 text-muted-foreground mb-4 animate-spin" />
+      </div>
+    );
+  }
+
   if (songs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div
+        className="flex flex-col items-center justify-center py-20 text-center"
+        style={{ marginTop: "50px" }}
+      >
         <Music className="h-12 w-12 text-muted-foreground mb-4" />
 
         <h3 className="text-lg font-medium">No song found</h3>
@@ -29,36 +45,37 @@ export function SongResults({ songs, query }: SongResultsProps) {
           key={song.id}
           className="flex flex-col overflow-hidden rounded-lg border transition-all hover:shadow-md"
         >
-          <div className="relative aspect-square overflow-hidden">
-            <img
-              src={song.thumbnailUrl || "/placeholder.svg"}
-              alt={song.title}
-              className="h-full w-full object-cover transition-transform hover:scale-105"
-            />
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute bottom-2 right-2 h-10 w-10 rounded-full shadow-md"
-            >
-              {/* <Link to={`/songs/${song.id}`}>
-              </Link> */}
-              <Play className="h-5 w-5" />
-            </Button>
-          </div>
+          <Link to={`/song-details/${song.id}`}>
+            <div className="relative aspect-square overflow-hidden">
+              <Avatar className="h-full w-full rounded-md">
+                <AvatarImage src={song.thumbnailUrl} alt={song.title} />
 
-          <div className="flex flex-col p-4">
-            <h3 className="font-semibold line-clamp-1">{song.title}</h3>
-
-            <p className="text-sm text-muted-foreground">
-              {song.user.fullName}
-            </p>
-
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                {song.releaseDate}
-              </span>
+                <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
+                  <Music className="h-20 w-20" />
+                </AvatarFallback>
+              </Avatar>
             </div>
-          </div>
+
+            <div className="flex flex-col p-4">
+              <Link to={`/song-details/${song.id}`}>
+                <h3 className="font-semibold line-clamp-1 hover:underline">
+                  {song.title}
+                </h3>
+              </Link>
+
+              <Link to={`/profile/${song.user.id}`}>
+                <p className="text-sm text-muted-foreground hover:underline">
+                  {song.user.fullName}
+                </p>
+              </Link>
+
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  {song.releaseDate}
+                </span>
+              </div>
+            </div>
+          </Link>
         </div>
       ))}
     </div>

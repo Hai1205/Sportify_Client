@@ -23,7 +23,7 @@ export default function AdminDashboardPage() {
   return (
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="bg-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
 
@@ -39,7 +39,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Albums</CardTitle>
 
@@ -68,7 +68,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Songs</CardTitle>
 
@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-zinc-900">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Artists</CardTitle>
 
@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
       <Tabs defaultValue="overview">
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
+            <Card className="col-span-4 bg-zinc-900">
               <CardHeader>
                 <CardTitle>Popular Songs</CardTitle>
 
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="col-span-3">
+            <Card className="col-span-3 bg-zinc-900">
               <CardHeader>
                 <CardTitle>Top Artists</CardTitle>
 

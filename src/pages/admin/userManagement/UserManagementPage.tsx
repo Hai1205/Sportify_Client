@@ -284,7 +284,7 @@ export default function UserManagementPage() {
 
       <Tabs defaultValue="all-users" className="space-y-4">
         <TabsContent value="all-users" className="space-y-4">
-          <Card>
+          <Card className="bg-zinc-900">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle>User Management</CardTitle>
@@ -495,7 +495,7 @@ export default function UserManagementPage() {
 
                                 <div className="flex flex-col">
                                   <span className="font-medium hover:underline">
-                                    {user?.fullName || "Unknown User"}
+                                    {user?.fullName || "Unknown Artist"}
                                   </span>
 
                                   <span className="text-sm text-muted-foreground hover:underline">

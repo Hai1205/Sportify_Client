@@ -46,7 +46,7 @@ const GeneralTab = ({
 }: GeneralTabProps) => {
   return (
     <TabsContent value="general">
-      <Card>
+      <Card className="bg-zinc-900">
         <CardHeader>
           <CardTitle>General Settings</CardTitle>
           <CardDescription>Manage your profile informations.</CardDescription>

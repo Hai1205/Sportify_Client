@@ -1,16 +1,18 @@
-import { Clock } from "lucide-react";
-import formatTime from "@/utils/service/formatTime";
+import { Clock, Music, Pause, Play } from "lucide-react";
 import { SongsEmptyState } from "../../../layout/components/EmptyState";
 import { useUserStore } from "@/stores/useUserStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Song } from "@/utils/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { usePlayerStore } from "@/stores/usePlayerStore";
+import { formatDuration } from "@/utils/service/formatDuration";
 import { Link } from "react-router-dom";
-import PlayMusic from "@/layout/components/PlayMusic";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const ProfileSongsList = () => {
   const { user: userAuth } = useAuthStore();
   const { user: currentUser } = useUserStore();
+  const { currentSong, playAlbum, isPlaying, togglePlay } = usePlayerStore();
 
   const songs: Song[] = (currentUser?.songs || []) as Song[];
   const isMyProfile = currentUser?.id === userAuth?.id;
@@ -23,60 +25,112 @@ const ProfileSongsList = () => {
     );
   }
 
+  const handlePlayPauseSong = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!songs) return;
+
+    const isCurrentSong = currentSong?.id === songs[index].id;
+    if (isCurrentSong) {
+      togglePlay();
+    } else {
+      playAlbum(songs as Song[], index);
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <ScrollArea className="flex-1 h-full">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-800 text-gray-400 text-xs">
+        <div className="bg-black/20 backdrop-blur-sm">
+          {/* Table Header */}
+          <div className="grid grid-cols-[16px_4fr_2fr_1fr_1fr] gap-4 px-10 py-2 text-sm text-zinc-400 border-b border-white/5">
+            <div>#</div>
 
-              <th className="px-4 py-2 text-center">Title</th>
+            <div>Title</div>
 
-              <th className="px-4 py-2 text-center">Album</th>
+            <div>Release Date</div>
 
-              <th className="px-4 py-2 text-center">Views</th>
+            <div>Views</div>
 
-              <th className="px-4 py-2 text-center">
-                <Clock size={16} className="mx-auto" />
-              </th>
+            <div>
+              <Clock className="h-4 w-4" />
+            </div>
+          </div>
 
-              <th></th>
-            </tr>
-          </thead>
+          {/* Songs List */}
+          <div className="px-6">
+            <div className="space-y-2 py-4">
+              {songs.map((song, index) => {
+                const isCurrentSong = currentSong?.id === song.id;
+                return (
+                  <div
+                    key={song.id}
+                    className={`grid grid-cols-[16px_4fr_2fr_1fr_1fr] gap-4 px-4 py-2 text-sm 
+                      text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer
+                      `}
+                  >
+                    <div className="flex items-center justify-center">
+                      {isCurrentSong && isPlaying ? (
+                        <Pause
+                          className="h-4 w-4 cursor-pointer"
+                          onClick={(e) => handlePlayPauseSong(index, e)}
+                        />
+                      ) : (
+                        <span className="group-hover:hidden">{index + 1}</span>
+                      )}
+                      {(!isCurrentSong || !isPlaying) && (
+                        <Play
+                          className="h-4 w-4 hidden group-hover:block"
+                          onClick={(e) => handlePlayPauseSong(index, e)}
+                        />
+                      )}
+                    </div>
 
-          <tbody>
-            {songs.map((song) => (
-              <tr
-                key={song.id}
-                className="hover:bg-gray-900/50 group transition-colors"
-              >
-                <td className="px-4 py-3 font-medium text-center hover:underline">
-                  <Link to={`/song-details/${song.id}`}>
-                    {song.title}
-                  </Link>
-                </td>
+                    <div className="flex items-center gap-3">
+                      <Link to={`/song-details/${song.id}`}>
+                        <div className="flex justify-center">
+                          <Avatar className="h-9 w-9 rounded-md">
+                            <AvatarImage
+                              src={song.thumbnailUrl}
+                              alt={song.title}
+                            />
 
-                <td className="px-4 py-3 text-gray-400 text-center hover:underline">
-                  <Link to={`/album-details/${song?.album?.id}`}>
-                    {song?.album?.title}
-                  </Link>
-                </td>
+                            <AvatarFallback>
+                              <Music className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                      </Link>
 
-                <td className="px-4 py-3 text-gray-400 text-center">
-                  {song?.views}
-                </td>
+                      <div>
+                        <Link to={`/song-details/${song.id}`}>
+                          <div
+                            className={`font-medium text-white hover:underline`}
+                          >
+                            {song.title}
+                          </div>
+                        </Link>
 
-                <td className="px-4 py-3 text-gray-400 text-center">
-                  {formatTime(song.duration)}
-                </td>
+                        <Link to={`/album-details/${song.album?.id}`}>
+                          <div className={`text-zinc-400 hover:underline`}>
+                            {song.album?.title}
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
 
-                <td className="px-4 py-3 text-gray-400 text-center">
-                  <PlayMusic song={song} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <div className="flex items-center">{song.releaseDate}</div>
+
+                    <div className="flex items-center">{song.views}</div>
+
+                    <div className="flex items-center">
+                      {formatDuration(song.duration)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </ScrollArea>
     </div>
   );

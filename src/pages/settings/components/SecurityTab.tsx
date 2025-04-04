@@ -37,7 +37,7 @@ const SecurityTab = ({
 }: SecurityTabProps) => {
   return (
     <TabsContent value="security">
-      <Card>
+      <Card className="bg-zinc-900">
         <CardHeader>
           <CardTitle>Security Settings</CardTitle>
           <CardDescription>

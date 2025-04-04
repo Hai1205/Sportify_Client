@@ -105,7 +105,7 @@ export default function AlbumManagementPage() {
         </div>
       </div>
 
-      <Card>
+      <Card className="bg-zinc-900">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle>Album Management</CardTitle>

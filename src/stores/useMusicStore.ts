@@ -273,7 +273,7 @@ export const useMusicStore = create<MusicStore>()(
 			},
 
 			getUserAlbums: async (userId) => {
-				set({ isLoading: true, error: null });
+				set({ error: null });
 
 				try {
 					const response = await getUserAlbums(userId);
@@ -353,7 +353,7 @@ export const useMusicStore = create<MusicStore>()(
 			},
 
 			updateSong: async (songId, formData) => {
-				set({ isLoading: true, error: null });
+				set({ error: null });
 
 				try {
 					const response = await updateSong(songId, formData);
@@ -495,7 +495,7 @@ export const useMusicStore = create<MusicStore>()(
             },
 
 			getUserLikedSong: async (userId) => {
-				set({ error: null });
+				set({ isLoading: true, error: null });
 
                 try {
                     const response = await getUserLikedSong(userId);
@@ -509,7 +509,9 @@ export const useMusicStore = create<MusicStore>()(
 
                     toast.error(message);
                     return false;
-                }
+                } finally {
+					set({ isLoading: false });
+				}
 			},
 
 			reset: () => {

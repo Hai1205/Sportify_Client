@@ -1,17 +1,32 @@
-import { CircleUserRound } from "lucide-react";
+import { CircleUserRound, Loader2, User } from "lucide-react";
 import { Link } from "react-router-dom";
-import { User } from "@/utils/types";
+import { User as USER } from "@/utils/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserResultsProps {
-  users: User[];
+  users: USER[];
   query: string;
+  isLoading: boolean;
 }
 
-export function UserResults({ users, query }: UserResultsProps) {
+export function UserResults({ users, query, isLoading }: UserResultsProps) {
+  if (isLoading) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center py-20 text-center"
+        style={{ marginTop: "100px" }}
+      >
+        <Loader2 className="h-12 w-12 text-muted-foreground mb-4 animate-spin" />
+      </div>
+    );
+  }
+
   if (users.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div
+        className="flex flex-col items-center justify-center py-20 text-center"
+        style={{ marginTop: "50px" }}
+      >
         <CircleUserRound className="h-12 w-12 text-muted-foreground mb-4" />
 
         <h3 className="text-lg font-medium">No user found</h3>
@@ -36,8 +51,8 @@ export function UserResults({ users, query }: UserResultsProps) {
                   className="w-full h-full object-cover transition-transform hover:scale-105"
                 />
 
-                <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold bg-gray-300 !rounded-none">
-                  {user.fullName[0]}
+                <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
+                  <User className="h-20 w-20" />
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -48,13 +63,18 @@ export function UserResults({ users, query }: UserResultsProps) {
               </h3>
 
               <p className="hover:underline text-sm text-muted-foreground">
-                {user.username}
+                @{user.username}
               </p>
 
-              <div className="mt-2 flex items-center justify-between">
+              <div className="mt-2">
                 <span className="text-xs text-muted-foreground">
                   {user.albums.length}{" "}
                   {user.albums.length > 1 ? " albums" : " album"}
+                </span>
+
+                <span className="ml-2 text-xs text-muted-foreground">
+                  {user.songs.length}{" "}
+                  {user.songs.length > 1 ? " songs" : " song"}
                 </span>
               </div>
             </div>

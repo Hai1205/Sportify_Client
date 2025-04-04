@@ -163,7 +163,7 @@ const EditSongDialog = ({
                               }
                               alt={song.title}
                             />
-                            <AvatarFallback>
+                            <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
                               <Music />
                             </AvatarFallback>
                           </Avatar>
@@ -219,16 +219,22 @@ const EditSongDialog = ({
                         >
                           <SelectTrigger
                             id="edit-song-album"
-                            className="bg-[#282828] text-white border-gray-700"
+                            className="bg-[#282828] text-white border-gray-700 cursor-pointer"
                           >
                             <SelectValue placeholder="Select album" />
                           </SelectTrigger>
                           <SelectContent className="bg-[#282828] border-gray-700">
+                            <SelectItem
+                              value="none"
+                              className="text-white hover:bg-[#1DB954] hover:text-white cursor-pointer"
+                            >
+                              None
+                            </SelectItem>
                             {albums.map((album) => (
                               <SelectItem
                                 key={album.id}
                                 value={album.id}
-                                className="text-white hover:bg-[#1DB954] hover:text-white"
+                                className="text-white hover:bg-[#1DB954] hover:text-white cursor-pointer"
                               >
                                 {album.title}
                               </SelectItem>
@@ -269,7 +275,10 @@ const EditSongDialog = ({
                     disabled={isLoading}
                   >
                     {isLoading ? (
-                      <LoadingSpinner />
+                      <>
+                        <LoadingSpinner />
+                        Saving...
+                      </>
                     ) : (
                       <>
                         <Save className="h-4 w-4" />

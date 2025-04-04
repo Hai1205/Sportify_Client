@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useAuthStore } from "@/stores/useAuthStore";
-import UploadSong from "./components/UploadSong";
-import UploadAlbum from "./components/UploadAlbum";
+import UploadSongTab from "./components/UploadSongTab";
+import UploadAlbumTab from "./components/UploadAlbumTab";
 
 export default function MusicUploaderPage() {
   const [songData, setSongData] = useState({
@@ -67,9 +67,9 @@ export default function MusicUploaderPage() {
   };
 
   return (
-    <div className="h-[560px] bg-[#191414] text-white p-4 md:p-8 rounded-2xl">
+    <div className="h-[560px] bg-zinc-900 text-white p-4 md:p-8 rounded-2xl">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-[#1DB954]">Music Upload</h1>
+        <h1 className="text-3xl font-bold mb-6">Music Upload</h1>
         <Tabs defaultValue="song" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-[#333333]">
             <TabsTrigger
@@ -86,7 +86,7 @@ export default function MusicUploaderPage() {
             </TabsTrigger>
           </TabsList>
 
-          <UploadSong
+          <UploadSongTab
             songData={songData}
             setSongData={setSongData}
             songThumbnail={songThumbnail}
@@ -99,7 +99,7 @@ export default function MusicUploaderPage() {
             isLoading={isLoading}
           />
 
-          <UploadAlbum
+          <UploadAlbumTab
             albumData={albumData}
             setAlbumData={setAlbumData}
             albumThumbnail={albumThumbnail}

@@ -46,7 +46,7 @@ const ArtistApplicationTab = ({
 
   return (
     <TabsContent value="application">
-      <Card>
+      <Card  className="bg-zinc-900">
         <CardHeader>
           <CardTitle>Artist Application</CardTitle>
           <CardDescription>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Clock, Pause, Pencil, Play } from "lucide-react";
+import { Clock, Disc, Music, Pause, Pencil, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDuration } from "@/utils/service/formatDuration";
@@ -9,6 +9,7 @@ import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Album } from "@/utils/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import EditAlbumDialog from "@/pages/admin/albumManagement/components/EditAlbumDialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AlbumDetailsPage() {
   const { albumId } = useParams();
@@ -41,6 +42,7 @@ export default function AlbumDetailsPage() {
     const isCurrentAlbumPlaying = currentAlbum?.songs.some(
       (song) => song.id === currentSong?.id
     );
+
     if (isCurrentAlbumPlaying) togglePlay();
     else {
       playAlbum(currentAlbum?.songs, 0);
@@ -51,6 +53,11 @@ export default function AlbumDetailsPage() {
     if (!currentAlbum) return;
 
     playAlbum(currentAlbum?.songs, index);
+  };
+
+  const handlePause = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    togglePlay();
   };
 
   return (
@@ -67,11 +74,18 @@ export default function AlbumDetailsPage() {
           {/* Content */}
           <div className="relative z-10">
             <div className="flex p-6 gap-6 pb-8">
-              <img
-                src={currentAlbum?.thumbnailUrl}
-                alt={currentAlbum?.title}
-                className="w-[240px] h-[240px] shadow-xl rounded"
-              />
+              <div className="flex justify-center">
+                <Avatar className="h-60 w-60 rounded-md">
+                  <AvatarImage
+                    src={currentAlbum?.thumbnailUrl}
+                    alt={currentAlbum?.title}
+                  />
+
+                  <AvatarFallback>
+                    <Disc className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              </div>
 
               <div className="flex flex-col justify-end">
                 <p className="text-sm font-medium">Album</p>
@@ -131,7 +145,7 @@ export default function AlbumDetailsPage() {
             <div className="bg-black/20 backdrop-blur-sm">
               {/* table header */}
               <div
-                className="grid grid-cols-[16px_4fr_2fr_1fr] gap-4 px-10 py-2 text-sm 
+                className="grid grid-cols-[16px_4fr_2fr_1fr_1fr] gap-4 px-10 py-2 text-sm 
             text-zinc-400 border-b border-white/5"
               >
                 <div>#</div>
@@ -139,6 +153,8 @@ export default function AlbumDetailsPage() {
                 <div>Title</div>
 
                 <div>Released Date</div>
+
+                <div className="text-left">Views</div>
 
                 <div>
                   <Clock className="h-4 w-4" />
@@ -154,42 +170,54 @@ export default function AlbumDetailsPage() {
                       <div
                         key={song.id}
                         onClick={() => handlePlaySong(index)}
-                        className={`grid grid-cols-[16px_4fr_2fr_1fr] gap-4 px-4 py-2 text-sm 
+                        className={`grid grid-cols-[16px_4fr_2fr_1fr_1fr] gap-4 px-4 py-2 text-sm 
                       text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer
                       `}
                       >
                         <div className="flex items-center justify-center">
                           {isCurrentSong && isPlaying ? (
-                            <div className="size-4 text-green-500">♫</div>
+                            <Pause
+                              className="h-4 w-4 cursor-pointer"
+                              onClick={handlePause}
+                            />
                           ) : (
                             <span className="group-hover:hidden">
                               {index + 1}
                             </span>
                           )}
-                          {!isCurrentSong && (
+                          {(!isCurrentSong || !isPlaying) && (
                             <Play className="h-4 w-4 hidden group-hover:block" />
                           )}
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <img
-                            src={song.thumbnailUrl}
-                            alt={song.title}
-                            className="size-10"
-                          />
+                          <div className="flex justify-center">
+                            <Avatar className="h-9 w-9 rounded-md">
+                              <AvatarImage
+                                src={song.thumbnailUrl}
+                                alt={song.title}
+                              />
+
+                              <AvatarFallback>
+                                <Music className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
 
                           <div>
                             <div className={`font-medium text-white`}>
                               {song.title}
                             </div>
 
-                            <div>{song?.user.fullName}</div>
+                            <div>{song?.user?.fullName}</div>
                           </div>
                         </div>
 
                         <div className="flex items-center">
                           {song.releaseDate}
                         </div>
+
+                        <div className="flex items-center">{song.views}</div>
 
                         <div className="flex items-center">
                           {formatDuration(song.duration)}

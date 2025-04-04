@@ -137,7 +137,7 @@ const EditAlbumDialog = ({
                               }
                               alt={album.title}
                             />
-                            <AvatarFallback>
+                            <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
                               <Music />
                             </AvatarFallback>
                           </Avatar>

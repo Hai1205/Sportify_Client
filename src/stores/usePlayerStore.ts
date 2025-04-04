@@ -47,20 +47,21 @@ export const usePlayerStore = create<PlayerStore>()(
 
 				const song = songs[startIndex];
 
-				const socket = useChatStore.getState().socket;
-				if (socket.auth) {
-					socket.emit("update_activity", {
-						userId: socket.auth.userId,
-						activity: `Playing ${song.title} by ${song.user.id}`,
-					});
-				}
+				// const socket = useChatStore.getState().socket;
+				// if (socket.auth) {
+				// 	socket.emit("update_activity", {
+				// 		userId: socket.auth.userId,
+				// 		activity: `Playing ${song.title} by ${song.user.id}`,
+				// 	});
+				// }
 
-				set({
+				set((state) => ({
+					...state,
 					queue: songs,
 					currentSong: song,
 					currentIndex: startIndex,
 					isPlaying: true,
-				});
+				}));
 			},
 
 			setCurrentSong: (song: Song | null) => {

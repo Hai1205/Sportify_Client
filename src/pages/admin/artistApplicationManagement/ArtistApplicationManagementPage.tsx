@@ -237,7 +237,7 @@ export default function ArtistApplicationManagementPage() {
       />
 
       <div className="space-y-4">
-        <Card>
+        <Card className="bg-zinc-900">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle>Application Management</CardTitle>

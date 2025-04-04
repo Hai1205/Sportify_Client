@@ -19,8 +19,12 @@ export default function SearchResult() {
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
 
-  const { searchSongs, searchAlbums } = useMusicStore();
-  const { searchUsers } = useUserStore();
+  const {
+    isLoading: isMusicLoading,
+    searchSongs,
+    searchAlbums,
+  } = useMusicStore();
+  const { isLoading: isUserLoading, searchUsers } = useUserStore();
 
   const [users, setUsers] = useState<User[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -50,8 +54,8 @@ export default function SearchResult() {
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      
-      setSearchParams({ query: searchQuery.trim() });
+
+      setSearchParams(searchQuery ? { query: searchQuery.trim() } : {});
     },
     [searchQuery, setSearchParams]
   );
@@ -59,7 +63,7 @@ export default function SearchResult() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Search Results</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Search</h2>
 
         <form onSubmit={handleSearch} className="flex items-center gap-2">
           <div className="relative w-80">
@@ -96,30 +100,42 @@ export default function SearchResult() {
             </TabsList>
 
             <TabsContent value="songs" className="space-y-4">
-              <Card>
+              <Card className="bg-zinc-900">
                 <CardContent className="pt-3">
                   <ScrollArea className="h-[375px] w-full">
-                    <SongResults songs={songs} query={query} />
+                    <SongResults
+                      songs={songs}
+                      query={query}
+                      isLoading={isMusicLoading}
+                    />
                   </ScrollArea>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="albums" className="space-y-4">
-              <Card>
+              <Card className="bg-zinc-900">
                 <CardContent className="pt-3">
                   <ScrollArea className="h-[375px] w-full">
-                    <AlbumResults albums={albums} query={query} />
+                    <AlbumResults
+                      albums={albums}
+                      query={query}
+                      isLoading={isMusicLoading}
+                    />
                   </ScrollArea>
                 </CardContent>
               </Card>
             </TabsContent>
 
             <TabsContent value="users" className="space-y-4">
-              <Card>
+              <Card className="bg-zinc-900">
                 <CardContent className="pt-3">
                   <ScrollArea className="h-[375px] w-full">
-                    <UserResults users={users} query={query} />
+                    <UserResults
+                      users={users}
+                      query={query}
+                      isLoading={isUserLoading}
+                    />
                   </ScrollArea>
                 </CardContent>
               </Card>
@@ -127,7 +143,10 @@ export default function SearchResult() {
           </Tabs>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div
+          className="flex flex-col items-center justify-center py-16 text-center"
+          style={{ marginTop: "100px" }}
+        >
           <Search className="h-16 w-16 text-muted-foreground mb-6" />
 
           <h3 className="text-xl font-medium">Start searching</h3>
@@ -141,5 +160,3 @@ export default function SearchResult() {
     </div>
   );
 }
-// ScrollArea className="h-[540px] w-full"
-// import { ScrollArea } from "@/components/ui/scroll-area";
