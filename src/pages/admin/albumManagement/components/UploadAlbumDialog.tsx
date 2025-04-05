@@ -4,17 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Album, Song } from "@/utils/types";
 import LoadingSpinner from "@/components/ui/loading";
-import { Music, Save } from "lucide-react";
+import { Clock, Disc, Save, Trash, Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useMusicStore } from "@/stores/useMusicStore";
+import AddSongToAlbumDialog from "./AddSongToAlbumDialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHead,
+} from "@/components/ui/table";
+import formatTime from "@/utils/service/formatTime";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { Album } from "@/utils/types";
 
 type UploadAlbumDialogProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onAlbumUploaded: (album: Album) => void;
+  onAlbumUploaded: (updatedAlbum: Album) => void;
 };
 
 const UploadAlbumDialog = ({
@@ -27,24 +37,48 @@ const UploadAlbumDialog = ({
   const [albumData, setAlbumData] = useState({
     title: "",
   });
+  const [isAddSongDialogOpen, setAddSongDialogOpen] = useState(false);
+  const [songs, setSongs] = useState<Song[]>([]);
 
   const { uploadAlbum } = useMusicStore();
   const { user: userAuth } = useAuthStore();
+
+  // useEffect(() => {
+  //   const fetchUserSongs = async () => {
+  //     if (!userAuth) {
+  //       return;
+  //     }
+
+  //     const songs = await getUserSongs(userAuth?.id);
+
+  //     if (songs) {
+  //       setSongs(songs);
+  //       setThumbnail(null);
+  //       setAlbumData({
+  //         title: "",
+  //       });
+  //     }
+  //   };
+
+  //   fetchUserSongs();
+  // }, [getUserSongs, userAuth]);
 
   const handleChange = (field: keyof typeof albumData, value: string) => {
     setAlbumData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleUploadAlbum = async () => {
+    if (!userAuth) {
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", albumData.title || "");
     if (thumbnail) {
       formData.append("thumbnail", thumbnail);
     }
-
-    if (!userAuth?.id) {
-      return;
-    }
+    const songIds = songs.map((song) => song.id);
+    formData.append("songIds", JSON.stringify(songIds));
 
     setIsLoading(true);
     const res = await uploadAlbum(userAuth?.id, formData);
@@ -61,6 +95,7 @@ const UploadAlbumDialog = ({
   const handleClose = () => {
     onOpenChange(false);
     setThumbnail(null);
+    setSongs([]);
   };
 
   const handleThumbnailChange = (
@@ -70,6 +105,20 @@ const UploadAlbumDialog = ({
     if (file) {
       setThumbnail(file);
     }
+  };
+
+  const handleOpenAddSongDialog = () => {
+    setAddSongDialogOpen(true);
+  };
+
+  const changeSongs = (song: Song, isAdding: boolean) => {
+    setSongs((prevSongs) => {
+      if (isAdding) {
+        return [...prevSongs, song];
+      } else {
+        return prevSongs.filter((s) => s.id !== song.id);
+      }
+    });
   };
 
   return (
@@ -103,7 +152,7 @@ const UploadAlbumDialog = ({
                   as="h3"
                   className="text-lg font-medium leading-6 text-white"
                 >
-                  Upload New Album
+                  Upload A New Album
                 </Dialog.Title>
 
                 <ScrollArea className="max-h-[70vh] mt-4">
@@ -118,10 +167,11 @@ const UploadAlbumDialog = ({
                                   ? URL.createObjectURL(thumbnail)
                                   : "/placeholder.svg"
                               }
-                              alt={albumData.title}
+                              alt={thumbnail?.name || ""}
                             />
+
                             <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
-                              <Music />
+                              <Disc className="h-10 w-10" />
                             </AvatarFallback>
                           </Avatar>
 
@@ -150,17 +200,108 @@ const UploadAlbumDialog = ({
                         </div>
                       </div>
 
-                      <Label htmlFor="upload-album-title" className="text-white">
+                      <Label htmlFor="edit-album-title" className="text-white">
                         Album Title
                       </Label>
 
                       <Input
-                        id="upload-album-title"
+                        id="edit-album-title"
                         value={albumData.title}
                         onChange={(e) => handleChange("title", e.target.value)}
                         className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
                       />
+                      <Button
+                        onClick={handleOpenAddSongDialog}
+                        className="mt-2 bg-[#1DB954] text-white hover:bg-[#1ed760]"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Song
+                      </Button>
                     </div>
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-center">Song</TableHead>
+
+                          <TableHead className="text-center">Views</TableHead>
+
+                          <TableHead className="text-center">
+                            Duration
+                          </TableHead>
+
+                          <TableHead className="text-center">
+                            Release Date
+                          </TableHead>
+
+                          <TableHead className="text-center">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {songs.length > 0 ? (
+                          songs.map((song) => (
+                            <TableRow key={song.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <div className="flex justify-center">
+                                    <Avatar className="h-9 w-9 rounded-md">
+                                      <AvatarImage
+                                        src={song.thumbnailUrl}
+                                        alt={song.title}
+                                      />
+
+                                      <AvatarFallback>
+                                        <Disc className="h-4 w-4" />
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+
+                                  <div>
+                                    <div className={`font-medium text-white`}>
+                                      {song.title}
+                                    </div>
+
+                                    <div className={`text-sm text-zinc-400`}>
+                                      {song?.user?.fullName}
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+
+                              <TableCell className="text-center">
+                                {song.views}
+                              </TableCell>
+
+                              <TableCell className="text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <Clock className="h-3 w-3 text-muted-foreground" />
+                                  <span>{formatTime(song.duration)}</span>
+                                </div>
+                              </TableCell>
+
+                              <TableCell className="text-center">
+                                {song.releaseDate}
+                              </TableCell>
+
+                              <TableCell>
+                                <div className="flex items-center justify-end">
+                                  <Trash
+                                    className="mr-2 h-4 w-4 text-red-600 hover:text-red-800 transition-colors duration-200 cursor-pointer"
+                                    onClick={() => changeSongs(song, false)}
+                                  />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center">
+                              Album has no songs.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
                   </div>
                 </ScrollArea>
 
@@ -191,6 +332,14 @@ const UploadAlbumDialog = ({
                     )}
                   </Button>
                 </div>
+
+                <AddSongToAlbumDialog
+                  isOpen={isAddSongDialogOpen}
+                  onOpenChange={setAddSongDialogOpen}
+                  setSongs={setSongs}
+                  userAuth={userAuth}
+                  songs={songs}
+                />
               </Dialog.Panel>
             </Transition.Child>
           </div>

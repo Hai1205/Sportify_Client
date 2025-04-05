@@ -36,7 +36,7 @@ export const getUserAlbums = async (userId: string): Promise<any> => {
 }
 
 export const updateAlbum = async (updateId: string, formData: FormData): Promise<any> => {
-    return await axiosInstance.put(`/api/albums/update-albums/${updateId}/`, formData, {
+    return await axiosInstance.put(`/api/albums/update-album/${updateId}/`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },

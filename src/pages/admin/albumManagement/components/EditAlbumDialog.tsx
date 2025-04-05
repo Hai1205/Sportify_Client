@@ -4,11 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Album } from "@/utils/types";
+import { Album, Song } from "@/utils/types";
 import LoadingSpinner from "@/components/ui/loading";
-import { Music, Save } from "lucide-react";
+import { Clock, Disc, Save, Trash, Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useMusicStore } from "@/stores/useMusicStore";
+import AddSongToAlbumDialog from "./AddSongToAlbumDialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHead,
+} from "@/components/ui/table";
+import formatTime from "@/utils/service/formatTime";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 type EditAlbumDialogProps = {
   isOpen: boolean;
@@ -28,14 +39,18 @@ const EditAlbumDialog = ({
   const [albumData, setAlbumData] = useState({
     title: album?.title || "",
   });
+  const [isAddSongDialogOpen, setAddSongDialogOpen] = useState(false);
+  const [songs, setSongs] = useState<Song[]>([]);
 
-  const { updateSong } = useMusicStore();
+  const { user: userAuth } = useAuthStore();
+
+  const { updateAlbum } = useMusicStore();
   useEffect(() => {
     if (album) {
       setAlbumData({
         title: album.title,
       });
-
+      setSongs(album.songs || []);
       setThumbnail(null);
     }
   }, [album]);
@@ -54,9 +69,11 @@ const EditAlbumDialog = ({
     if (thumbnail) {
       formData.append("thumbnail", thumbnail);
     }
+    const songIds = songs.map(song => song.id);
+    formData.append("songIds", JSON.stringify(songIds));
 
     setIsLoading(true);
-    const res = await updateSong(album?.id, formData);
+    const res = await updateAlbum(album?.id, formData);
     setIsLoading(false);
 
     if (!res) {
@@ -82,6 +99,20 @@ const EditAlbumDialog = ({
     if (file) {
       setThumbnail(file);
     }
+  };
+
+  const handleOpenAddSongDialog = () => {
+    setAddSongDialogOpen(true);
+  };
+
+  const changeSongs = (song: Song, isAdding: boolean) => {
+    setSongs((prevSongs) => {
+      if (isAdding) {
+        return [...prevSongs, song];
+      } else {
+        return prevSongs.filter((s) => s.id !== song.id);
+      }
+    });
   };
 
   return (
@@ -137,8 +168,9 @@ const EditAlbumDialog = ({
                               }
                               alt={album.title}
                             />
+
                             <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
-                              <Music />
+                              <Disc className="h-10 w-10" />
                             </AvatarFallback>
                           </Avatar>
 
@@ -167,7 +199,6 @@ const EditAlbumDialog = ({
                         </div>
                       </div>
 
-                      {/* <div className="grid gap-2"> */}
                       <Label htmlFor="edit-album-title" className="text-white">
                         Album Title
                       </Label>
@@ -178,7 +209,98 @@ const EditAlbumDialog = ({
                         onChange={(e) => handleChange("title", e.target.value)}
                         className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
                       />
+                      <Button
+                        onClick={handleOpenAddSongDialog}
+                        className="mt-2 bg-[#1DB954] text-white hover:bg-[#1ed760]"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Song
+                      </Button>
                     </div>
+
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-center">Song</TableHead>
+
+                          <TableHead className="text-center">Views</TableHead>
+
+                          <TableHead className="text-center">
+                            Duration
+                          </TableHead>
+
+                          <TableHead className="text-center">
+                            Release Date
+                          </TableHead>
+
+                          <TableHead className="text-center">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {songs.length > 0 ? (
+                          songs.map((song) => (
+                            <TableRow key={song.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <div className="flex justify-center">
+                                    <Avatar className="h-9 w-9 rounded-md">
+                                      <AvatarImage
+                                        src={song.thumbnailUrl}
+                                        alt={song.title}
+                                      />
+
+                                      <AvatarFallback>
+                                        <Disc className="h-4 w-4" />
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+
+                                  <div>
+                                    <div className={`font-medium text-white`}>
+                                      {song.title}
+                                    </div>
+
+                                    <div className={`text-sm text-zinc-400`}>
+                                      {song?.user?.fullName}
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+
+                              <TableCell className="text-center">
+                                {song.views}
+                              </TableCell>
+
+                              <TableCell className="text-center">
+                                <div className="flex items-center justify-center gap-2">
+                                  <Clock className="h-3 w-3 text-muted-foreground" />
+                                  <span>{formatTime(song.duration)}</span>
+                                </div>
+                              </TableCell>
+
+                              <TableCell className="text-center">
+                                {song.releaseDate}
+                              </TableCell>
+
+                              <TableCell>
+                                <div className="flex items-center justify-end">
+                                  <Trash
+                                    className="mr-2 h-4 w-4 text-red-600 hover:text-red-800 transition-colors duration-200 cursor-pointer"
+                                    onClick={() => changeSongs(song, false)}
+                                  />
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center">
+                              Album has no songs.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
                   </div>
                 </ScrollArea>
 
@@ -209,6 +331,15 @@ const EditAlbumDialog = ({
                     )}
                   </Button>
                 </div>
+
+                <AddSongToAlbumDialog
+                  album={album}
+                  songs={songs}
+                  isOpen={isAddSongDialogOpen}
+                  onOpenChange={setAddSongDialogOpen}
+                  setSongs={setSongs}
+                  userAuth={userAuth}
+                />
               </Dialog.Panel>
             </Transition.Child>
           </div>

@@ -14,7 +14,7 @@ import {
 import { Album, Song } from "@/utils/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { FileAudio, Music, Save, Video } from "lucide-react";
 import LoadingSpinner from "@/components/ui/loading";
 import { useMusicStore } from "@/stores/useMusicStore";
@@ -30,9 +30,10 @@ const UploadSongDialog = ({
   onOpenChange,
   onSongUploaded,
 }: UploadSongDialogProps) => {
-  const { user: userAuth } = useUserStore();
+  const { user: userAuth } = useAuthStore();
   const { uploadSong } = useMusicStore();
   const albums: Album[] = (userAuth?.albums || []) as Album[];
+
   const [previewAvatar, setPreviewAvatar] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [songData, setSongData] = useState({
@@ -54,7 +55,10 @@ const UploadSongDialog = ({
     setSongData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (type: "thumbnail" | "audio" | "video", file: File | null) => {
+  const handleFileChange = (
+    type: "thumbnail" | "audio" | "video",
+    file: File | null
+  ) => {
     setFile((prev) => ({ ...prev, [type]: file }));
   };
 
@@ -78,10 +82,6 @@ const UploadSongDialog = ({
     if (!userAuth) {
       return;
     }
-    formData.forEach((value, key) => {
-      console.log(`${key}: ${value}`);
-  });
-  
 
     setIsLoading(true);
     const song = await uploadSong(userAuth.id, formData);
@@ -138,43 +138,45 @@ const UploadSongDialog = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-md h-[90vh] transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title className="text-lg font-medium leading-6 text-white">
                   Upload New Song
                 </Dialog.Title>
 
-                <ScrollArea className="h-[60vh] pr-4 mt-4">
-                  <div className="relative w-full h-40 border border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-[#282828]">
-                    <Avatar className="rounded-md object-cover w-full h-full">
-                      <AvatarImage
-                        src={previewAvatar || "/placeholder.svg"}
-                        alt={songData.title}
-                        className="rounded-none"
-                      />
-                      <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
-                        <Music />
-                      </AvatarFallback>
-                    </Avatar>
+                <ScrollArea className="h-full pr-4 mt-4">
+                  <div className="flex justify-center">
+                    <div className="relative w-60 h-40 border border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-[#282828]">
+                      <Avatar className="rounded-md object-cover w-full h-full">
+                        <AvatarImage
+                          src={previewAvatar || "/placeholder.svg"}
+                          alt={songData.title}
+                          className="rounded-none"
+                        />
+                        <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
+                          <Music />
+                        </AvatarFallback>
+                      </Avatar>
 
-                    <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
-                        onClick={() =>
-                          document.getElementById("thumbnail-input")?.click()
-                        }
-                      >
-                        Change
-                      </Button>
+                      <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
+                          onClick={() =>
+                            document.getElementById("thumbnail-input")?.click()
+                          }
+                        >
+                          Change
+                        </Button>
 
-                      <input
-                        id="thumbnail-input"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleThumbnailChange}
-                      />
+                        <input
+                          id="thumbnail-input"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleThumbnailChange}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -189,19 +191,6 @@ const UploadSongDialog = ({
                       />
                     </div>
 
-                    {/* <div className="grid gap-2">
-                      <Label htmlFor="audio-file">Audio File</Label>
-                      <Input
-                        id="audio-file"
-                        type="file"
-                        accept=".mp3"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null;
-                          handleFileChange("audio", file);
-                        }}
-                      />
-                    </div>*/}
-
                     <div className="grid gap-2">
                       <Label htmlFor="song-lyrics">Lyrics</Label>
                       <Textarea
@@ -211,7 +200,7 @@ const UploadSongDialog = ({
                         placeholder="Enter song lyrics"
                         rows={3}
                       />
-                    </div> 
+                    </div>
 
                     <div className="flex space-x-4">
                       <div className="space-y-2 w-full">
@@ -282,6 +271,7 @@ const UploadSongDialog = ({
                         <SelectTrigger id="album-select">
                           <SelectValue placeholder="Select album" />
                         </SelectTrigger>
+
                         <SelectContent>
                           {albums.map((album) => (
                             <SelectItem key={album.id} value={album.id}>

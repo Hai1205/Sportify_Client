@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { Clock, Disc, Music, Pause, Pencil, Play, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDuration } from "@/utils/service/formatDuration";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Album, Song, User } from "@/utils/types";
@@ -12,6 +11,7 @@ import EditAlbumDialog from "@/pages/admin/albumManagement/components/EditAlbumD
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "react-toastify";
 import { AlbumDetailsSkeleton } from "../components/ALbumDetailsSkeleton";
+import formatTime from "@/utils/service/formatTime";
 
 export default function AlbumDetailsPage() {
   const { albumId } = useParams();
@@ -224,13 +224,11 @@ export default function AlbumDetailsPage() {
 
                 <div>Title</div>
 
+                <div>Views</div>
+
+                <div>Duration</div>
+
                 <div>Released Date</div>
-
-                <div className="text-left">Views</div>
-
-                <div>
-                  <Clock className="h-4 w-4" />
-                </div>
               </div>
 
               {/* songs list */}
@@ -299,14 +297,17 @@ export default function AlbumDetailsPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center">
-                          {song.releaseDate}
-                        </div>
-
                         <div className="flex items-center">{song.views}</div>
 
                         <div className="flex items-center">
-                          {formatDuration(song.duration)}
+                          <div className="flex items-center justify-center gap-2">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <span>{formatTime(song.duration)}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center">
+                          {song.releaseDate}
                         </div>
                       </div>
                     );

@@ -1,8 +1,9 @@
-import { Fragment, useEffect, useState } from "react";
+import { useState, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -10,95 +11,97 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
 import { Album, Song } from "@/utils/types";
-import LoadingSpinner from "@/components/ui/loading";
-import { Music, Save } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { FileAudio, Music, Save, Video } from "lucide-react";
+import LoadingSpinner from "@/components/ui/loading";
 import { useMusicStore } from "@/stores/useMusicStore";
 
-type EditSongDialogProps = {
+interface EditSongDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   song: Song | null;
-  onSongUpdated?: (updatedSong: Song) => void;
-};
+}
 
 const EditSongDialog = ({
   isOpen,
   onOpenChange,
   song,
-  onSongUpdated,
 }: EditSongDialogProps) => {
-  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const { user: userAuth } = useAuthStore();
+  const { updateSong } = useMusicStore();
+  const albums: Album[] = (userAuth?.albums || []) as Album[];
+  const [previewAvatar, setPreviewAvatar] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [songData, setSongData] = useState({
     title: song?.title || "",
     lyrics: song?.lyrics || "",
     albumId: song?.album?.id || "",
   });
-
-  const { updateSong, getUserAlbums } = useMusicStore();
-  const [albums, setAlbums] = useState<Album[]>([]);
-
-  useEffect(() => {
-    const fetchAlbums = async () => {
-      if (song && song.user) {
-        const albums = await getUserAlbums(song.user.id);
-        setAlbums(albums || []);
-      }
-    };
-
-    fetchAlbums();
-  }, [getUserAlbums, song]);
-
-  useEffect(() => {
-    if (song) {
-      setSongData({
-        title: song.title,
-        lyrics: song.lyrics,
-        albumId: song.album?.id || "",
-      });
-
-      setThumbnail(null);
-    }
-  }, [song]);
+  const [file, setFile] = useState<{
+    thumbnail: File | null;
+    audio: File | null;
+    video: File | null;
+  }>({
+    thumbnail: null,
+    audio: null,
+    video: null,
+  });
 
   const handleChange = (field: keyof typeof songData, value: string) => {
     setSongData((prev) => ({ ...prev, [field]: value }));
   };
 
-  if (!song) {
-    return null;
-  }
+  const handleFileChange = (
+    type: "thumbnail" | "audio" | "video",
+    file: File | null
+  ) => {
+    setFile((prev) => ({ ...prev, [type]: file }));
+  };
 
-  const handleUpdateSong = async () => {
-    const formData = new FormData();
-    formData.append("albumId", songData.albumId || "");
-    formData.append("title", songData.title || "");
-    formData.append("lyrics", songData.lyrics || "");
-    if (thumbnail) {
-      formData.append("thumbnail", thumbnail);
-    }
-
-    setIsLoading(true);
-    const res = await updateSong(song?.id, formData);
-    setIsLoading(false);
-
-    if (!res) {
+  const handleUpload = async () => {
+    if (!song) {
       return;
     }
 
-    if (onSongUpdated) {
-      onSongUpdated({ ...song, ...songData });
+    const formData = new FormData();
+    formData.append("title", songData.title);
+    formData.append("lyrics", songData.lyrics);
+    if (file.thumbnail) {
+      formData.append("thumbnail", file.thumbnail);
     }
+    if (file.audio) {
+      formData.append("audio", file.audio);
+    }
+    if (file.video) {
+      formData.append("video", file.video);
+    }
+    if (songData.albumId) {
+      formData.append("albumId", songData.albumId);
+    }
+
+    if (!userAuth) {
+      return;
+    }
+
+    setIsLoading(true);
+    await updateSong(song?.id, formData);
+    setIsLoading(false);
+
     handleClose();
   };
 
   const handleClose = () => {
+    setSongData({
+      title: song?.title || "",
+      lyrics: song?.lyrics || "",
+      albumId: song?.album?.id || "",
+    });
+    setPreviewAvatar("");
+    setFile({ thumbnail: null, audio: null, video: null });
     onOpenChange(false);
-    setThumbnail(null);
   };
 
   const handleThumbnailChange = (
@@ -106,7 +109,8 @@ const EditSongDialog = ({
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      setThumbnail(file);
+      setFile((prev) => ({ ...prev, thumbnail: file }));
+      setPreviewAvatar(URL.createObjectURL(file));
     }
   };
 
@@ -136,157 +140,183 @@ const EditSongDialog = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-[600px] transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-white"
-                >
-                  Edit Song
+              <Dialog.Panel className="w-full max-w-md h-[90vh] transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title className="text-lg font-medium leading-6 text-white">
+                  Update Song
                 </Dialog.Title>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-400">
-                    Edit details for "{song.title}"
-                  </p>
-                </div>
 
-                <ScrollArea className="max-h-[70vh] mt-4">
-                  <div className="grid gap-4 py-4 px-1">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center justify-center col-span-1 row-span-3">
-                        <div className="relative w-full h-40 border border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-[#282828]">
-                          <Avatar className="rounded-md object-cover w-full h-full">
-                            <AvatarImage
-                              src={
-                                thumbnail
-                                  ? URL.createObjectURL(thumbnail)
-                                  : song.thumbnailUrl || "/placeholder.svg"
-                              }
-                              alt={song.title}
-                            />
-                            <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
-                              <Music />
-                            </AvatarFallback>
-                          </Avatar>
+                <ScrollArea className="h-full pr-4 mt-4">
+                  <div className="flex justify-center">
+                    <div className="relative w-60 h-40 border border-gray-700 rounded-lg overflow-hidden flex items-center justify-center bg-[#282828]">
+                      <Avatar className="rounded-md object-cover w-full h-full">
+                        <AvatarImage
+                          src={
+                            previewAvatar
+                              ? previewAvatar
+                              : song?.thumbnailUrl || "/placeholder.svg"
+                          }
+                          alt={songData.title}
+                          className="rounded-none"
+                        />
+                        <AvatarFallback className="absolute inset-0 flex items-center justify-center text-8xl font-bold !rounded-none">
+                          <Music />
+                        </AvatarFallback>
+                      </Avatar>
 
-                          <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
-                              onClick={() =>
-                                document
-                                  .getElementById("thumbnail-input")
-                                  ?.click()
-                              }
-                            >
-                              Change
-                            </Button>
+                      <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
+                          onClick={() =>
+                            document.getElementById("thumbnail-input")?.click()
+                          }
+                        >
+                          Change
+                        </Button>
 
-                            <input
-                              id="thumbnail-input"
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleThumbnailChange}
-                            />
-                          </div>
+                        <input
+                          id="thumbnail-input"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleThumbnailChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-4 mt-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="song-title">Song Title</Label>
+                      <Input
+                        id="song-title"
+                        value={songData.title}
+                        onChange={(e) => handleChange("title", e.target.value)}
+                        placeholder="Enter song title"
+                      />
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label htmlFor="song-lyrics">Lyrics</Label>
+                      <Textarea
+                        id="song-lyrics"
+                        value={songData.lyrics}
+                        onChange={(e) => handleChange("lyrics", e.target.value)}
+                        placeholder="Enter song lyrics"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="flex space-x-4">
+                      <div className="space-y-2 w-full">
+                        <Label htmlFor="song-video">Video File</Label>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="bg-[#333333] border-[#444444] hover:bg-[#444444] text-white transition-colors duration-200 relative w-full"
+                            onClick={() =>
+                              document.getElementById("song-video")?.click()
+                            }
+                          >
+                            <Video className="mr-2 h-4 w-4" />
+                            {file.video ? file.video.name : "Change Video"}
+                          </Button>
+                          <Input
+                            id="song-video"
+                            type="file"
+                            accept="video/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              handleFileChange("video", file);
+                            }}
+                          />
                         </div>
                       </div>
 
-                      <div className="grid gap-2">
-                        <Label htmlFor="edit-song-title" className="text-white">
-                          Song Title
-                        </Label>
-                        <Input
-                          id="edit-song-title"
-                          value={songData.title}
-                          onChange={(e) =>
-                            handleChange("title", e.target.value)
-                          }
-                          className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
-                        />
-                      </div>
-
-                      <div className="grid gap-2">
-                        <Label htmlFor="edit-song-album" className="text-white">
-                          Album
-                        </Label>
-                        <Select
-                          value={songData.albumId}
-                          onValueChange={(value) =>
-                            handleChange("albumId", value)
-                          }
-                        >
-                          <SelectTrigger
-                            id="edit-song-album"
-                            className="bg-[#282828] text-white border-gray-700 cursor-pointer"
+                      <div className="space-y-2 w-full">
+                        <Label htmlFor="song-audio">Audio File</Label>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="bg-[#333333] border-[#444444] hover:bg-[#444444] text-white transition-colors duration-200 relative w-full"
+                            onClick={() =>
+                              document.getElementById("song-audio")?.click()
+                            }
                           >
-                            <SelectValue placeholder="Select album" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#282828] border-gray-700">
-                            <SelectItem
-                              value="none"
-                              className="text-white hover:bg-[#1DB954] hover:text-white cursor-pointer"
-                            >
-                              None
-                            </SelectItem>
-                            {albums.map((album) => (
-                              <SelectItem
-                                key={album.id}
-                                value={album.id}
-                                className="text-white hover:bg-[#1DB954] hover:text-white cursor-pointer"
-                              >
-                                {album.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                            <FileAudio className="mr-2 h-4 w-4" />
+                            {file.audio ? file.audio.name : "Change Audio"}
+                          </Button>
+                          <Input
+                            id="song-audio"
+                            type="file"
+                            accept="audio/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              handleFileChange("audio", file);
+                            }}
+                            className="hidden"
+                          />
+                        </div>
                       </div>
                     </div>
 
                     <div className="grid gap-2">
-                      <Label htmlFor="edit-song-lyrics" className="text-white">
-                        Lyrics
+                      <Label htmlFor="album-select">
+                        Select Album (Optional)
                       </Label>
+                      <Select
+                        value={songData.albumId}
+                        onValueChange={(value) =>
+                          handleChange("albumId", value)
+                        }
+                      >
+                        <SelectTrigger id="album-select">
+                          <SelectValue placeholder="Select album" />
+                        </SelectTrigger>
 
-                      <Textarea
-                        id="edit-song-lyrics"
-                        value={songData.lyrics}
-                        onChange={(e) => handleChange("lyrics", e.target.value)}
-                        rows={5}
-                        className="bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
-                      />
+                        <SelectContent>
+                          {albums.map((album) => (
+                            <SelectItem key={album.id} value={album.id}>
+                              {album.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
+
+                  <div className="mt-4 flex justify-end gap-2 pt-4 border-t border-gray-800">
+                    <Button
+                      variant="outline"
+                      onClick={handleClose}
+                      className="border-gray-700 text-white hover:bg-red-500 hover:text-white"
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      onClick={handleUpload}
+                      className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <LoadingSpinner />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4" />
+                          Upload
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </ScrollArea>
-
-                <div className="mt-4 flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handleClose}
-                    className="border-gray-700 text-white hover:bg-red-500 hover:text-white"
-                  >
-                    Cancel
-                  </Button>
-
-                  <Button
-                    onClick={handleUpdateSong}
-                    className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <LoadingSpinner />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Save
-                      </>
-                    )}
-                  </Button>
-                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
