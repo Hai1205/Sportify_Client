@@ -20,6 +20,7 @@ import EditSongDialog from "@/pages/admin/songManagement/components/EditSongDial
 import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "react-toastify";
 import PlayMusic from "../../../layout/components/PlayMusic";
+import { SongDetailsSkeleton } from "../components/SongDetailsSkeleton";
 
 export default function SongDetailsPage() {
   const { songId } = useParams<{ songId: string }>();
@@ -27,6 +28,7 @@ export default function SongDetailsPage() {
   const { getSong, likeSong } = useMusicStore();
   const { user: userAuth } = useAuthStore();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const isMySong = song?.user?.id === userAuth?.id;
   const [amILiking, setAmILiking] = useState<boolean>(false);
@@ -37,8 +39,13 @@ export default function SongDetailsPage() {
         return;
       }
 
+      setIsLoading(true);
       const fetchedSong = await getSong(songId);
-      setSong(fetchedSong);
+      setIsLoading(false);
+
+      if (fetchedSong) {
+        setSong(fetchedSong);
+      }
     };
 
     fetchSong();
@@ -65,6 +72,8 @@ export default function SongDetailsPage() {
 
     fetchUser();
   }, [checkLiked, userAuth]);
+
+  if (isLoading) return <SongDetailsSkeleton />;
 
   const handleLike = async (song: Song) => {
     if (!userAuth) {
@@ -122,7 +131,7 @@ export default function SongDetailsPage() {
                   <div className="flex gap-2 mt-4">
                     <PlayMusic song={song} size="lg" />
 
-                    {isMySong ? (
+                    {isMySong && (
                       <div className="absolute top-4 right-4">
                         <Button
                           variant="outline"
@@ -133,17 +142,17 @@ export default function SongDetailsPage() {
                           <Pencil className="h-4 w-4" /> Edit
                         </Button>
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => handleLike(song)}
-                        className="rounded-full p-1 hover:text-white"
-                      >
-                        <Heart
-                          className="h-8 w-8"
-                          fill={amILiking ? "#1DB954" : "transparent"}
-                        />
-                      </button>
                     )}
+
+                    <button
+                      onClick={() => handleLike(song)}
+                      className="rounded-full p-1 hover:text-white"
+                    >
+                      <Heart
+                        className="h-8 w-8"
+                        fill={amILiking ? "#1DB954" : "transparent"}
+                      />
+                    </button>
                   </div>
                 </div>
               </div>

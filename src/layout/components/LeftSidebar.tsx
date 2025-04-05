@@ -15,20 +15,29 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Album } from "@/utils/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useMusicStore } from "@/stores/useMusicStore";
 
 const LeftSidebar = () => {
   const { isAuth, isArtist, isAdmin, user: userAuth } = useAuthStore();
+  const { getUserLikedAlbum } = useMusicStore();
 
   const [albums, setAlbums] = useState<Album[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const userAlbums = (userAuth?.albums || []) as Album[];
-      setAlbums(userAlbums);
+    if (!userAuth) {
+      return;
+    }
+
+    const fetchLikedAlbums = async () => {
+      const likedAlbums = await getUserLikedAlbum(userAuth?.id);
+
+      if (likedAlbums) {  
+        setAlbums(likedAlbums);
+      }
     };
 
-    fetchData();
-  }, [userAuth]);
+    fetchLikedAlbums();
+  }, [getUserLikedAlbum, userAuth]);
 
   return (
     <div className="h-full flex flex-col gap-2">
@@ -135,7 +144,7 @@ const LeftSidebar = () => {
               >
                 <Avatar className="h-9 w-9 rounded-md">
                   <AvatarImage src={album.thumbnailUrl} alt={album.title} />
-                
+
                   <AvatarFallback>
                     <Disc3 className="h-4 w-4" />
                   </AvatarFallback>

@@ -9,7 +9,9 @@ import {
 	getUserAlbums,
 	uploadAlbum,
 	updateAlbum,
-	searchAlbums
+	searchAlbums,
+	likeAlbum,
+	getUserLikedAlbum
 } from "@/utils/api/albumApi";
 import {
 	deleteSong,
@@ -55,9 +57,11 @@ interface MusicStore {
 	downloadSong: (id: string) => Promise<any>;
 	deleteSong: (id: string) => Promise<any>;
 	searchSongs: (query: string) => Promise<any>;
-	increaseSongView: (songID: string) => Promise<any>;
+	increaseSongView: (songId: string) => Promise<any>;
     likeSong: (userId: string, songId: string) => Promise<any>;
 	getUserLikedSong: (userId: string) => Promise<any>;
+	likeAlbum: (userId: string, albumId: string) => Promise<any>;
+	getUserLikedAlbum: (userId: string) => Promise<any>;
 	reset: () => any;
 }
 
@@ -456,7 +460,7 @@ export const useMusicStore = create<MusicStore>()(
 			},
 
 			increaseSongView: async (songId) => {
-				set({ isLoading: true, error: null });
+				set({ error: null });
 
 				try {
 					await increaseSongView(songId);
@@ -469,8 +473,6 @@ export const useMusicStore = create<MusicStore>()(
 
 					toast.error(message);
 					return false;
-				} finally {
-					set({ isLoading: false });
 				}
 			},
 			
@@ -502,6 +504,46 @@ export const useMusicStore = create<MusicStore>()(
                     const { songs } = response.data;
 
                     return songs;
+                } catch (error: any) {
+                    console.error(error)
+                    const { message } = error.response.data;
+                    set({ error: message });
+
+                    toast.error(message);
+                    return false;
+                } finally {
+					set({ isLoading: false });
+				}
+			},
+
+            likeAlbum: async (userId, albumId) => {
+                set({ error: null });
+
+                try {
+                    const response = await likeAlbum(userId, albumId);
+                    const { user, message } = response.data;
+
+                    await useAuthStore.getState().setUserAuth(user);
+                    toast.success(message);
+                    return user;
+                } catch (error: any) {
+                    console.error(error)
+                    const { message } = error.response.data;
+                    set({ error: message });
+
+                    toast.error(message);
+                    return false;
+                }
+            },
+
+			getUserLikedAlbum: async (userId) => {
+				set({ isLoading: true, error: null });
+
+                try {
+                    const response = await getUserLikedAlbum(userId);
+                    const { albums } = response.data;
+
+                    return albums;
                 } catch (error: any) {
                     console.error(error)
                     const { message } = error.response.data;

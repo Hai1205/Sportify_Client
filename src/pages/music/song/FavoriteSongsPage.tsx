@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Clock, Heart, Music, Pause, Play, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,47 +23,33 @@ import { Song } from "@/utils/types";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 
 export default function FavoriteSongsPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const query = searchParams.get("query") || "";
-  const [searchQuery, setSearchQuery] = useState(query);
-  const queryString = location.search;
   const [songs, setSongs] = useState<Song[] | []>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const { isLoading, likeSong, searchSongs, getUserLikedSong } =
-    useMusicStore();
+  const { isLoading, likeSong, getUserLikedSong } = useMusicStore();
   const { currentSong, isPlaying, togglePlay, playAlbum } = usePlayerStore();
   const { user: userAuth } = useAuthStore();
 
   useEffect(() => {
     const fetchSongs = async () => {
-      if (queryString) {
-        await searchSongs(queryString).then(setSongs);
-      } else {
-        if (userAuth?.id) {
-          const likedSongs = await getUserLikedSong(userAuth?.id);
-
-          if (likedSongs) {
-            setSongs(likedSongs);
-          }
+      if (userAuth?.id) {
+        const likedSongs = await getUserLikedSong(userAuth?.id);
+        if (likedSongs) {
+          setSongs(likedSongs);
         }
       }
     };
 
     fetchSongs();
-  }, [getUserLikedSong, likeSong, query, queryString, searchSongs, userAuth]);
+  }, [getUserLikedSong, likeSong, userAuth]);
 
-  const handleSearch = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-
-      if (searchQuery.trim()) {
-        setSearchParams({ query: searchQuery.trim() });
-      } else {
-        setSearchParams();
-      }
-    },
-    [searchQuery, setSearchParams]
+  const filteredSongs = songs.filter((song) =>
+    song.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleSearch = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+  }, []);
 
   const handleLike = async (song: Song) => {
     if (!userAuth) {
@@ -140,14 +126,14 @@ export default function FavoriteSongsPage() {
                   </TableHeader>
 
                   <TableBody>
-                    {isLoading || !songs ? (
+                    {isLoading || !filteredSongs ? (
                       <TableRow>
                         <TableCell colSpan={6}>
                           <TableSkeleton />
                         </TableCell>
                       </TableRow>
-                    ) : songs.length > 0 ? (
-                      songs.map((song, index) => {
+                    ) : filteredSongs.length > 0 ? (
+                      filteredSongs.map((song, index) => {
                         const isCurrentSong = currentSong?.id === song.id;
                         return (
                           <TableRow
@@ -252,7 +238,7 @@ export default function FavoriteSongsPage() {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={6}>
-                          <SongsEmptyState message="No songs have been liked yet." />
+                          <SongsEmptyState message="No songs found." />
                         </TableCell>
                       </TableRow>
                     )}

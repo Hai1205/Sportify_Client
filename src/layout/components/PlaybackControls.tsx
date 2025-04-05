@@ -220,7 +220,7 @@ export const PlaybackControls = () => {
                   variant="ghost"
                   className="hover:text-white text-zinc-400"
                 >
-                  <Link to={`/album/${currentSong?.album?.id}`}>
+                  <Link to={`/album-details/${currentSong?.album?.id}`}>
                     <ListMusic className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -231,7 +231,7 @@ export const PlaybackControls = () => {
                 variant="ghost"
                 className="hover:text-white text-zinc-400"
               >
-                <Link to={`/song-player/${currentSong?.id}`}>
+                <Link to={`/song-details/${currentSong?.id}`}>
                   <Laptop2 className="h-4 w-4" />
                 </Link>
               </Button>

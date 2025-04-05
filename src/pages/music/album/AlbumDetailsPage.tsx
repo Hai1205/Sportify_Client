@@ -1,38 +1,85 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Clock, Disc, Music, Pause, Pencil, Play } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { Clock, Disc, Music, Pause, Pencil, Play, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDuration } from "@/utils/service/formatDuration";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
-import { Album } from "@/utils/types";
+import { Album, Song, User } from "@/utils/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import EditAlbumDialog from "@/pages/admin/albumManagement/components/EditAlbumDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "react-toastify";
+import { AlbumDetailsSkeleton } from "../components/ALbumDetailsSkeleton";
 
 export default function AlbumDetailsPage() {
   const { albumId } = useParams();
-  const { getAlbum, isLoading } = useMusicStore();
+  const { getAlbum, likeAlbum } = useMusicStore();
   const { currentSong, isPlaying, playAlbum, togglePlay } = usePlayerStore();
   const { user: userAuth } = useAuthStore();
   const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
-
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [amILiking, setAmILiking] = useState<boolean>(false);
   const isMyAlbum = currentAlbum?.user?.id === userAuth?.id;
 
   useEffect(() => {
     const fetchAlbum = async () => {
-      if (albumId) {
-        const album = await getAlbum(albumId);
-        setCurrentAlbum(album);
+      if (!albumId) {
+        return;
+      }
+
+      setIsLoading(true);
+      const fetchedAlbum = await getAlbum(albumId);
+      setIsLoading(false);
+
+      if (fetchedAlbum) {
+        setCurrentAlbum(fetchedAlbum);
       }
     };
 
     fetchAlbum();
   }, [getAlbum, albumId]);
 
-  if (isLoading) return null;
+  const checkLiked = useCallback(
+    (user: User) => {
+      const likedList = (user?.likedAlbums || []) as Album[];
+      const isLiked = likedList.some(
+        (likedAlbum: Album) => likedAlbum.id === currentAlbum?.id
+      );
+
+      setAmILiking(isLiked);
+    },
+    [currentAlbum]
+  );
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (userAuth) {
+        checkLiked(userAuth);
+      }
+    };
+
+    fetchUser();
+  }, [checkLiked, userAuth]);
+
+  const handleLike = async (album: Album) => {
+    if (!userAuth) {
+      toast.error("User must logged to like album");
+
+      return;
+    }
+
+    const user = await likeAlbum(userAuth?.id, album.id);
+
+    if (user) {
+      checkLiked(user);
+    }
+  };
+
+  if (isLoading) return <AlbumDetailsSkeleton />;
 
   const songsLength = currentAlbum?.songs?.length ?? 0;
 
@@ -49,15 +96,26 @@ export default function AlbumDetailsPage() {
     }
   };
 
-  const handlePlaySong = (index: number) => {
-    if (!currentAlbum) return;
+  // const handlePlaySong = (index: number) => {
+  //   if (!currentAlbum) return;
 
-    playAlbum(currentAlbum?.songs, index);
-  };
+  //   playAlbum(currentAlbum?.songs, index);
+  // };
 
-  const handlePause = (e: React.MouseEvent) => {
+  // const handlePause = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   togglePlay();
+  // };
+  const handlePlayPauseSong = (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    togglePlay();
+    if (!currentAlbum?.songs) return;
+
+    const isCurrentSong = currentSong?.id === currentAlbum.songs[index].id;
+    if (isCurrentSong) {
+      togglePlay();
+    } else {
+      playAlbum(currentAlbum.songs as Song[], index);
+    }
   };
 
   return (
@@ -95,9 +153,11 @@ export default function AlbumDetailsPage() {
                 </h1>
 
                 <div className="flex items-center gap-2 text-sm text-zinc-100">
-                  <span className="font-medium text-white">
-                    {currentAlbum?.user?.fullName}
-                  </span>
+                  <Link to={`/profile/${currentAlbum?.user?.id}`}>
+                    <span className="font-medium text-white hover:underline">
+                      {currentAlbum?.user?.fullName}
+                    </span>
+                  </Link>
 
                   <span>
                     • {songsLength ?? 0}
@@ -139,6 +199,18 @@ export default function AlbumDetailsPage() {
                   <Play className="h-7 w-7 text-black" />
                 )}
               </Button>
+
+              {currentAlbum && (
+                <button
+                  onClick={() => handleLike(currentAlbum)}
+                  className="rounded-full p-1 hover:text-white"
+                >
+                  <Heart
+                    className="h-8 w-8"
+                    fill={amILiking ? "#1DB954" : "transparent"}
+                  />
+                </button>
+              )}
             </div>
 
             {/* Table Section */}
@@ -169,7 +241,6 @@ export default function AlbumDetailsPage() {
                     return (
                       <div
                         key={song.id}
-                        onClick={() => handlePlaySong(index)}
                         className={`grid grid-cols-[16px_4fr_2fr_1fr_1fr] gap-4 px-4 py-2 text-sm 
                       text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer
                       `}
@@ -178,7 +249,7 @@ export default function AlbumDetailsPage() {
                           {isCurrentSong && isPlaying ? (
                             <Pause
                               className="h-4 w-4 cursor-pointer"
-                              onClick={handlePause}
+                              onClick={(e) => handlePlayPauseSong(index, e)}
                             />
                           ) : (
                             <span className="group-hover:hidden">
@@ -186,30 +257,45 @@ export default function AlbumDetailsPage() {
                             </span>
                           )}
                           {(!isCurrentSong || !isPlaying) && (
-                            <Play className="h-4 w-4 hidden group-hover:block" />
+                            <Play
+                              className="h-4 w-4 hidden group-hover:block"
+                              onClick={(e) => handlePlayPauseSong(index, e)}
+                            />
                           )}
                         </div>
 
                         <div className="flex items-center gap-3">
                           <div className="flex justify-center">
-                            <Avatar className="h-9 w-9 rounded-md">
-                              <AvatarImage
-                                src={song.thumbnailUrl}
-                                alt={song.title}
-                              />
+                            <Link to={`/song-details/${song.id}`}>
+                              <Avatar className="h-9 w-9 rounded-md">
+                                <AvatarImage
+                                  src={song.thumbnailUrl}
+                                  alt={song.title}
+                                />
 
-                              <AvatarFallback>
-                                <Music className="h-4 w-4" />
-                              </AvatarFallback>
-                            </Avatar>
+                                <AvatarFallback>
+                                  <Music className="h-4 w-4" />
+                                </AvatarFallback>
+                              </Avatar>
+                            </Link>
                           </div>
 
                           <div>
-                            <div className={`font-medium text-white`}>
-                              {song.title}
+                            <div
+                              className={`font-medium text-white hover:underline`}
+                            >
+                              <Link to={`/song-details/${song.id}`}>
+                                {song.title}
+                              </Link>
                             </div>
 
-                            <div>{song?.user?.fullName}</div>
+                            <div
+                              className={`text-sm text-zinc-400 hover:underline`}
+                            >
+                              <Link to={`/profile/${song?.user?.id}`}>
+                                {song?.user?.fullName}
+                              </Link>
+                            </div>
                           </div>
                         </div>
 

@@ -103,30 +103,30 @@ const MusicPlayer = () => {
 //   }
 
   return (
-    <div className="h-full rounded-lg border border-accent bg-card text-card-foreground shadow-lg overflow-hidden">
+    <div className="h-full rounded-lg border border-accent bg-zinc-900 text-card-foreground shadow-lg overflow-hidden">
       <div className="p-4 border-b border-accent">
         <h2 className="text-2xl font-bold text-white">{sampleSong.title}</h2>
        
         <p className="text-muted-foreground">{sampleSong.artist}</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 w-full bg-accent">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full bg-zinc-900">
+        <TabsList className="grid grid-cols-3 w-full bg-zinc-900">
           <TabsTrigger
             value="album"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground bg-zinc-900"
           >
             Album
           </TabsTrigger>
           <TabsTrigger
             value="video"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground bg-zinc-900"
           >
             Video
           </TabsTrigger>
           <TabsTrigger
             value="lyrics"
-            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground bg-zinc-900"
           >
             Lyrics
           </TabsTrigger>

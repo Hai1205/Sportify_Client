@@ -15,6 +15,14 @@ export const uploadAlbum = async (
     });
 };
 
+export const getUserLikedAlbum = async (userId: string): Promise<any> => {
+    return await axiosInstance.get(`/api/albums/get-user-liked-albums/${userId}/`)
+}
+
+export const likeAlbum = async (userId: string, albumId: string): Promise<any> => {
+    return await axiosInstance.post(`/api/albums/like-album/${userId}/${albumId}/`);
+};
+
 export const deleteAlbum = async (albumId: string): Promise<any> => {
     return await axiosInstance.delete(`/api/albums/delete-album/${albumId}/`)
 }

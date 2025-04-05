@@ -3,6 +3,7 @@ export interface User {
 	albums: Album[] | string[];
 	songs: Song[] | string[];
 	likedSongs: Song[] | string[];
+	likedAlbums: Album[] | string[];
 	followers: User[] | string[];
 	following: User[] | string[];
 	username: string;

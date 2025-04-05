@@ -5,12 +5,12 @@ export const getAllSong = async (): Promise<any> => {
 }
 
 export const getUserLikedSong = async (userId: string): Promise<any> => {
-    return await axiosInstance.get(`/api/songs/get-user-liked-song/${userId}/`)
+    return await axiosInstance.get(`/api/songs/get-user-liked-songs/${userId}/`)
 }
 
 export const likeSong = async (userId: string, songId: string): Promise<any> => {
     return await axiosInstance.post(`/api/songs/like-song/${userId}/${songId}/`);
-  };
+};
 
 export const uploadSong = async (
     userId: string,
@@ -60,9 +60,9 @@ export const downloadSong = async (songId: string): Promise<any> => {
 }
 
 export const searchSongs = async (queryString: string): Promise<any> => {
-  return await axiosInstance.get(`api/songs/search-songs/${queryString}`);
+    return await axiosInstance.get(`api/songs/search-songs/${queryString}`);
 }
 
 export const increaseSongView = async (songId: string): Promise<any> => {
-  return await axiosInstance.get(`api/songs/increase-song-view/${songId}/`);
+    return await axiosInstance.put(`api/songs/increase-song-view/${songId}/`);
 }
