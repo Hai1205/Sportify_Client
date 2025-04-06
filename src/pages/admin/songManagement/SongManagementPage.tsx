@@ -106,6 +106,12 @@ export default function SongManagementPage() {
     setIsEditDialogOpen(true);
   };
 
+  const handleSongUpdated = (updatedSong: Song) => {
+    setSongs((prevSongs) =>
+      prevSongs.map((song) => (song.id === updatedSong.id ? updatedSong : song))
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -117,7 +123,7 @@ export default function SongManagementPage() {
               <Button
                 onClick={() => setIsAddSongOpen(true)}
                 size="sm"
-                className="h-8 gap-1"
+                className="bg-[#1DB954] hover:bg-green-600 text-white h-8 gap-1"
               >
                 <Plus className="h-4 w-4" />
                 Upload Song
@@ -320,6 +326,7 @@ export default function SongManagementPage() {
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         song={selectedSong}
+        onSongUpdated={handleSongUpdated}
       />
     </div>
   );

@@ -1,11 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import {
-  Check,
-  X,
-  MoreHorizontal,
   Search,
   Filter,
-  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +17,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -54,6 +49,7 @@ export default function ArtistApplicationManagementPage() {
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [isResponding, setIsResponding] = useState(false);
   const [selectedApplication, setSelectedApplication] =
     useState<ArtistApplication | null>(null);
   const [activeFilters, setActiveFilters] = useState<{ status: string[] }>({
@@ -74,6 +70,15 @@ export default function ArtistApplicationManagementPage() {
 
     fetchUsers();
   }, [query, queryString, searchParams, getArtistApplications]);
+
+  useEffect(() => {
+    if (!isRejectDialogOpen && !isApproveDialogOpen) {
+      setApplicationData({
+        rejectionReason: "",
+        details: "",
+      });
+    }
+  }, [isRejectDialogOpen, isApproveDialogOpen]);
 
   const [applicationData, setApplicationData] = useState<ApplicationData>({
     rejectionReason: "",
@@ -124,18 +129,33 @@ export default function ArtistApplicationManagementPage() {
     const formData = new FormData();
     formData.append("details", applicationData.details || "");
     formData.append("status", status);
-    if (status === "reject") {
-      formData.append("rejectionReason", applicationData.rejectionReason || "");
-    }
+    formData.append("rejectionReason", applicationData.rejectionReason || "");
 
+    setIsResponding(true);
     const res = await responseUpdateUserToArtist(
       selectedApplication?.id,
       formData
     );
+    setIsResponding(false);
 
     if (!res) {
       return;
     }
+
+    setArtistApplications((prevApplications) => {
+      return prevApplications.map((application) => {
+        if (application.id === selectedApplication.id) {
+          return {
+            ...application,
+            status: status,
+            details: applicationData.details || "",
+            rejectionReason:
+              status === "reject" ? applicationData.rejectionReason : "",
+          };
+        }
+        return application;
+      });
+    });
 
     if (status === "reject") {
       setIsRejectDialogOpen(false);
@@ -178,11 +198,11 @@ export default function ArtistApplicationManagementPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved":
+      case "approve":
         return "bg-green-500";
       case "pending":
         return "bg-yellow-500";
-      case "rejected":
+      case "reject":
         return "bg-red-500";
       default:
         return "bg-gray-500";
@@ -224,6 +244,7 @@ export default function ArtistApplicationManagementPage() {
         onConfirm={confirm}
         applicationData={applicationData}
         handleApplicationChange={handleApplicationChange}
+        isResponding={isResponding}
       />
 
       {/* Reject Application Dialog */}
@@ -234,6 +255,7 @@ export default function ArtistApplicationManagementPage() {
         application={selectedApplication}
         applicationData={applicationData}
         handleApplicationChange={handleApplicationChange}
+        isResponding={isResponding}
       />
 
       <div className="space-y-4">
@@ -287,13 +309,13 @@ export default function ArtistApplicationManagementPage() {
                       <div className="space-y-2">
                         <div className="flex items-center">
                           <Checkbox
-                            id="status-approved"
-                            checked={activeFilters.status.includes("approved")}
-                            onCheckedChange={() => toggleFilter("approved")}
+                            id="status-approve"
+                            checked={activeFilters.status.includes("approve")}
+                            onCheckedChange={() => toggleFilter("approve")}
                             className="mr-2"
                           />
 
-                          <label htmlFor="status-approved">Approved</label>
+                          <label htmlFor="status-approve">Approve</label>
                         </div>
 
                         <div className="flex items-center">
@@ -309,13 +331,13 @@ export default function ArtistApplicationManagementPage() {
 
                         <div className="flex items-center">
                           <Checkbox
-                            id="status-rejected"
-                            checked={activeFilters.status.includes("rejected")}
-                            onCheckedChange={() => toggleFilter("rejected")}
+                            id="status-reject"
+                            checked={activeFilters.status.includes("reject")}
+                            onCheckedChange={() => toggleFilter("reject")}
                             className="mr-2"
                           />
 
-                          <label htmlFor="status-rejected">Rejected</label>
+                          <label htmlFor="status-reject">Reject</label>
                         </div>
                       </div>
                     </div>
@@ -351,7 +373,7 @@ export default function ArtistApplicationManagementPage() {
 
                     <TableHead className="text-center">Followers</TableHead>
 
-                    <TableHead className="text-center">Submitted</TableHead>
+                    <TableHead className="text-center">Submit Date</TableHead>
 
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -414,47 +436,9 @@ export default function ArtistApplicationManagementPage() {
                         </TableCell>
 
                         <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Open menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem
-                                  onClick={() => handleViewDetails(application)}
-                                  className="cursor-pointer"
-                                >
-                                  <FileText className="mr-2 h-4 w-4" /> View
-                                  details
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => handleApprove(application)}
-                                  className="cursor-pointer"
-                                >
-                                  <Check className="mr-2 h-4 w-4 text-green-500" />
-
-                                  {" Approve"}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleReject(application)}
-                                  className="cursor-pointer"
-                                >
-                                  <X className="mr-2 h-4 w-4 text-red-500" />
-
-                                  {" Reject"}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <Button variant="outline" size="sm" onClick={() => handleViewDetails(application)}>
+                            View
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))

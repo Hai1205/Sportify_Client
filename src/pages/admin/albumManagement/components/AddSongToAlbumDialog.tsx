@@ -29,12 +29,14 @@ const AddSongToAlbumDialog = ({
   const { getUserSongs } = useMusicStore();
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
   const [userSongs, setUserSongs] = useState<Song[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const fetchSongs = async () => {
       const songsFromAlbum = album?.user?.id
         ? await getUserSongs(album.user.id)
         : [];
+
       const songsFromUser = userAuth?.songs || [];
 
       const combinedSongs = [...songsFromAlbum, ...songsFromUser];
@@ -60,6 +62,10 @@ const AddSongToAlbumDialog = ({
     );
     handleClose();
   };
+
+  const filteredSongs = userSongs.filter((song) =>
+    song.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -122,8 +128,10 @@ const AddSongToAlbumDialog = ({
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
                     <Input
                       type="search"
-                      placeholder="Search playlists..."
+                      placeholder="Search songs..."
                       className="pl-8 bg-[#282828] text-white border-gray-700 focus:border-[#1DB954] focus:ring-[#1DB954]"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
 
@@ -135,7 +143,7 @@ const AddSongToAlbumDialog = ({
 
                   <ScrollArea className="h-[300px]">
                     <div className="space-y-2">
-                      {userSongs.map((song) => (
+                      {filteredSongs.map((song) => (
                         <div
                           key={song.id}
                           className="flex items-center justify-between p-2 rounded-md hover:bg-[#282828] transition-colors"

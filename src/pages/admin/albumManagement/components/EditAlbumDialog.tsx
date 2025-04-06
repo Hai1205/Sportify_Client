@@ -69,7 +69,7 @@ const EditAlbumDialog = ({
     if (thumbnail) {
       formData.append("thumbnail", thumbnail);
     }
-    const songIds = songs.map(song => song.id);
+    const songIds = songs.map((song) => song.id);
     formData.append("songIds", JSON.stringify(songIds));
 
     setIsLoading(true);

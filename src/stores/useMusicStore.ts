@@ -156,14 +156,14 @@ export const useMusicStore = create<MusicStore>()(
 			},
 
 			uploadAlbum: async (userId, formData) => {
-				set({ isLoading: true, error: null });
+				set({ error: null });
 
 				try {
 					const response = await uploadAlbum(userId, formData);
-					const { message } = response.data;
+					const { message, album } = response.data;
 
 					toast.success(message);
-					return true;
+					return album;
 				} catch (error: any) {
 					console.error(error)
 					const { message } = error.response.data;
@@ -177,14 +177,14 @@ export const useMusicStore = create<MusicStore>()(
 			},
 
 			uploadSong: async (userId, formData) => {
-				set({ isLoading: true, error: null });
+				set({ error: null });
 
 				try {
 					const response = await uploadSong(userId, formData);
-					const { message } = response.data;
+					const { message, song } = response.data;
 
 					toast.success(message);
-					return true;
+					return song;
 				} catch (error: any) {
 					console.error(error)
 					const { message } = error.response.data;
@@ -198,7 +198,7 @@ export const useMusicStore = create<MusicStore>()(
 			},
 
 			updateAlbum: async (id, formData) => {
-				set({ isLoading: true, error: null });
+				set({ error: null });
 
 				try {
 					const response = await updateAlbum(id, formData);

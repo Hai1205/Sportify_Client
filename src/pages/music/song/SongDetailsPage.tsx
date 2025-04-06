@@ -89,6 +89,12 @@ export default function SongDetailsPage() {
     }
   };
 
+  const handleSongUpdated = (updatedSong: Song) => {
+    setSong((prevSong) =>
+      prevSong?.id === updatedSong.id ? updatedSong : prevSong
+    );
+  };
+
   return (
     <div className="h-full flex items-stretch justify-center">
       <div className="relative w-full max-w-full transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
@@ -259,6 +265,7 @@ export default function SongDetailsPage() {
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         song={song}
+        onSongUpdated={handleSongUpdated}
       />
     </div>
   );

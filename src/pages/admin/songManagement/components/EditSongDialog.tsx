@@ -23,12 +23,14 @@ interface EditSongDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   song: Song | null;
+  onSongUpdated?: (updatedSong: Song) => void;
 }
 
 const EditSongDialog = ({
   isOpen,
   onOpenChange,
   song,
+  onSongUpdated,
 }: EditSongDialogProps) => {
   const { user: userAuth } = useAuthStore();
   const { updateSong } = useMusicStore();
@@ -87,8 +89,12 @@ const EditSongDialog = ({
     }
 
     setIsLoading(true);
-    await updateSong(song?.id, formData);
+    const updatedSong = await updateSong(song?.id, formData);
     setIsLoading(false);
+
+    if (updatedSong && onSongUpdated) {
+      onSongUpdated(updatedSong);
+    }
 
     handleClose();
   };
@@ -185,7 +191,7 @@ const EditSongDialog = ({
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="grid gap-4 mt-4">
                     <div className="grid gap-2">
                       <Label htmlFor="song-title">Song Title</Label>
@@ -279,6 +285,7 @@ const EditSongDialog = ({
                         </SelectTrigger>
 
                         <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
                           {albums.map((album) => (
                             <SelectItem key={album.id} value={album.id}>
                               {album.title}

@@ -253,14 +253,14 @@ export const useUserStore = create<UserStore>()(
             },
 
             responseUpdateUserToArtist: async (userId, formData: FormData) => {
-                set({ isLoading: true, error: null });
+                set({ error: null });
 
                 try {
                     const response = await responseUpdateUserToArtist(userId, formData);
-                    const { message } = response.data;
+                    const { message, application } = response.data;
 
                     toast.success(message);
-                    return true;
+                    return application;
                 } catch (error: any) {
                     console.error(error)
                     const { message } = error.response.data;

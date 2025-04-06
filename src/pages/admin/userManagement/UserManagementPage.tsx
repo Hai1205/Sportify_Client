@@ -235,7 +235,7 @@ export default function UserManagementPage() {
         <div className="flex items-center gap-2">
           <Button
             size="sm"
-            className="h-8 gap-1"
+            className="bg-[#1DB954] hover:bg-green-600 text-white h-8 gap-1"
             onClick={() => setIsAddUserOpen(true)}
           >
             <UserPlus className="h-4 w-4" />

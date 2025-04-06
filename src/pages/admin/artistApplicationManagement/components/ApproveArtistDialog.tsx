@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArtistApplication } from "@/utils/types";
 import { ApplicationData } from "../ArtistApplicationManagementPage";
+import LoadingSpinner from "@/components/ui/loading";
+import { SendHorizontal } from "lucide-react";
 
 interface ApproveArtistDialogProps {
   isOpen: boolean;
@@ -13,7 +15,11 @@ interface ApproveArtistDialogProps {
   selectedApplication: ArtistApplication | null;
   onConfirm: (status: string) => void;
   applicationData: ApplicationData;
-  handleApplicationChange: (field: keyof ApplicationData, value: string) => void;
+  handleApplicationChange: (
+    field: keyof ApplicationData,
+    value: string
+  ) => void;
+  isResponding: boolean;
 }
 
 export default function ApproveArtistDialog({
@@ -23,7 +29,12 @@ export default function ApproveArtistDialog({
   onConfirm,
   applicationData,
   handleApplicationChange,
+  isResponding,
 }: ApproveArtistDialogProps) {
+  if (!selectedApplication) {
+    return null;
+  }
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -63,7 +74,7 @@ export default function ApproveArtistDialog({
                 </Dialog.Title>
                 <Dialog.Description className="text-white">
                   Are you sure you want to approve{" "}
-                  {selectedApplication?.user.fullName}'s application?
+                  {selectedApplication?.user?.fullName}'s application?
                 </Dialog.Description>
 
                 {selectedApplication && (
@@ -71,20 +82,20 @@ export default function ApproveArtistDialog({
                     <div className="flex items-center gap-4 mb-4">
                       <Avatar className="h-12 w-12">
                         <AvatarImage
-                          src={selectedApplication.user.avatarUrl}
-                          alt={selectedApplication.user.fullName}
+                          src={selectedApplication.user?.avatarUrl}
+                          alt={selectedApplication.user?.fullName}
                         />
                         <AvatarFallback>
-                          {selectedApplication.user.fullName.substring(0, 2)}
+                          {selectedApplication.user?.fullName?.substring(0, 2)}
                         </AvatarFallback>
                       </Avatar>
 
                       <div>
                         <h3 className="font-medium text-white">
-                          {selectedApplication.user.fullName}
+                          {selectedApplication.user?.fullName}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {selectedApplication.user.email}
+                          {selectedApplication.user?.email}
                         </p>
                       </div>
                     </div>
@@ -112,8 +123,23 @@ export default function ApproveArtistDialog({
                   <Button variant="outline" onClick={() => onOpenChange(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => onConfirm("approve")}>
-                    Approve Application
+
+                  <Button
+                    onClick={() => onConfirm("approve")}
+                    className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                    disabled={isResponding}
+                  >
+                    {isResponding ? (
+                      <>
+                        <LoadingSpinner />
+                        Approving...
+                      </>
+                    ) : (
+                      <>
+                        <SendHorizontal className="h-4 w-4" />
+                        Approve
+                      </>
+                    )}
                   </Button>
                 </div>
               </Dialog.Panel>

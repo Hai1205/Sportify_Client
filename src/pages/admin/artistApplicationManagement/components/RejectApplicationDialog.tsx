@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { ArtistApplication } from "@/utils/types";
 import { ApplicationData } from "../ArtistApplicationManagementPage";
 import { REJECTION_REASON_CHOICE, TupleChoice } from "@/utils/tuple";
+import LoadingSpinner from "@/components/ui/loading";
+import { SendHorizontal } from "lucide-react";
 
 interface RejectApplicationDialogProps {
   isOpen: boolean;
@@ -21,7 +23,11 @@ interface RejectApplicationDialogProps {
   onConfirm: (status: string) => void;
   application?: ArtistApplication | null;
   applicationData: ApplicationData;
-  handleApplicationChange: (field: keyof ApplicationData, value: string) => void;
+  handleApplicationChange: (
+    field: keyof ApplicationData,
+    value: string
+  ) => void;
+  isResponding: boolean;
 }
 
 const RejectApplicationDialog = ({
@@ -31,7 +37,12 @@ const RejectApplicationDialog = ({
   application,
   applicationData,
   handleApplicationChange,
+  isResponding,
 }: RejectApplicationDialogProps) => {
+  if (!application) {
+    return null;
+  }
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -71,7 +82,7 @@ const RejectApplicationDialog = ({
                 </Dialog.Title>
                 <Dialog.Description className="text-white">
                   Please provide a reason for rejecting{" "}
-                  {application?.user.fullName}'s application.
+                  {application.user?.fullName}'s application.
                 </Dialog.Description>
 
                 {application && (
@@ -79,19 +90,19 @@ const RejectApplicationDialog = ({
                     <div className="flex items-center gap-4 mb-4">
                       <Avatar className="h-12 w-12">
                         <AvatarImage
-                          src={application.user.avatarUrl}
-                          alt={application.user.fullName}
+                          src={application.user?.avatarUrl}
+                          alt={application.user?.fullName}
                         />
                         <AvatarFallback>
-                          {application.user.fullName.substring(0, 2)}
+                          {application.user?.fullName?.substring(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <h3 className="font-medium text-white">
-                          {application.user.fullName}
+                          {application.user?.fullName}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {application.user.email}
+                          {application.user?.email}
                         </p>
                       </div>
                     </div>
@@ -114,11 +125,13 @@ const RejectApplicationDialog = ({
                           </SelectTrigger>
 
                           <SelectContent>
-                            {REJECTION_REASON_CHOICE.map((item: TupleChoice) => (
-                              <SelectItem key={item.value} value={item.value}>
-                                {item.label}
-                              </SelectItem>
-                            ))}
+                            {REJECTION_REASON_CHOICE.map(
+                              (item: TupleChoice) => (
+                                <SelectItem key={item.value} value={item.value}>
+                                  {item.label}
+                                </SelectItem>
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -148,14 +161,23 @@ const RejectApplicationDialog = ({
                   <Button variant="outline" onClick={() => onOpenChange(false)}>
                     Cancel
                   </Button>
+
                   <Button
-                    variant="destructive"
-                    onClick={() =>
-                      onConfirm("reject")
-                    }
-                    disabled={!applicationData.rejectionReason}
+                    onClick={() => onConfirm("reject")}
+                    className="bg-[#1DB954] hover:bg-[#1ed760] text-white"
+                    disabled={!applicationData.rejectionReason || isResponding}
                   >
-                    Reject Application
+                    {isResponding ? (
+                      <>
+                        <LoadingSpinner />
+                        Rejecting...
+                      </>
+                    ) : (
+                      <>
+                        <SendHorizontal className="h-4 w-4" />
+                        Reject
+                      </>
+                    )}
                   </Button>
                 </div>
               </Dialog.Panel>

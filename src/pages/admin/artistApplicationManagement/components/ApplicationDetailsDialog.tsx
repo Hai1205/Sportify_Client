@@ -5,9 +5,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Play, User } from "lucide-react";
+import { Play, Pause, User } from "lucide-react";
 import { ArtistApplication } from "@/utils/types";
 import formatTime from "@/utils/service/formatTime";
+import { Link } from "react-router-dom";
+import { usePlayerStore } from "@/stores/usePlayerStore";
 
 interface ApplicationDetailsDialogProps {
   isOpen: boolean;
@@ -24,7 +26,34 @@ const ApplicationDetailsDialog = ({
   onApprove,
   onReject,
 }: ApplicationDetailsDialogProps) => {
+  const { currentSong, playAlbum, isPlaying, togglePlay } = usePlayerStore();
+
   if (!selectedApplication) return null;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "approve":
+        return "bg-green-500";
+      case "pending":
+        return "bg-yellow-500";
+      case "reject":
+        return "bg-red-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
+  const isPending = selectedApplication.status === "pending";
+
+  const handlePlayPauseSong = (index: number) => {
+    const isCurrentSong =
+      currentSong?.id === selectedApplication.songs[index].id;
+    if (isCurrentSong) {
+      togglePlay();
+    } else {
+      playAlbum(selectedApplication.songs, index);
+    }
+  };
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -65,7 +94,7 @@ const ApplicationDetailsDialog = ({
                 </Dialog.Title>
                 <Dialog.Description className="text-white">
                   Review the artist application from{" "}
-                  {selectedApplication.user.username}
+                  {selectedApplication?.user?.username}
                 </Dialog.Description>
 
                 <ScrollArea className="h-[calc(85vh-10rem)] overflow-auto">
@@ -73,28 +102,40 @@ const ApplicationDetailsDialog = ({
                     <div className="flex gap-6">
                       <Avatar className="h-32 w-32">
                         <AvatarImage
-                          src={selectedApplication.user.avatarUrl}
-                          alt={selectedApplication.user.fullName}
+                          src={selectedApplication?.user?.avatarUrl}
+                          alt={selectedApplication?.user?.fullName}
                         />
                         <AvatarFallback>
-                          {selectedApplication.user.fullName.substring(0, 2)}
+                          {selectedApplication?.user?.fullName?.substring(0, 2)}
                         </AvatarFallback>
                       </Avatar>
 
                       <div>
                         <h2 className="text-2xl font-bold text-white">
-                          {selectedApplication.user.fullName}
+                          <Link
+                            to={`/profile/${selectedApplication?.user?.id}`}
+                          >
+                            {selectedApplication?.user?.fullName}
+                          </Link>
                         </h2>
-                        <p className="text-muted-foreground">
-                          @{selectedApplication.user.username} •{" "}
-                          {selectedApplication.user.email}
+
+                        <p className="text-muted-foreground hover:underline">
+                          <Link
+                            to={`/profile/${selectedApplication?.user?.id}`}
+                          >
+                            @{selectedApplication?.user?.username}
+                          </Link>
                         </p>
 
                         <div className="flex items-center gap-4 mt-3">
                           <User className="h-4 w-4 text-muted-foreground" />
+
                           <span className="text-sm text-white">
-                            {selectedApplication.user.followers.length}{" "}
-                            followers
+                            {selectedApplication?.user?.followers?.length}
+
+                            {selectedApplication?.user?.followers?.length !== 1
+                              ? " followers"
+                              : " follower"}
                           </span>
                         </div>
                       </div>
@@ -108,7 +149,7 @@ const ApplicationDetailsDialog = ({
                           Artist Bio
                         </h3>
                         <p className="text-sm text-white">
-                          {selectedApplication.user.biography}
+                          {selectedApplication?.user?.biography}
                         </p>
 
                         <h3 className="text-lg font-semibold mt-4 mb-2 text-white">
@@ -141,12 +182,19 @@ const ApplicationDetailsDialog = ({
                                   variant="outline"
                                   size="icon"
                                   className="h-8 w-8 rounded-full"
+                                  onClick={() => handlePlayPauseSong(index)}
                                 >
-                                  <Play className="h-4 w-4" />
+                                  {currentSong?.id === song.id && isPlaying ? (
+                                    <Pause className="h-4 w-4" />
+                                  ) : (
+                                    <Play className="h-4 w-4" />
+                                  )}
                                 </Button>
                                 <div>
                                   <p className="font-medium text-sm text-white">
-                                    {song.title}
+                                    <Link to={`/song-details/${song.id}`}>
+                                      {song.title}
+                                    </Link>
                                   </p>
                                   <p className="text-xs text-muted-foreground">
                                     {formatTime(song.duration)}
@@ -161,21 +209,21 @@ const ApplicationDetailsDialog = ({
                           Social Media
                         </h3>
                         <div className="space-y-2">
-                          {Object.entries(selectedApplication.user.website).map(
-                            ([platform, link]) => (
-                              <div
-                                key={platform}
-                                className="flex items-center justify-between"
-                              >
-                                <span className="text-sm capitalize text-white">
-                                  {platform}:
-                                </span>
-                                <span className="text-sm font-medium text-white">
-                                  {link}
-                                </span>
-                              </div>
-                            )
-                          )}
+                          {Object.entries(
+                            selectedApplication?.user?.website || {}
+                          ).map(([platform, link]) => (
+                            <div
+                              key={platform}
+                              className="flex items-center justify-between"
+                            >
+                              <span className="text-sm capitalize text-white">
+                                {platform}:
+                              </span>
+                              <span className="text-sm font-medium text-white">
+                                {link}
+                              </span>
+                            </div>
+                          ))}
                         </div>
 
                         <h3 className="text-lg font-semibold mt-4 mb-2 text-white">
@@ -194,7 +242,9 @@ const ApplicationDetailsDialog = ({
                             <span className="text-sm text-white">Status:</span>
                             <Badge
                               variant="outline"
-                              className="capitalize text-white"
+                              className={`capitalize text-white ${getStatusColor(
+                                selectedApplication.status
+                              )}`}
                             >
                               {selectedApplication.status}
                             </Badge>
@@ -206,12 +256,17 @@ const ApplicationDetailsDialog = ({
                 </ScrollArea>
 
                 <div className="flex justify-between sm:justify-between p-4">
-                  <Button
-                    variant="destructive"
-                    onClick={() => onReject(selectedApplication)}
-                  >
-                    Reject
-                  </Button>
+                  <div>
+                    {isPending && (
+                      <Button
+                        variant="destructive"
+                        onClick={() => onReject(selectedApplication)}
+                      >
+                        Reject
+                      </Button>
+                    )}
+                  </div>
+
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -219,9 +274,15 @@ const ApplicationDetailsDialog = ({
                     >
                       Close
                     </Button>
-                    <Button onClick={() => onApprove(selectedApplication)}>
-                      Approve
-                    </Button>
+
+                    {isPending && (
+                      <Button
+                        onClick={() => onApprove(selectedApplication)}
+                        className="bg-[#1DB954] hover:bg-green-600 text-white"
+                      >
+                        Approve
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Dialog.Panel>

@@ -1,6 +1,13 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { MoreHorizontal, Music, Pencil, Plus, Search, Trash } from "lucide-react";
+import {
+  MoreHorizontal,
+  Music,
+  Pencil,
+  Plus,
+  Search,
+  Trash,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -78,6 +85,14 @@ export default function AlbumManagementPage() {
     setIsEditDialogOpen(true);
   };
 
+  const handleAlbumUpdated = (updatedAlbum: Album) => {
+    setAlbums((prevAlbums) =>
+      prevAlbums.map((album) =>
+        album.id === updatedAlbum.id ? updatedAlbum : album
+      )
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -89,7 +104,7 @@ export default function AlbumManagementPage() {
               <Button
                 onClick={() => setIsAddAlbumOpen(true)}
                 size="sm"
-                className="h-8 gap-1"
+                className="bg-[#1DB954] hover:bg-green-600 text-white h-8 gap-1"
               >
                 <Plus className="h-4 w-4" />
                 Upload Album
@@ -179,8 +194,10 @@ export default function AlbumManagementPage() {
                       </TableCell>
 
                       <TableCell className="text-center hover:underline">
-                        <Link to={`/profile/${album.user.id}`}>
-                          {album.user.fullName}
+                        <Link
+                          to={`/profile/${album.user ? album.user.id : ""}`}
+                        >
+                          {album.user ? album.user.fullName : "Unknown Artist"}
                         </Link>
                       </TableCell>
 
@@ -242,6 +259,7 @@ export default function AlbumManagementPage() {
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         album={selectedAlbum}
+        onAlbumUpdated={handleAlbumUpdated}
       />
     </div>
   );

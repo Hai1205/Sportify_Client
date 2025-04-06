@@ -36,11 +36,11 @@ export const STATUS_CHOICE: TupleChoice[] = [
 ];
 
 export const REJECTION_REASON_CHOICE: TupleChoice[] = [
-    { value: "insufficient-content", label: "Insufficient content" },
-    { value: "quality-issues", label: "Quality issues" },
-    { value: "incomplete-information", label: "Incomplete profile" },
-    { value: "copyright-concerns", label: "Copyright concerns" },
-    { value: "platform-fit", label: "Not a good fit" },
-    { value: "other", label: "Other (please specify)" },
+    { value: "Insufficient content", label: "Insufficient content" },
+    { value: "Quality issues", label: "Quality issues" },
+    { value: "Incomplete profile", label: "Incomplete profile" },
+    { value: "Copyright concerns", label: "Copyright concerns" },
+    { value: "Not a good fit", label: "Not a good fit" },
+    { value: "Other (please specify)", label: "Other (please specify)" },
 ];
 

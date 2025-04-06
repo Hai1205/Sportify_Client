@@ -118,6 +118,12 @@ export default function AlbumDetailsPage() {
     }
   };
 
+  const handleAlbumUpdated = (updatedAlbum: Album) => {
+    setCurrentAlbum((prevAlbum) =>
+      prevAlbum?.id === updatedAlbum.id ? updatedAlbum : prevAlbum
+    );
+  };
+
   return (
     <div className="h-full">
       <ScrollArea className="h-full rounded-md">
@@ -323,6 +329,7 @@ export default function AlbumDetailsPage() {
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         album={currentAlbum}
+        onAlbumUpdated={handleAlbumUpdated}
       />
     </div>
   );

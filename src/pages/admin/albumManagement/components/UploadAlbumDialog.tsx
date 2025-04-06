@@ -43,26 +43,6 @@ const UploadAlbumDialog = ({
   const { uploadAlbum } = useMusicStore();
   const { user: userAuth } = useAuthStore();
 
-  // useEffect(() => {
-  //   const fetchUserSongs = async () => {
-  //     if (!userAuth) {
-  //       return;
-  //     }
-
-  //     const songs = await getUserSongs(userAuth?.id);
-
-  //     if (songs) {
-  //       setSongs(songs);
-  //       setThumbnail(null);
-  //       setAlbumData({
-  //         title: "",
-  //       });
-  //     }
-  //   };
-
-  //   fetchUserSongs();
-  // }, [getUserSongs, userAuth]);
-
   const handleChange = (field: keyof typeof albumData, value: string) => {
     setAlbumData((prev) => ({ ...prev, [field]: value }));
   };
@@ -96,6 +76,9 @@ const UploadAlbumDialog = ({
     onOpenChange(false);
     setThumbnail(null);
     setSongs([]);
+    setAlbumData({
+      title: "",
+    });
   };
 
   const handleThumbnailChange = (

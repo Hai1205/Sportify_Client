@@ -120,10 +120,10 @@ export const PlaybackControls = () => {
 
                 <div className="text-sm text-zinc-400 truncate hover:underline cursor-pointer">
                   <Link
-                    to={`/profile/${currentSong.user.id}`}
+                    to={`/profile/${currentSong?.user?.id}`}
                     className="w-14 h-14 object-cover rounded-md"
                   >
-                    {currentSong.user.fullName}
+                    {currentSong?.user?.fullName}
                   </Link>
                 </div>
               </div>

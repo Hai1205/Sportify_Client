@@ -273,6 +273,7 @@ const UploadSongDialog = ({
                         </SelectTrigger>
 
                         <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
                           {albums.map((album) => (
                             <SelectItem key={album.id} value={album.id}>
                               {album.title}
