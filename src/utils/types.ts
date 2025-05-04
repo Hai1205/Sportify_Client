@@ -66,13 +66,25 @@ export interface GeneralStat {
 export interface Message {
 	id: string;
 	senderId: string;
-	receiverId: string;
+	receiverId?: string;
+	roomId?: string;
 	content: string;
 	createdAt: string;
 	updatedAt: string;
+	pending?: boolean;
+    tempId?: string; // <-- Thêm dòng này để fix lỗi
 }
 
 export interface FileState {
 	thumbnail: File | null;
 	audio: File | null;
+}
+
+// Thêm định nghĩa cho Chat Room
+export interface ChatRoom {
+  id: string;
+  name?: string;
+  roomType: 'direct' | 'group';
+  members: User[];
+  lastMessage?: Message;
 }
