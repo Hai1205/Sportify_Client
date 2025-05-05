@@ -1,50 +1,80 @@
-# React + TypeScript + Vite
+## Tổng quan
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sportify là ứng dụng web nghe nhạc trực tuyến mô phỏng theo Spotify, với đầy đủ tính năng phát nhạc, quản lý bài hát, tương tác xã hội và nhiều tính năng khác.
 
-Currently, two official plugins are available:
+- 🎵 Phát nhạc với đầy đủ điều khiển (play, pause, next, previous)
+- 🎧 Hiển thị bài hát đang phát với thông tin chi tiết
+- 📚 Trình duyệt bài hát và album
+- 🎤 Trang chi tiết bài hát với lời và thông tin
+- 💿 Trang chi tiết album với danh sách bài hát
+- 🔍 Tìm kiếm bài hát, album và nghệ sĩ
+- ❤️ Thích bài hát và album
+- 👤 Hồ sơ người dùng và nghệ sĩ
+- 🔐 Hệ thống xác thực đầy đủ
+- 💬 Chat trực tiếp giữa người dùng
+- 📱 Giao diện responsive
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
+## Công nghệ sử dụng
+- React 18
+- TypeScript - Ngôn ngữ lập trình
+- Vite - Build tool
+- Tailwind CSS - Framework CSS
+- shadcn/ui - Thư viện UI component
+- Zustand - State management
+- React Router - Routing
+- Axios - HTTP Client
+- WebSocket
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- Configure the top-level `parserOptions` property like this:
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Cài đặt
+
+Yêu cầu tiên quyết
+- Node.js phiên bản 18.x trở lên
+- npm hoặc yarn
+
+Các bước cài đặt
+1. Clone repository và truy cập thư mục frontend
+```bash
+git clone https://github.com/haole2k4/Sportify-Client.git
+cd spotify_clone
+```
+2. Cài đặt các dependencies
+```bash 
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+3. Chỉnh sửa file .env để thiết lập các biến môi trường cần thiết, đặc biệt là URL backend và ws:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+VITE_SERVER_URL=http://localhost:8000
+VITE_SERVER_WS_URL=http://localhost:8001
+VITE_CLIENT_ID=your-id
 ```
+
+4. Khởi động fontend:
+```bash
+npm run dev
+```
+
+Ứng dụng frontend sẽ có sẵn tại http://localhost:3000
+
+## Giấy phép
+
+<div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #1DB954;">
+  <p><strong>MIT License</strong></p>
+  <p>Copyright (c) 2025 Spotify Clone Team</p>
+  
+  <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+  
+  <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+  
+  <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+</div>
+
+## Thành viên
+| Mã số sinh viên | Họ và tên         | 
+|-----------------|-------------------|
+| 3122410095      | Nguyễn Hoàng Hải  |
+| 3122410096      | Lê Chí Hào        |
