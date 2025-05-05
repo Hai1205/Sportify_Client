@@ -70,7 +70,7 @@ const ForgotPasswordPage: React.FC = () => {
           className="mt-6 mb-4"
           isLoading={isLoading}
         >
-          SEND CODE
+          Send code
         </LoadingButton>
 
         <div className="text-center">
@@ -80,7 +80,7 @@ const ForgotPasswordPage: React.FC = () => {
 
               if (!isLoading) navigate("/login");
             }}
-            className={`text-white hover:text-[#1DB954] text-sm underline cursor-pointer ${
+            className={`text-[#1DB954] hover:text-[#1ed760] text-sm underline cursor-pointer ${
               isLoading ? "pointer-events-none opacity-70" : ""
             }`}
           >

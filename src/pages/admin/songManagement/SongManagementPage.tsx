@@ -34,7 +34,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { Song } from "@/utils/types";
-import formatTime from "@/utils/service/formatTime";
+import { formatTime, formatNumberStyle } from "@/lib/utils";
 import { SongsEmptyState } from "@/layout/components/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TableSkeleton } from "@/layout/components/TableSkeleton";
@@ -227,16 +227,16 @@ export default function SongManagementPage() {
                           </TableCell>
 
                           <TableCell className="text-center hover:underline">
-                            <Link to={`/profile/${song.user.id}`}>
-                              {song.user.fullName}
+                            <Link to={`/profile/${song?.user?.id}`}>
+                              {song?.user?.fullName}
                             </Link>
                           </TableCell>
 
                           <TableCell>
                             {song.album ? (
-                              <Link to={`/album-details/${song.album.id}`}>
+                              <Link to={`/album-details/${song.album?.id}`}>
                                 <span className="text-center hover:underline">
-                                  {song.album.title}
+                                  {song.album?.title}
                                 </span>
                               </Link>
                             ) : (
@@ -252,7 +252,7 @@ export default function SongManagementPage() {
                           </TableCell>
 
                           <TableCell className="text-center">
-                            {song.views}
+                            {formatNumberStyle(song.views)}
                           </TableCell>
 
                           <TableCell className="text-center">

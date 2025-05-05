@@ -32,20 +32,24 @@ interface ChatStore {
 	setSelectedUser: (user: User | null) => void;
 }
 
-export const useChatStore = create<ChatStore>((set, get) => ({
+const initialState = {
 	users: [],
 	isLoading: false,
 	error: null,
 	socket: null,
 	isConnected: false,
-	onlineUsers: new Set(),
-	userActivities: new Map(),
+	onlineUsers: new Set<string>(),
+	userActivities: new Map<string, string>(),
 	messages: [],
 	selectedUser: null,
 	status: 0,
-	message: null,
+	message: null
+}
 
-	setSelectedUser: (user) => set({ selectedUser: user }),
+export const useChatStore = create<ChatStore>((set, get) => ({
+	...initialState,
+
+	setSelectedUser: (user: User | null) => set({ selectedUser: user }),
 
 	initSocket: (userId) => {
 		if (!get().isConnected) {
@@ -159,15 +163,15 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
 	reset: () => {
 		set({
-			socket: null,
-			isConnected: false,
-			onlineUsers: new Set(),
-			userActivities: new Map(),
-			messages: [],
-			selectedUser: null,
 			isLoading: false,
 			error: null,
-			status: 0,
+			socket: null,
+			isConnected: false,
+			onlineUsers: new Set<string>(),
+			userActivities: new Map<string, string>(),
+			messages: [],
+			selectedUser: null,
+			status: 0
 		});
 	},
 }));

@@ -43,11 +43,11 @@ const SectionGrid = ({ songs, title, isLoading }: SectionGridProps) => {
             </div>
 
             <h3 className="font-medium mb-2 truncate hover:underline">
-              <Link to={`/song-details/${song.id}`}>{song.title}</Link>
+              <Link to={`/song-details/${song?.id}`}>{song?.title}</Link>
             </h3>
 
             <p className="text-sm text-zinc-400 truncate hover:underline">
-              <Link to={`/profile/${song.user.id}`}>{song.user.fullName}</Link>
+              <Link to={`/profile/${song?.user?.id}`}>{song?.user?.fullName}</Link>
             </p>
           </div>
         ))}

@@ -15,12 +15,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { useAuthStore } from "@/stores/useAuthStore";
-import formatTime from "@/utils/service/formatTime";
 import { SongsEmptyState } from "@/layout/components/EmptyState";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TableSkeleton } from "@/layout/components/TableSkeleton";
 import { Song } from "@/utils/types";
 import { usePlayerStore } from "@/stores/usePlayerStore";
+import { formatTime } from "@/lib/utils";
 
 export default function FavoriteSongsPage() {
   const [songs, setSongs] = useState<Song[] | []>([]);

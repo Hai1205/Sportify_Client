@@ -32,6 +32,7 @@ import RejectApplicationDialog from "./components/RejectApplicationDialog";
 import { ApplicationsEmptyState } from "@/layout/components/EmptyState";
 import { Link, useSearchParams } from "react-router-dom";
 import { TableSkeleton } from "@/layout/components/TableSkeleton";
+import { formatNumberStyle } from "@/lib/utils";
 
 export interface ApplicationData {
   rejectionReason: string;
@@ -162,6 +163,8 @@ export default function ArtistApplicationManagementPage() {
     } else {
       setIsApproveDialogOpen(false);
     }
+
+    setIsViewDetailsOpen(false);
   };
 
   const toggleFilter = (value: string) => {
@@ -428,7 +431,7 @@ export default function ArtistApplicationManagementPage() {
                         </TableCell>
 
                         <TableCell className="text-center">
-                          {application?.user?.followers.length}
+                          {formatNumberStyle(application?.user?.followers.length as number)}
                         </TableCell>
 
                         <TableCell className="flex items-center justify-center gap-1">

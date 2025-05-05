@@ -27,21 +27,25 @@ interface StatStore {
     reset: () => void;
 }
 
+const initialState = {
+    isLoading: false,
+    error: null,
+    songs: [],
+    users: [],
+    generalStat: {
+        totalSongs: 0,
+        totalAlbums: 0,
+        totalUsers: 0,
+        totalArtists: 0,
+    },
+    status: 0,
+    message: null
+}
+
 export const useStatStore = create<StatStore>()(
     persist(
         (set) => ({
-            isLoading: false,
-            error: null,
-            songs: [],
-            users: [],
-            generalStat: {
-                totalSongs: 0,
-                totalAlbums: 0,
-                totalUsers: 0,
-                totalArtists: 0,
-            },
-            status: 0,
-            message: null,
+            ...initialState,
 
             getGeneralStat: async () => {
                 set({ isLoading: true, error: null });
@@ -107,20 +111,7 @@ export const useStatStore = create<StatStore>()(
             },
 
             reset: () => {
-                set({
-                    songs: [],
-                    users: [],
-                    generalStat: {
-                        totalSongs: 0,
-                        totalAlbums: 0,
-                        totalUsers: 0,
-                        totalArtists: 0,
-                    },
-                    isLoading: false,
-                    error: null,
-                    status: 0,
-                    message: null,
-                })
+                set({ ...initialState });
             },
         }),
 

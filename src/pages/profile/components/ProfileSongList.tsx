@@ -5,9 +5,9 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { Song } from "@/utils/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { usePlayerStore } from "@/stores/usePlayerStore";
-import { formatDuration } from "@/utils/service/formatDuration";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDuration, formatNumberStyle } from "@/lib/utils";
 
 const ProfileSongsList = () => {
   const { user: userAuth } = useAuthStore();
@@ -120,7 +120,7 @@ const ProfileSongsList = () => {
 
                     <div className="flex items-center">{song.releaseDate}</div>
 
-                    <div className="flex items-center">{song.views}</div>
+                    <div className="flex items-center">{formatNumberStyle(song.views)}</div>
 
                     <div className="flex items-center">
                       {formatDuration(song.duration)}

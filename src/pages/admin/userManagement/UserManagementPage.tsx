@@ -47,6 +47,9 @@ import { TableSkeleton } from "@/layout/components/TableSkeleton";
 import EditAlbumDialog from "../albumManagement/components/EditAlbumDialog";
 
 export default function UserManagementPage() {
+  const { searchUsers, deleteUser, getAllUser } = useUserStore();
+  const { isAdmin, resetPassword } = useAuthStore();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
@@ -68,12 +71,12 @@ export default function UserManagementPage() {
 
   const [isEditAlbumOpen, setIsEditAlbumOpen] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
-
-  const { isLoading, searchUsers, deleteUser, getAllUser } = useUserStore();
-  const { isAdmin, resetPassword } = useAuthStore();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setIsLoading(true);
+
       const params = new URLSearchParams(searchParams);
       params.set("admin", `${isAdmin}`);
       const updatedQueryString = `?${params.toString()}`;
@@ -83,6 +86,8 @@ export default function UserManagementPage() {
       } else {
         await getAllUser().then(setUsers);
       }
+
+      setIsLoading(false);
     };
 
     fetchUsers();
@@ -514,13 +519,15 @@ export default function UserManagementPage() {
                             {user.country}
                           </TableCell>
 
-                          <TableCell className="capitalize text-center flex items-center justify-center gap-2">
-                            <span
-                              className={`h-2 w-2 rounded-full ${getStatusColor(
-                                user.status
-                              )}`}
-                            />
-                            <span className="capitalize">{user.status}</span>
+                          <TableCell className="capitalize text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <span
+                                className={`h-2 w-2 rounded-full ${getStatusColor(
+                                  user.status
+                                )}`}
+                              />
+                              <span className="capitalize">{user.status}</span>
+                            </div>
                           </TableCell>
 
                           <TableCell className="text-center">

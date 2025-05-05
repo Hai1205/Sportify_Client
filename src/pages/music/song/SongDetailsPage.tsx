@@ -14,13 +14,13 @@ import {
   Heart,
 } from "lucide-react";
 import { Song, User } from "@/utils/types";
-import formatTime from "@/utils/service/formatTime";
 import { useMusicStore } from "@/stores/useMusicStore";
 import EditSongDialog from "@/pages/admin/songManagement/components/EditSongDialog";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "react-toastify";
 import PlayMusic from "../../../layout/components/PlayMusic";
 import { SongDetailsSkeleton } from "../components/SongDetailsSkeleton";
+import { formatNumberStyle, formatTime } from "@/lib/utils";
 
 export default function SongDetailsPage() {
   const { songId } = useParams<{ songId: string }>();
@@ -224,7 +224,7 @@ export default function SongDetailsPage() {
                       </span>
 
                       <span className="text-sm text-gray-400">
-                        {song.views}
+                        {formatNumberStyle(song.views)}
                       </span>
                     </div>
 

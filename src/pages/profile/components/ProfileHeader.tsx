@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button";
 import { User } from "@/utils/types";
 import { useState, useEffect, useMemo } from "react";
 import { UserListDialog } from "./UserListDialog";
-import normalizeUrl from "@/utils/service/normalizeUrl";
 import { toast } from "react-toastify";
+import { formatNumberStyle, normalizeUrl } from "@/lib/utils";
 
 interface ProfileHeaderProps {
   user: User;
@@ -116,7 +116,7 @@ const ProfileHeader = ({
                 className="cursor-pointer hover:opacity-80"
                 onClick={() => setShowFollowersDialog(true)}
               >
-                <span className="font-bold">{followersCount}</span>
+                <span className="font-bold">{formatNumberStyle(followersCount)}</span>
                 <span className="text-gray-400 ml-1 hover:underline">
                   Followers
                 </span>
@@ -127,7 +127,7 @@ const ProfileHeader = ({
                 onClick={() => setShowFollowingDialog(true)}
               >
                 <span className="font-bold">
-                  {currentUser.following.length}
+                  {formatNumberStyle(currentUser.following.length)}
                 </span>
                 <span className="text-gray-400 ml-1 hover:underline">
                   Following

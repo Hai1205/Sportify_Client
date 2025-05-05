@@ -144,7 +144,7 @@ const RegisterPage: React.FC = () => {
 
               if (!isLoading) navigate("/login");
             }}
-            className={`text-white hover:text-[#1DB954] underline cursor-pointer ${
+            className={`text-[#1DB954] hover:text-[#1ed760] underline cursor-pointer ${
               isLoading ? "pointer-events-none opacity-70" : ""
             }`}
           >
