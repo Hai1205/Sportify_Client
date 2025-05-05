@@ -24,7 +24,7 @@ import AuthRoute from "./layout/components/AuthRoute";
 import AdminRoute from "./layout/components/AdminRoute";
 import ProfilePage from "./pages/profile/ProfilePage";
 import MusicUploaderPage from "./pages/music/MusicUploaderPage";
-import MusicPlayer from "./pages/music/MusicPlayer";
+// import MusicPlayer from "./pages/music/MusicPlayer";
 import { useAuthStore } from "./stores/useAuthStore";
 import FavoriteSongs from "./pages/music/song/FavoriteSongsPage";
 import SongDetailsPage from "./pages/music/song/SongDetailsPage";
@@ -75,7 +75,7 @@ function App() {
 
           <Route path="/album-details/:albumId" element={<AlbumDetailsPage />} />
 
-          <Route path="/song-player/:songId" element={<MusicPlayer />} />
+          {/* <Route path="/song-player/:songId" element={<MusicPlayer />} /> */}
 
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route element={<PrivateRoute />}>

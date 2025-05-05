@@ -18,8 +18,8 @@ import {
   TableCell,
   TableHead,
 } from "@/components/ui/table";
-import formatTime from "@/utils/service/formatTime";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { formatTime } from "@/lib/utils";
 
 type EditAlbumDialogProps = {
   isOpen: boolean;

@@ -11,7 +11,7 @@ import EditAlbumDialog from "@/pages/admin/albumManagement/components/EditAlbumD
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "react-toastify";
 import { AlbumDetailsSkeleton } from "../components/ALbumDetailsSkeleton";
-import formatTime from "@/utils/service/formatTime";
+import { formatTime } from "@/lib/utils";
 
 export default function AlbumDetailsPage() {
   const { albumId } = useParams();

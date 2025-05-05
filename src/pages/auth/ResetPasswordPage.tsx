@@ -97,7 +97,7 @@ const ResetPasswordPage: React.FC = () => {
           className="mt-6 mb-4"
           isLoading={isLoading}
         >
-          RESET PASSWORD
+          Reset password
         </LoadingButton>
       </form>
     </AuthLayout>

@@ -73,7 +73,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             }
         }
     },
-
+  
     initSocket: (userId) => {
         const store = get();
         // Đóng kết nối cũ nếu có
@@ -357,6 +357,3 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         });
     },
 }));
-
-// Import useAuthStore để lấy thông tin user hiện tại
-import { useAuthStore } from "./useAuthStore";

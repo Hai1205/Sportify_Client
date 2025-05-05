@@ -49,17 +49,21 @@ interface UserStore {
     reset: () => any;
 }
 
+const initialState = {
+    user: null,
+    artistApplication: null,
+    users: [],
+    artistApplications: [],
+    isLoading: false,
+    error: null,
+    status: 0,
+    message: null
+}
+
 export const useUserStore = create<UserStore>()(
     persist(
         (set) => ({
-            user: null,
-            artistApplication: null,
-            users: [],
-            artistApplications: [],
-            isLoading: false,
-            error: null,
-            status: 0,
-            message: null,
+            ...initialState,
 
             getAllUser: async () => {
                 set({ isLoading: true, error: null });
@@ -355,16 +359,7 @@ export const useUserStore = create<UserStore>()(
             },
 
             reset: () => {
-                set({
-                    user: null,
-                    users: [],
-                    artistApplication: null,
-                    artistApplications: [],
-                    isLoading: false,
-                    error: null,
-                    status: 0,
-                    message: null,
-                });
+                set({ ...initialState });
             },
         }),
         {

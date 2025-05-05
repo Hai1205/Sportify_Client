@@ -39,6 +39,7 @@ interface MusicStore {
 	message: string | null;
 	songs: Song[];
 	albums: Album[];
+	featuredSongs: Song[];
 
 	getAllAlbum: () => Promise<any>;
 	uploadAlbum: (userId: string, formData: FormData) => Promise<any>;
@@ -60,27 +61,31 @@ interface MusicStore {
 	deleteSong: (id: string) => Promise<any>;
 	searchSongs: (query: string) => Promise<any>;
 	increaseSongView: (songId: string) => Promise<any>;
-    likeSong: (userId: string, songId: string) => Promise<any>;
+	likeSong: (userId: string, songId: string) => Promise<any>;
 	getUserLikedSong: (userId: string) => Promise<any>;
 	likeAlbum: (userId: string, albumId: string) => Promise<any>;
 	getUserLikedAlbum: (userId: string) => Promise<any>;
 	reset: () => any;
 }
 
+const initialState = {
+	albums: [],
+	songs: [],
+	isLoading: false,
+	error: null,
+	currentAlbum: null,
+	song: null,
+	madeForYouSongs: [],
+	featuredSongs: [],
+	trendingSongs: [],
+	status: 0,
+	message: null
+}
+
 export const useMusicStore = create<MusicStore>()(
 	persist(
 		(set) => ({
-			albums: [],
-			songs: [],
-			isLoading: false,
-			error: null,
-			currentAlbum: null,
-			song: null,
-			madeForYouSongs: [],
-			featuredSongs: [],
-			trendingSongs: [],
-			status: 0,
-			message: null,
+			...initialState,
 
 			deleteSong: async (id) => {
 				set({ isLoading: true, error: null });
@@ -497,96 +502,89 @@ export const useMusicStore = create<MusicStore>()(
 					return false;
 				}
 			},
-			
-            likeSong: async (userId, songId) => {
-                set({ error: null });
 
-                try {
-                    const response = await likeSong(userId, songId);
-                    const { user, message } = response.data;
+			likeSong: async (userId, songId) => {
+				set({ error: null });
 
-                    await useAuthStore.getState().setUserAuth(user);
-                    toast.success(message);
-                    return user;
-                } catch (error: any) {
-                    console.error(error)
-                    const { message } = error.response.data;
-                    set({ error: message });
+				try {
+					const response = await likeSong(userId, songId);
+					const { user, message } = response.data;
 
-                    toast.error(message);
-                    return false;
-                }
-            },
+					await useAuthStore.getState().setUserAuth(user);
+					toast.success(message);
+					return user;
+				} catch (error: any) {
+					console.error(error)
+					const { message } = error.response.data;
+					set({ error: message });
+
+					toast.error(message);
+					return false;
+				}
+			},
 
 			getUserLikedSong: async (userId) => {
 				set({ isLoading: true, error: null });
 
-                try {
-                    const response = await getUserLikedSong(userId);
-                    const { songs } = response.data;
+				try {
+					const response = await getUserLikedSong(userId);
+					const { songs } = response.data;
 
-                    return songs;
-                } catch (error: any) {
-                    console.error(error)
-                    const { message } = error.response.data;
-                    set({ error: message });
+					return songs;
+				} catch (error: any) {
+					console.error(error)
+					const { message } = error.response.data;
+					set({ error: message });
 
-                    toast.error(message);
-                    return false;
-                } finally {
+					toast.error(message);
+					return false;
+				} finally {
 					set({ isLoading: false });
 				}
 			},
 
-            likeAlbum: async (userId, albumId) => {
-                set({ error: null });
+			likeAlbum: async (userId, albumId) => {
+				set({ error: null });
 
-                try {
-                    const response = await likeAlbum(userId, albumId);
-                    const { user, message } = response.data;
+				try {
+					const response = await likeAlbum(userId, albumId);
+					const { user, message } = response.data;
 
-                    await useAuthStore.getState().setUserAuth(user);
-                    toast.success(message);
-                    return user;
-                } catch (error: any) {
-                    console.error(error)
-                    const { message } = error.response.data;
-                    set({ error: message });
+					await useAuthStore.getState().setUserAuth(user);
+					toast.success(message);
+					return user;
+				} catch (error: any) {
+					console.error(error)
+					const { message } = error.response.data;
+					set({ error: message });
 
-                    toast.error(message);
-                    return false;
-                }
-            },
+					toast.error(message);
+					return false;
+				}
+			},
 
 			getUserLikedAlbum: async (userId) => {
 				set({ isLoading: true, error: null });
 
-                try {
-                    const response = await getUserLikedAlbum(userId);
-                    const { albums } = response.data;
+				try {
+					const response = await getUserLikedAlbum(userId);
+					const { albums } = response.data;
 
-                    return albums;
-                } catch (error: any) {
-                    console.error(error)
-                    const { message } = error.response.data;
-                    set({ error: message });
+					return albums;
+				} catch (error: any) {
+					console.error(error)
+					const { message } = error.response.data;
+					set({ error: message });
 
-                    toast.error(message);
-                    return false;
-                } finally {
+					toast.error(message);
+					return false;
+				} finally {
 					set({ isLoading: false });
 				}
 			},
 
 			reset: () => {
-				set({
-					albums: [],
-					songs: [],
-					isLoading: false,
-					error: null,
-					status: 0,
-					message: null,
-				})
+				set({ ...initialState });
 			},
 		}),
 

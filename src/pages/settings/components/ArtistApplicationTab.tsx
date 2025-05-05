@@ -37,6 +37,7 @@ const ArtistApplicationTab = ({
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <h2 className="text-lg font-bold">Your application is pending.</h2>
+
         <p className="text-sm text-muted-foreground">
           Please wait for the review process to complete.
         </p>
@@ -46,7 +47,7 @@ const ArtistApplicationTab = ({
 
   return (
     <TabsContent value="application">
-      <Card  className="bg-zinc-900">
+      <Card className="bg-zinc-900">
         <CardHeader>
           <CardTitle>Artist Application</CardTitle>
           <CardDescription>
@@ -77,16 +78,21 @@ const ArtistApplicationTab = ({
                 <p className="text-sm text-muted-foreground">
                   Upload at least 3 music samples that represent your work
                 </p>
+
                 {songData.map((song, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="font-medium">Song {index + 1}</h4>
-                      <Badge>Required</Badge>
+                      <Badge className="bg-[#1DB954] text-black">
+                        Required
+                      </Badge>
                     </div>
+
                     <div className="space-y-1">
                       <Label htmlFor={`song${index + 1}-title`}>
                         Song Title
                       </Label>
+
                       <Input
                         id={`song${index + 1}-title`}
                         name={`song${index + 1}Title`}
@@ -100,10 +106,12 @@ const ArtistApplicationTab = ({
                         placeholder="Enter song title"
                       />
                     </div>
+
                     <div className="space-y-1">
                       <Label htmlFor={`song${index + 1}-file`}>
                         Audio File
                       </Label>
+
                       <Input
                         id={`song${index + 1}-file`}
                         name={`song${index + 1}File`}
@@ -142,7 +150,7 @@ const ArtistApplicationTab = ({
           <Button
             onClick={handleRequireApplication}
             disabled={isUserLoading}
-            className="gap-1"
+            className="gap-1 bg-[#1DB954] hover:bg-[#1ed760]"
           >
             {isUserLoading ? (
               <>

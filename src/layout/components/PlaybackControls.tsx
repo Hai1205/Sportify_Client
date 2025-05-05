@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import formatTime from "@/utils/service/formatTime";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatTime } from "@/lib/utils";
 
 export const PlaybackControls = () => {
   const { currentSong, isPlaying, togglePlay, playNext, playPrevious } =
@@ -137,7 +137,7 @@ export const PlaybackControls = () => {
             <Button
               size="icon"
               variant="ghost"
-              className="hidden sm:inline-flex hover:text-white text-zinc-400"
+              className="hidden sm:inline-flex hover:text-[#1DB954] text-zinc-400"
             >
               <Shuffle className="h-4 w-4" />
             </Button>
@@ -145,7 +145,7 @@ export const PlaybackControls = () => {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:text-white text-zinc-400"
+              className="hover:text-[#1DB954] text-zinc-400"
               onClick={playPrevious}
               disabled={!currentSong}
             >
@@ -154,7 +154,7 @@ export const PlaybackControls = () => {
 
             <Button
               size="icon"
-              className="bg-white hover:bg-white/80 text-black rounded-full h-8 w-8"
+              className="bg-[#1DB954] hover:bg-[#1ed760] text-black rounded-full h-8 w-8"
               onClick={togglePlay}
               disabled={!currentSong}
             >
@@ -168,7 +168,7 @@ export const PlaybackControls = () => {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:text-white text-zinc-400"
+              className="hover:text-[#1DB954] text-zinc-400"
               onClick={playNext}
               disabled={!currentSong}
             >
@@ -178,7 +178,7 @@ export const PlaybackControls = () => {
             <Button
               size="icon"
               variant="ghost"
-              className="hidden sm:inline-flex hover:text-white text-zinc-400"
+              className="hidden sm:inline-flex hover:text-[#1DB954] text-zinc-400"
             >
               <Repeat className="h-4 w-4" />
             </Button>
@@ -207,7 +207,7 @@ export const PlaybackControls = () => {
               <Button
                 size="icon"
                 variant="ghost"
-                className="hover:text-white text-zinc-400"
+                className="hover:text-[#1DB954] text-zinc-400"
               >
                 <Link to={`/profile/${currentSong?.user?.id}`}>
                   <Mic2 className="h-4 w-4" />
@@ -218,7 +218,7 @@ export const PlaybackControls = () => {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="hover:text-white text-zinc-400"
+                  className="hover:text-[#1DB954] text-zinc-400"
                 >
                   <Link to={`/album-details/${currentSong?.album?.id}`}>
                     <ListMusic className="h-4 w-4" />
@@ -229,7 +229,7 @@ export const PlaybackControls = () => {
               <Button
                 size="icon"
                 variant="ghost"
-                className="hover:text-white text-zinc-400"
+                className="hover:text-[#1DB954] text-zinc-400"
               >
                 <Link to={`/song-details/${currentSong?.id}`}>
                   <Laptop2 className="h-4 w-4" />
@@ -242,7 +242,7 @@ export const PlaybackControls = () => {
             <Button
               size="icon"
               variant="ghost"
-              className="hover:text-white text-zinc-400"
+              className="hover:text-[#1DB954] text-zinc-400"
               onClick={toggleMute}
             >
               {isMuted || volume === 0 ? (

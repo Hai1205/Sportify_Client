@@ -2,9 +2,9 @@ import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthLayout from "../../layout/AuthLayout";
-import formatTime from "@/utils/service/formatTime";
 import LoadingButton from "../../layout/components/LoadingButton";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { formatTime } from "@/lib/utils";
 
 const OTPVerificationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -189,7 +189,7 @@ const OTPVerificationPage: React.FC = () => {
           className="mt-6 mb-4"
           isLoading={isLoading}
         >
-          VERIFYING
+          Verify
         </LoadingButton>
 
         <div className="text-center mb-4">
@@ -202,7 +202,7 @@ const OTPVerificationPage: React.FC = () => {
 
                 if (!isLoading) handleResendCode();
               }}
-              className={`text-white hover:text-[#1DB954] underline cursor-pointer ${
+              className={`text-[#1DB954] hover:text-[#1ed760] underline cursor-pointer ${
                 isLoading ? "pointer-events-none opacity-70" : ""
               }`}
             >

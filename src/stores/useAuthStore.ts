@@ -47,17 +47,21 @@ export interface AuthStore {
 	reset: () => any;
 }
 
+const initialState = {
+	status: 0,
+	message: null,
+	isLoading: false,
+	error: null,
+	user: null,
+	isAuth: false,
+	isArtist: false,
+	isAdmin: false,
+}
+
 export const useAuthStore = create<AuthStore>()(
 	persist(
 		(set, get) => ({
-			user: null,
-			isAuth: false,
-			isArtist: false,
-			isAdmin: false,
-			isLoading: false,
-			error: null,
-			status: 0,
-			message: null,
+				...initialState,
 
 			checkAdmin: async () => {
 				set({ isLoading: true, error: null });
@@ -320,16 +324,7 @@ export const useAuthStore = create<AuthStore>()(
 			},
 
 			reset: () => {
-				set({
-					user: null,
-					status: 0,
-					message: null,
-					isAdmin: false,
-					isArtist: false,
-					isAuth: false,
-					isLoading: false,
-					error: null
-				});
+				set({ ...initialState });
 
 				useUserStore.getState().reset();
 				useMusicStore.getState().reset();

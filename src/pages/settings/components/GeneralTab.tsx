@@ -232,7 +232,7 @@ const GeneralTab = ({
           <Button
             onClick={handleSaveInfo}
             disabled={isUserLoading}
-            className="gap-1"
+            className="gap-1 bg-[#1DB954] hover:bg-[#1ed760]"
           >
             {isUserLoading ? (
               <>

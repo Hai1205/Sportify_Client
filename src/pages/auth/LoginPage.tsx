@@ -100,7 +100,7 @@ const LoginPage: React.FC = () => {
 
               if (!isLoading) navigate("/forgot-password");
             }}
-            className={`text-white hover:text-[#1DB954] text-sm underline cursor-pointer ${
+            className={`text-[#1DB954] hover:text-[#1ed760] text-sm underline cursor-pointer ${
               isLoading ? "pointer-events-none opacity-70" : ""
             }`}
           >
@@ -114,7 +114,7 @@ const LoginPage: React.FC = () => {
           isLoading={isLoading}
           className="w-full"
         >
-          LOG IN
+          Log in
         </LoadingButton>
       </form>
 
@@ -135,7 +135,7 @@ const LoginPage: React.FC = () => {
           Don't have an account?{" "}
           <a
             onClick={() => navigate("/register")}
-            className="text-white hover:text-[#1DB954] underline cursor-pointer"
+            className="text-[#1DB954] hover:text-[#1ed760] underline cursor-pointer"
           >
             Register for Spotify
           </a>

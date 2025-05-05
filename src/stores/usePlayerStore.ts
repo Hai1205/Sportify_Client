@@ -23,17 +23,21 @@ interface PlayerStore {
 	reset: () => void;
 }
 
+const initialState = {
+	currentSong: null,
+	isPlaying: false,
+	queue: [],
+	currentIndex: -1,
+	isLoading: false,
+	error: null,
+	status: 0,
+	message: null
+}
+
 export const usePlayerStore = create<PlayerStore>()(
 	persist(
 		(set, get) => ({
-			currentSong: null,
-			isPlaying: false,
-			queue: [],
-			currentIndex: -1,
-			isLoading: false,
-			error: null,
-			status: 0,
-			message: null,
+			...initialState,
 
 			initializeQueue: (songs: Song[]) => {
 				set({
@@ -149,16 +153,7 @@ export const usePlayerStore = create<PlayerStore>()(
 			},
 
 			reset: () => {
-				set({
-					currentSong: null,
-					isPlaying: false,
-					queue: [],
-					currentIndex: -1,
-					isLoading: false,
-					error: null,
-					status: 0,
-					message: null,
-				});
+				set({ ...initialState });
 			},
 		}),
 

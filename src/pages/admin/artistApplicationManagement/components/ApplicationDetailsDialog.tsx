@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, User } from "lucide-react";
 import { ArtistApplication } from "@/utils/types";
-import formatTime from "@/utils/service/formatTime";
+import { formatNumberStyle, formatTime } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 
@@ -131,7 +131,7 @@ const ApplicationDetailsDialog = ({
                           <User className="h-4 w-4 text-muted-foreground" />
 
                           <span className="text-sm text-white">
-                            {selectedApplication?.user?.followers?.length}
+                            {formatNumberStyle(selectedApplication?.user?.followers?.length as number)}
 
                             {selectedApplication?.user?.followers?.length !== 1
                               ? " followers"

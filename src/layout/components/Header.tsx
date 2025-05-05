@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, LayoutDashboardIcon, Search } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,13 +15,22 @@ import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { buttonVariants } from "../../components/ui/button";
 import { Input } from "@/components/ui/input";
+import SpotifyLoader from "./SpotifyLoader";
 
 export function Header() {
-  const navigate = useNavigate();
-
-  const [searchQuery, setSearchQuery] = useState("");
-
   const { user: authUser, isAuth, isAdmin, logout } = useAuthStore();
+
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +43,10 @@ export function Header() {
       navigate(`/search?${params}`);
     }
   };
+
+  if (isLoading) {
+    return <SpotifyLoader />;
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">

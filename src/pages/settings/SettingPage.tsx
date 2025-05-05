@@ -66,14 +66,21 @@ const SettingPage = () => {
       }
 
       const res = await getArtistApplication(userAuth.id);
-      if(!res){
+      if (!res) {
         return;
       }
 
-      setApplicationData(res)
-      setSongData(res.songs || [])
+      setApplicationData(res);
+      const songs = res.songs || [];
+      const initializedSongs = [...songs];
+
+      while (initializedSongs.length < 3) {
+        initializedSongs.push({ title: "", file: null });
+      }
+
+      setSongData(initializedSongs);
       setPreviewAvatar(userAuth.avatarUrl || "");
-    }
+    };
 
     fetchData();
   }, [getArtistApplication, userAuth]);
@@ -98,20 +105,27 @@ const SettingPage = () => {
   ) => {
     if (name.startsWith("song")) {
       const index = parseInt(name.match(/\d+/)?.[0] || "0", 10) - 1; // Extract song index (e.g., song1Title -> index 0)
-      const field = name.replace(/\d+/, ""); // Extract field name (e.g., song1Title -> title)
 
-      setSongData((prev) => {
-        const updatedSongs = [...prev];
-        if (!updatedSongs[index]) {
-          updatedSongs[index] = { title: "", file: null }; // Initialize if undefined
-        }
-        if (field === "File") {
+      // Sửa cách trích xuất tên trường để phát hiện File hoặc Title
+      if (name.includes("File")) {
+        setSongData((prev) => {
+          const updatedSongs = [...prev];
+          if (!updatedSongs[index]) {
+            updatedSongs[index] = { title: "", file: null }; // Initialize if undefined
+          }
           updatedSongs[index].file = value as File;
-        } else {
-          updatedSongs[index] = { ...updatedSongs[index], [field]: value };
-        }
-        return updatedSongs;
-      });
+          return updatedSongs;
+        });
+      } else if (name.includes("Title")) {
+        setSongData((prev) => {
+          const updatedSongs = [...prev];
+          if (!updatedSongs[index]) {
+            updatedSongs[index] = { title: "", file: null }; // Initialize if undefined
+          }
+          updatedSongs[index].title = value as string;
+          return updatedSongs;
+        });
+      }
     } else {
       setApplicationData((prev) =>
         prev ? { ...prev, [name as keyof ArtistApplication]: value } : prev
