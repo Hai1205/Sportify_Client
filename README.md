@@ -38,7 +38,7 @@ Các bước cài đặt
 1. Clone repository và truy cập thư mục frontend
 ```bash
 git clone https://github.com/haole2k4/Sportify-Client.git
-cd spotify_clone
+cd Sportify-Client
 ```
 2. Cài đặt các dependencies
 ```bash 
