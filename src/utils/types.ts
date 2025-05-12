@@ -38,6 +38,7 @@ export interface Song {
 	album: Album | null;
 	thumbnailUrl: string;
 	audioUrl: string;
+	videoUrl: string;
 	duration: number;
 	releaseDate: string;
 	views: number;
@@ -72,7 +73,7 @@ export interface Message {
 	createdAt: string;
 	updatedAt: string;
 	pending?: boolean;
-    tempId?: string; // <-- Thêm dòng này để fix lỗi
+    tempId?: string;
 }
 
 export interface FileState {
@@ -80,7 +81,6 @@ export interface FileState {
 	audio: File | null;
 }
 
-// Thêm định nghĩa cho Chat Room
 export interface ChatRoom {
   id: string;
   name?: string;

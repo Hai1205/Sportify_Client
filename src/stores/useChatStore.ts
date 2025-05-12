@@ -3,6 +3,7 @@ import { Message, User, ChatRoom } from "@/utils/types";
 import { create } from "zustand";
 import { getMessages } from "@/utils/api/chatApi";
 import axiosInstance from "@/utils/service/axiosInstance";
+import { useAuthStore } from "./useAuthStore";
 
 // Thêm helper function để sắp xếp tin nhắn
 const sortMessagesByDate = (messages: Message[]) => {
