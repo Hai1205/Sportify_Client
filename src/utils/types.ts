@@ -38,6 +38,7 @@ export interface Song {
 	album: Album | null;
 	thumbnailUrl: string;
 	audioUrl: string;
+	videoUrl: string;
 	duration: number;
 	releaseDate: string;
 	views: number;

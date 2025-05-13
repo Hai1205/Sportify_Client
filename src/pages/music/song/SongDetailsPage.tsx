@@ -21,17 +21,22 @@ import { toast } from "react-toastify";
 import PlayMusic from "../../../layout/components/PlayMusic";
 import { SongDetailsSkeleton } from "../components/SongDetailsSkeleton";
 import { formatNumberStyle, formatTime } from "@/lib/utils";
+import { usePlayerStore } from "@/stores/usePlayerStore";
+import { VideoPlayer } from "./VideoPlayer";
 
 export default function SongDetailsPage() {
   const { songId } = useParams<{ songId: string }>();
   const [song, setSong] = useState<Song | null>(null);
   const { getSong, likeSong } = useMusicStore();
   const { user: userAuth } = useAuthStore();
+  const { isPlaying, currentSong } = usePlayerStore();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const isMySong = song?.user?.id === userAuth?.id;
   const [amILiking, setAmILiking] = useState<boolean>(false);
+
+  const isCurrentSongPlaying = currentSong?.id === song?.id && isPlaying;
 
   useEffect(() => {
     const fetchSong = async () => {
@@ -120,143 +125,154 @@ export default function SongDetailsPage() {
           </div>
 
           {song && (
-            <div className="grid gap-6 py-4">
-              <div className="flex gap-6">
-                <Avatar className="h-32 w-32 rounded-md bg-[#282828]">
-                  <AvatarImage src={song.thumbnailUrl} alt={song.title} />
+            <ScrollArea className="h-[calc(100vh-230px)] pr-4">
+              <div className="grid gap-6 py-4">
+                <div className="flex gap-6">
+                  <Avatar className="h-32 w-32 rounded-md bg-[#282828]">
+                    <AvatarImage src={song.thumbnailUrl} alt={song.title} />
 
-                  <AvatarFallback className="bg-[#282828]">
-                    <Music className="h-10 w-10 text-gray-400" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col justify-between">
-                  <h2 className="text-2xl font-bold text-white">
-                    {song.title}
-                  </h2>
+                    <AvatarFallback className="bg-[#282828]">
+                      <Music className="h-10 w-10 text-gray-400" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col justify-between">
+                    <h2 className="text-2xl font-bold text-white">
+                      {song.title}
+                    </h2>
 
-                  <div className="flex gap-2 mt-4">
-                    <PlayMusic song={song} size="lg" />
+                    <div className="flex gap-2 mt-4">
+                      <PlayMusic song={song} size="lg" />
 
-                    {isMySong && (
-                      <div className="absolute top-4 right-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsEditDialogOpen(true)}
-                          className="gap-1 border-gray-700 text-white hover:bg-[#282828] h-10"
-                        >
-                          <Pencil className="h-4 w-4" /> Edit
-                        </Button>
-                      </div>
-                    )}
+                      {isMySong && (
+                        <div className="absolute top-4 right-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsEditDialogOpen(true)}
+                            className="gap-1 border-gray-700 text-white hover:bg-[#282828] h-10"
+                          >
+                            <Pencil className="h-4 w-4" /> Edit
+                          </Button>
+                        </div>
+                      )}
 
-                    <button
-                      onClick={() => handleLike(song)}
-                      className="rounded-full p-1 hover:text-white"
-                    >
-                      <Heart
-                        className="h-8 w-8"
-                        fill={amILiking ? "#1DB954" : "transparent"}
-                      />
-                    </button>
+                      <button
+                        onClick={() => handleLike(song)}
+                        className="rounded-full p-1 hover:text-white"
+                      >
+                        <Heart
+                          className="h-8 w-8"
+                          fill={amILiking ? "#1DB954" : "transparent"}
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <br />
+                <br />
 
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2 text-white">
-                    Song Information
-                  </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2 text-white">
+                      Song Information
+                    </h3>
 
-                  <div className="space-y-2">
-                    <Link
-                      to={`/profile/${song.user.id}`}
-                      className="flex items-center gap-2"
-                    >
-                      <MicVocal className="h-4 w-4 text-gray-400" />
+                    <div className="space-y-2">
+                      {song?.user && (
+                        <Link
+                          to={`/profile/${song?.user?.id}`}
+                          className="flex items-center gap-2"
+                        >
+                          <MicVocal className="h-4 w-4 text-gray-400" />
 
-                      <span className="text-sm font-medium text-white">
-                        Artist:
-                      </span>
+                          <span className="text-sm font-medium text-white">
+                            Artist:
+                          </span>
 
-                      <span className="text-sm text-gray-400 hover:underline">
-                        {song.user.fullName}
-                      </span>
-                    </Link>
+                          <span className="text-sm text-gray-400 hover:underline">
+                            {song?.user?.fullName}
+                          </span>
+                        </Link>
+                      )}
 
-                    {song.album && (
-                      <Link
-                        to={`/album-details/${song.album.id}`}
-                        className="flex items-center gap-2"
-                      >
-                        <Disc3 className="h-4 w-4 text-gray-400" />
+                      {song?.album && (
+                        <Link
+                          to={`/album-details/${song.album.id}`}
+                          className="flex items-center gap-2"
+                        >
+                          <Disc3 className="h-4 w-4 text-gray-400" />
+
+                          <span className="text-sm font-medium text-white">
+                            Album:
+                          </span>
+
+                          <span className="text-sm text-gray-400">
+                            {song?.album?.title}
+                          </span>
+                        </Link>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-400" />
 
                         <span className="text-sm font-medium text-white">
-                          Album:
+                          Duration:
                         </span>
 
                         <span className="text-sm text-gray-400">
-                          {song.album?.title}
+                          {formatTime(song?.duration || 0)}
                         </span>
-                      </Link>
-                    )}
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-400" />
+                      <div className="flex items-center gap-2">
+                        <BarChart2 className="h-4 w-4 text-gray-400" />
 
-                      <span className="text-sm font-medium text-white">
-                        Duration:
-                      </span>
+                        <span className="text-sm font-medium text-white">
+                          Views:
+                        </span>
 
-                      <span className="text-sm text-gray-400">
-                        {formatTime(song.duration)}
-                      </span>
-                    </div>
+                        <span className="text-sm text-gray-400">
+                          {formatNumberStyle(song.views)}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      <BarChart2 className="h-4 w-4 text-gray-400" />
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
 
-                      <span className="text-sm font-medium text-white">
-                        Views:
-                      </span>
+                        <span className="text-sm font-medium text-white">
+                          Release Date:
+                        </span>
 
-                      <span className="text-sm text-gray-400">
-                        {formatNumberStyle(song.views)}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-400" />
-
-                      <span className="text-sm font-medium text-white">
-                        Release Date:
-                      </span>
-
-                      <span className="text-sm text-gray-400">
-                        {song.releaseDate}
-                      </span>
+                        <span className="text-sm text-gray-400">
+                          {song.releaseDate}
+                        </span>
+                      </div>
                     </div>
                   </div>
+
+                  {song.lyrics && (
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2 text-white">
+                        Lyrics
+                      </h3>
+
+                      <div className="h-[220px] rounded-md border border-gray-700 bg-[#282828] p-4 overflow-y-auto">
+                        <div className="text-sm whitespace-pre-line text-gray-400">
+                          {song.lyrics}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {song.lyrics && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-white">
-                      Lyrics
-                    </h3>
-
-                    <ScrollArea className="h-[220px] rounded-md border border-gray-700 bg-[#282828] p-4">
-                      <div className="text-sm whitespace-pre-line text-gray-400">
-                        {song.lyrics}
-                      </div>
-                    </ScrollArea>
-                  </div>
+                {song.videoUrl && (
+                  <VideoPlayer
+                    videoUrl={song.videoUrl}
+                    isPlaying={isCurrentSongPlaying}
+                  />
                 )}
               </div>
-            </div>
+            </ScrollArea>
           )}
         </div>
       </div>

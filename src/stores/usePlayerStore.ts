@@ -66,10 +66,15 @@ export const usePlayerStore = create<PlayerStore>()(
 				}));
 			},
 
-			setCurrentSong: (song: Song | null) => {
+			setCurrentSong: async (song: Song | null) => {
 				if (!song) return;
 
 				const songIndex = get().queue.findIndex((s) => s.id === song.id);
+				const currentSong = get().currentSong;
+
+				if (!currentSong || currentSong.id !== song.id) {
+					await useMusicStore.getState().increaseSongView(song.id);
+				}
 
 				set({
 					currentSong: song,
@@ -86,12 +91,14 @@ export const usePlayerStore = create<PlayerStore>()(
 				});
 			},
 
-			playNext: () => {
+			playNext: async () => {
 				const { currentIndex, queue } = get();
 				const nextIndex = currentIndex + 1;
 
 				if (nextIndex < queue.length) {
 					const nextSong = queue[nextIndex];
+
+					await useMusicStore.getState().increaseSongView(nextSong.id);
 
 					// const socket = useChatStore.getState().socket;
 					// if (socket.auth) {
@@ -119,12 +126,14 @@ export const usePlayerStore = create<PlayerStore>()(
 				}
 			},
 
-			playPrevious: () => {
+			playPrevious: async () => {
 				const { currentIndex, queue } = get();
 				const prevIndex = currentIndex - 1;
 
 				if (prevIndex >= 0) {
 					const prevSong = queue[prevIndex];
+
+					await useMusicStore.getState().increaseSongView(prevSong.id);
 
 					// const socket = useChatStore.getState().socket;
 					// if (socket.auth) {
