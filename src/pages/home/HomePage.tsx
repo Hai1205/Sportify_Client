@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import FeaturedSection from "./components/FeaturedSection";
 import SectionGrid from "./components/SectionGrid";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMusicStore } from "@/stores/useMusicStore";
 import { usePlayerStore } from "@/stores/usePlayerStore";
 import { useStatStore } from "@/stores/useStatStore";
 import { Song, User } from "@/utils/types";
-import ArtistsSection from "./components/ArtistsSection";
+import ArtistsSection from "./components/sections/ArtistsSection";
+import FeaturedSection from "./components/sections/FeaturedSection";
 
 const HomePage = () => {
   const { getFeaturedSongs, getMadeForYouSongs, getTrendingSongs, isLoading } =

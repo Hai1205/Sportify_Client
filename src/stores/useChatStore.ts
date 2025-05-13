@@ -130,6 +130,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             return false;
         }
 
+        console.log("loadMoreMessages")
         const nextPage = currentPage + 1;
         await get().getMessages(activeRoomId, nextPage, false);
         return true;
@@ -145,6 +146,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             toast.error("Chưa đăng nhập");
             return;
         }
+
         const tempMessage: Message = {
             id: tempId,
             tempId,
@@ -167,7 +169,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
                 content,
                 conversationId
             }));
-        } else {
+        }
+        else {
             apiSendMessage(conversationId, content)
                 .then(response => {
                     set(state => {
@@ -256,7 +259,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         socket.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                console.log("WebSocket received message:", data);
                 if (data.type === "users_online") {
                     set({ onlineUsers: new Set(data.users) });
                 }

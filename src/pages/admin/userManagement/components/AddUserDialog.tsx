@@ -20,8 +20,7 @@ import {
 import { useUserStore } from "@/stores/useUserStore";
 import { User } from "@/utils/types";
 import LoadingSpinner from "@/components/ui/loading";
-import { Save, UserIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Save } from "lucide-react";
 
 interface AddUserDialogProps {
   isOpen: boolean;
@@ -36,14 +35,13 @@ const AddUserDialog = ({
 }: AddUserDialogProps) => {
   const { isLoading, createUser } = useUserStore();
 
-  const [avatar, setAvatar] = useState<File | null>(null);
-
   const [userData, setUserData] = useState({
     username: "",
     fullName: "",
     password: "",
     email: "",
     role: "",
+    status: "",
   });
 
   const [errors, setErrors] = useState({
@@ -52,8 +50,8 @@ const AddUserDialog = ({
     fullName: "",
     password: "",
     role: "",
-    avatar: "",
-  });
+    status: "",
+});
 
   const createUserData = (field: keyof typeof userData, value: any) => {
     setUserData((prev) => ({ ...prev, [field]: value }));
@@ -66,7 +64,7 @@ const AddUserDialog = ({
       fullName: "",
       password: "",
       role: "",
-      avatar: "",
+      status: "",
     });
 
     let hasError = false;
@@ -76,13 +74,9 @@ const AddUserDialog = ({
       fullName: "",
       password: "",
       role: "",
-      avatar: "",
+      status: "",
     };
 
-    if (!avatar) {
-      newErrors.avatar = "Avatar is required";
-      hasError = true;
-    }
     if (!userData.email.trim()) {
       newErrors.email = "Email is required";
       hasError = true;
@@ -103,6 +97,10 @@ const AddUserDialog = ({
       newErrors.role = "Role is required";
       hasError = true;
     }
+    if (!userData.status) {
+      newErrors.status = "Status is required";
+      hasError = true;
+    }
 
     if (hasError) {
       setErrors(newErrors);
@@ -110,14 +108,12 @@ const AddUserDialog = ({
     }
 
     const formData = new FormData();
+    formData.append("email", userData.email);
     formData.append("username", userData.username);
     formData.append("fullName", userData.fullName);
     formData.append("password", userData.password);
-    formData.append("email", userData.email);
     formData.append("role", userData.role);
-    if (avatar) {
-      formData.append("avatar", avatar);
-    }
+    formData.append("status", userData.status);
 
     const user = await createUser(formData);
 
@@ -130,18 +126,10 @@ const AddUserDialog = ({
         password: "",
         email: "",
         role: "",
+        status: "",
       });
 
-      setAvatar(null);
-
       onOpenChange(false);
-    }
-  };
-
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setAvatar(file);
     }
   };
 
@@ -157,46 +145,6 @@ const AddUserDialog = ({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          <div className="flex items-center justify-center col-span-1 row-span-3">
-            <div className="relative w-40 h-40 border border-gray-700 rounded-full overflow-hidden flex items-center justify-center bg-[#282828]">
-              <Avatar className="rounded-full object-cover w-full h-full">
-                <AvatarImage
-                  src={
-                    avatar ? URL.createObjectURL(avatar) : "/placeholder.svg"
-                  }
-                  alt={userData.fullName}
-                />
-                <AvatarFallback>
-                  <UserIcon />
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="bg-[#1DB954] text-white hover:bg-[#1ed760]"
-                  onClick={() =>
-                    document.getElementById("avatar-input")?.click()
-                  }
-                >
-                  Change
-                </Button>
-
-                <input
-                  id="avatar-input"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarChange}
-                />
-              </div>
-            </div>
-            {errors.avatar && (
-              <span className="text-sm text-red-500">{errors.avatar}</span>
-            )}
-          </div>
-
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -285,6 +233,40 @@ const AddUserDialog = ({
             {errors.role && (
               <span className="text-sm text-red-500">{errors.role}</span>
             )}
+            
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={userData?.status}
+              onValueChange={(value) => createUserData("status", value)}
+            >
+              <SelectTrigger id="status" className="cursor-pointer">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem
+                  value="active"
+                  className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                >
+                  Active
+                </SelectItem>
+                <SelectItem
+                  value="pending"
+                  className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                >
+                  Pending
+                </SelectItem>
+                <SelectItem
+                  value="lock"
+                  className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                >
+                  Lock
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.role && (
+              <span className="text-sm text-red-500">{errors.role}</span>
+            )}
           </div>
         </div>
 
@@ -298,6 +280,7 @@ const AddUserDialog = ({
                 password: "",
                 email: "",
                 role: "",
+                status: "",
               });
 
               onOpenChange(false);

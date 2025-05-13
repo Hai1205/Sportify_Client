@@ -23,8 +23,8 @@ export const likeAlbum = async (userId: string, albumId: string): Promise<any> =
     return await axiosInstance.post(`/api/albums/like-album/${userId}/${albumId}/`);
 };
 
-export const deleteAlbum = async (albumId: string): Promise<any> => {
-    return await axiosInstance.delete(`/api/albums/delete-album/${albumId}/`)
+export const deleteAlbum = async (albumId: string, userId: string): Promise<any> => {
+    return await axiosInstance.delete(`/api/albums/delete-album/${albumId}/${userId}/`);
 }
 
 export const getAlbum = async (albumId: string): Promise<any> => {
@@ -45,4 +45,4 @@ export const updateAlbum = async (updateId: string, formData: FormData): Promise
 
 export const searchAlbums = async (queryString: string): Promise<any> => {
     return await axiosInstance.get(`api/albums/search-albums/${queryString}`);
-  }
+}

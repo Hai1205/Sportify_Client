@@ -1,5 +1,5 @@
 import { Song } from "@/utils/types";
-import SectionGridSkeleton from "./SectionGridSkeleton";
+import SectionGridSkeleton from "./skeletons/SectionGridSkeleton";
 import PlayButton from "./PlayButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Music } from "lucide-react";

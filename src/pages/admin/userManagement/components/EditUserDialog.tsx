@@ -11,11 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { User } from "@/utils/types";
 import { useUserStore } from "@/stores/useUserStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { COUNTRY_CHOICE, STATUS_CHOICE } from "@/utils/tuple";
+import { STATUS_CHOICE } from "@/utils/tuple";
 import LoadingSpinner from "@/components/ui/loading";
 import { Save, UserIcon } from "lucide-react";
 
@@ -74,13 +73,13 @@ const EditUserDialog = ({
       formData.append("fullName", userData.fullName);
       formData.append("role", userData.role);
       formData.append("status", userData.status);
-      formData.append("country", userData.country);
-      formData.append("biography", userData.biography || "");
-      formData.append("website", userData.website || "");
-      formData.append("instagram", userData.instagram || "");
-      formData.append("twitter", userData.twitter || "");
-      formData.append("facebook", userData.facebook || "");
-      formData.append("youtube", userData.youtube || "");
+      // formData.append("country", userData.country);
+      // formData.append("biography", userData.biography || "");
+      // formData.append("website", userData.website || "");
+      // formData.append("instagram", userData.instagram || "");
+      // formData.append("twitter", userData.twitter || "");
+      // formData.append("facebook", userData.facebook || "");
+      // formData.append("youtube", userData.youtube || "");
 
       if (avatarFile) {
         formData.append("avatar", avatarFile);
@@ -132,7 +131,7 @@ const EditUserDialog = ({
                   Edit User
                 </Dialog.Title>
 
-                <ScrollArea className="h-[60vh] pr-4 mt-4">
+                <ScrollArea className="h-[42vh] pr-4 mt-4">
                   {userData && (
                     <div className="grid gap-4">
                       {/* Avatar */}
@@ -203,18 +202,18 @@ const EditUserDialog = ({
                             </SelectTrigger>
 
                             <SelectContent>
-                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="admin" className="cursor-pointer">Admin</SelectItem>
 
-                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="user" className="cursor-pointer">User</SelectItem>
 
-                              <SelectItem value="artist">Artist</SelectItem>
+                              <SelectItem value="artist" className="cursor-pointer">Artist</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
 
                       {/* Social Links */}
-                      <div className="grid gap-4">
+                      {/* <div className="grid gap-4">
                         <div className="grid gap-2">
                           <Label htmlFor="edit-website">Website</Label>
 
@@ -279,10 +278,10 @@ const EditUserDialog = ({
                             placeholder="YouTube channel"
                           />
                         </div>
-                      </div>
+                      </div> */}
 
                       {/* Country */}
-                      <div className="grid gap-2">
+                      {/* <div className="grid gap-2">
                         <Label htmlFor="edit-country">Country</Label>
 
                         <Select
@@ -303,10 +302,10 @@ const EditUserDialog = ({
                             ))}
                           </SelectContent>
                         </Select>
-                      </div>
+                      </div> */}
 
                       {/* Bio */}
-                      <div className="grid gap-2">
+                      {/* <div className="grid gap-2">
                         <Label htmlFor="edit-biography">Bio</Label>
 
                         <Textarea
@@ -317,12 +316,12 @@ const EditUserDialog = ({
                           }
                           rows={3}
                         />
-                      </div>
+                      </div> */}
                     </div>
                   )}
 
                   {/* Status */}
-                  <div className="grid gap-2">
+                  <div className="grid gap-2 mt-3">
                     <Label htmlFor="edit-country">Status</Label>
 
                     <Select

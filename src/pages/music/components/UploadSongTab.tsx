@@ -86,6 +86,7 @@ const UploadSongTab: React.FC<UploadSongTabProps> = ({
 
                   <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
                     <Button
+                      type="button"
                       variant="secondary"
                       size="sm"
                       className="bg-[#1DB954] text-white hover:bg-[#1ed760]"

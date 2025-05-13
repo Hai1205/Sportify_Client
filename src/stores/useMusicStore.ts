@@ -33,39 +33,41 @@ import {
 import { useAuthStore } from "./useAuthStore";
 
 interface MusicStore {
-	isLoading: boolean;
-	error: string | null;
-	status: number;
-	message: string | null;
-	songs: Song[];
-	albums: Album[];
-	featuredSongs: Song[];
+  isLoading: boolean;
+  error: string | null;
+  status: number;
+  message: string | null;
+  songs: Song[];
+  albums: Album[];
+  featuredSongs: Song[];
 
-	getAllAlbum: () => Promise<any>;
-	uploadAlbum: (userId: string, formData: FormData) => Promise<any>;
-	getAlbum: (id: string) => Promise<any>;
-	updateAlbum: (id: string, formData: FormData) => Promise<any>;
-	deleteAlbum: (id: string) => Promise<any>;
-	getUserAlbums: (userId: string) => Promise<any>;
-	getUserSongs: (userId: string) => Promise<any>;
-	searchAlbums: (query: string) => Promise<any>;
-	getFeaturedSongs: () => Promise<any>;
-	getMadeForYouSongs: () => Promise<any>;
-	getTrendingSongs: () => Promise<any>;
-	getAllSong: () => Promise<any>;
-	getSong: (id: string) => Promise<any>;
-	uploadSong: (userId: string, formData: FormData) => Promise<any>;
-	updateSong(id: string, formData: FormData): Promise<any>;
-	addSongToAlbum(id: string, albumId: string): Promise<any>;
-	downloadSong: (id: string) => Promise<any>;
-	deleteSong: (id: string) => Promise<any>;
-	searchSongs: (query: string) => Promise<any>;
-	increaseSongView: (songId: string) => Promise<any>;
-	likeSong: (userId: string, songId: string) => Promise<any>;
-	getUserLikedSong: (userId: string) => Promise<any>;
-	likeAlbum: (userId: string, albumId: string) => Promise<any>;
-	getUserLikedAlbum: (userId: string) => Promise<any>;
-	reset: () => any;
+  getAllAlbum: () => Promise<any>;
+  uploadAlbum: (userId: string, formData: FormData) => Promise<any>;
+  getAlbum: (albumId: string) => Promise<any>;
+  updateAlbum: (albumId: string, formData: FormData) => Promise<any>;
+  deleteAlbum: (albumId: string, userId: string) => Promise<any>;
+  getUserAlbums: (userId: string) => Promise<any>;
+  getUserSongs: (userId: string) => Promise<any>;
+  searchAlbums: (query: string) => Promise<any>;
+  getFeaturedSongs: () => Promise<any>;
+  getMadeForYouSongs: () => Promise<any>;
+  getTrendingSongs: () => Promise<any>;
+  getAllSong: () => Promise<any>;
+  getSong: (songId: string) => Promise<any>;
+  uploadSong: (userId: string, formData: FormData) => Promise<any>;
+  updateSong(songId: string, formData: FormData): Promise<any>;
+  addSongToAlbum(songId: string, albumId: string): Promise<any>;
+  downloadSong: (id: string) => Promise<any>;
+  deleteSong: (songId: string, userId: string, albumId: string) => Promise<any>;
+  searchSongs: (query: string) => Promise<any>;
+  increaseSongView: (songId: string) => Promise<any>;
+  likeSong: (userId: string, songId: string) => Promise<any>;
+  getUserLikedSong: (userId: string) => Promise<any>;
+  likeAlbum: (userId: string, albumId: string) => Promise<any>;
+  getUserLikedAlbum: (userId: string) => Promise<any>;
+  deleteSongFromManagement: (songId: string) => void;
+  deleteAlbumFromManagement: (albumId: string) => void;
+  reset: () => any;
 }
 
 const initialState = {
@@ -87,16 +89,14 @@ export const useMusicStore = create<MusicStore>()(
 		(set) => ({
 			...initialState,
 
-			deleteSong: async (id) => {
-				set({ isLoading: true, error: null });
+			deleteSong: async (songId, userId, albumId) => {
+				set({ error: null });
 
 				try {
-					const response = await deleteSong(id);
+					const response = await deleteSong(songId, userId, albumId);
 					const { message } = response.data;
 
-					set((state) => ({
-						songs: state.songs.filter((song) => song.id !== id),
-					}));
+					// useMusicStore.getState().deleteSongFromManagement(songId);
 
 					toast.success(message);
 					return true;
@@ -112,19 +112,14 @@ export const useMusicStore = create<MusicStore>()(
 				}
 			},
 
-			deleteAlbum: async (id) => {
-				set({ isLoading: true, error: null });
+			deleteAlbum: async (albumId, userId) => {
+				set({ error: null });
 
 				try {
-					const response = await deleteAlbum(id);
+					const response = await deleteAlbum(albumId, userId);
 					const { message } = response.data;
 
-					set((state) => ({
-						albums: state.albums.filter((album) => album.id !== id),
-						songs: state.songs.map((song) =>
-							song?.album?.id === state.albums.find((a) => a.id === id)?.title ? { ...song, album: null } : song
-						),
-					}));
+					// useMusicStore.getState().deleteAlbumFromManagement(albumId);
 
 					toast.success(message);
 					return true;
@@ -404,11 +399,11 @@ export const useMusicStore = create<MusicStore>()(
 				}
 			},
 
-			addSongToAlbum: async (id, albumId) => {
+			addSongToAlbum: async (songId, albumId) => {
 				set({ isLoading: true, error: null });
 
 				try {
-					const response = await addSongToAlbum(id, albumId);
+					const response = await addSongToAlbum(songId, albumId);
 					const { message, song } = response.data;
 
 					toast.success(message);
@@ -425,32 +420,34 @@ export const useMusicStore = create<MusicStore>()(
 				}
 			},
 
-			downloadSong: async (id) => {
-				set({ isLoading: true, error: null });
+			downloadSong: async (songId) => {
+				set({ error: null });
 
 				try {
-					const response = await downloadSong(id);
-					const { message } = response.data;
+					await downloadSong(songId);
 
-					toast.success(message);
+					toast.success("Song downloaded successfully");
 					return true;
 				} catch (error: any) {
-					console.error(error)
-					const { message } = error.response.data;
-					set({ error: message });
+					console.error(error);
+					let errorMessage = "Failed to download song";
+					if (error.response && error.response.data && error.response.data.message) {
+						errorMessage = error.response.data.message;
+					}
+					set({ error: errorMessage });
 
-					toast.error(message);
+					toast.error(errorMessage);
 					return false;
 				} finally {
 					set({ isLoading: false });
 				}
 			},
 
-			getSong: async (id) => {
+			getSong: async (songId) => {
 				set({ isLoading: true, error: null });
 
 				try {
-					const response = await getSong(id);
+					const response = await getSong(songId);
 					const { song } = response.data;
 
 					return song;
@@ -581,6 +578,21 @@ export const useMusicStore = create<MusicStore>()(
 				} finally {
 					set({ isLoading: false });
 				}
+			},
+
+			deleteSongFromManagement: async (songId: string) => {
+				set((state) => ({
+					songs: state.songs.filter((song) => song.id !== songId),
+				}));
+			},
+
+			deleteAlbumFromManagement: async (albumId: string) => {
+				set((state) => ({
+					albums: state.albums.filter((album) => album.id !== albumId),
+					songs: state.songs.map((song) =>
+						song?.album?.id === state.albums.find((a) => a.id === albumId)?.title ? { ...song, album: null } : song
+					),
+				}));
 			},
 
 			reset: () => {

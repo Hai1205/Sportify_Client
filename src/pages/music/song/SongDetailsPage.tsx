@@ -12,6 +12,7 @@ import {
   Disc3,
   MicVocal,
   Heart,
+  Trash,
 } from "lucide-react";
 import { Song, User } from "@/utils/types";
 import { useMusicStore } from "@/stores/useMusicStore";
@@ -25,11 +26,12 @@ import { usePlayerStore } from "@/stores/usePlayerStore";
 import { VideoPlayer } from "./VideoPlayer";
 
 export default function SongDetailsPage() {
-  const { songId } = useParams<{ songId: string }>();
-  const [song, setSong] = useState<Song | null>(null);
-  const { getSong, likeSong } = useMusicStore();
+  const { getSong, likeSong, deleteSong } = useMusicStore();
   const { user: userAuth } = useAuthStore();
   const { isPlaying, currentSong } = usePlayerStore();
+
+  const { songId } = useParams<{ songId: string }>();
+  const [song, setSong] = useState<Song | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -100,6 +102,14 @@ export default function SongDetailsPage() {
     );
   };
 
+  const handleDeleteSong = async (song: Song) => {
+    if (!song) {
+      return;
+    }
+
+    await deleteSong(song.id, song?.user?.id as string, song.album?.id || "");
+  };
+
   return (
     <div className="h-full flex items-stretch justify-center">
       <div className="relative w-full max-w-full transform overflow-hidden rounded-2xl bg-[#121212] p-6 text-left align-middle shadow-xl transition-all">
@@ -149,9 +159,18 @@ export default function SongDetailsPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => setIsEditDialogOpen(true)}
-                            className="gap-1 border-gray-700 text-white hover:bg-[#282828] h-10"
+                            className="gap-1 border-gray-700 text-white hover:bg-[#282828] h-10 z-10"
                           >
                             <Pencil className="h-4 w-4" /> Edit
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteSong(song as Song)}
+                            className="text-red-600 gap-1 border-gray-700 hover:bg-[#282828] h-10"
+                          >
+                            <Trash className="h-4 w-4" /> Delete
                           </Button>
                         </div>
                       )}
@@ -256,10 +275,12 @@ export default function SongDetailsPage() {
                         Lyrics
                       </h3>
 
-                      <div className="h-[220px] rounded-md border border-gray-700 bg-[#282828] p-4 overflow-y-auto">
-                        <div className="text-sm whitespace-pre-line text-gray-400">
-                          {song.lyrics}
-                        </div>
+                      <div className="h-[220px] rounded-md border border-gray-700 bg-[#282828] p-4">
+                        <ScrollArea className="h-full w-full">
+                          <div className="text-sm whitespace-pre-line text-gray-400">
+                            {song.lyrics}
+                          </div>
+                        </ScrollArea>
                       </div>
                     </div>
                   )}

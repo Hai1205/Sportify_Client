@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import { User } from "@/utils/types";
-import { Skeleton } from "@/components/ui/skeleton";
 import { formatNumberStyle } from "@/lib/utils";
+import { ArtistSectionSkeleton } from "../skeletons/ArtistSectionSkeleton";
 
 interface ArtistsSectionProps {
   artists: User[];
@@ -12,21 +12,7 @@ interface ArtistsSectionProps {
 const ArtistsSection = ({ artists, isLoading }: ArtistsSectionProps) => {
   if (isLoading) {
     return (
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Top Artists</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className="flex flex-col items-center space-y-2 cursor-pointer"
-            >
-              <Skeleton className="h-32 w-32 rounded-full" />
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-20" />
-            </div>
-          ))}
-        </div>
-      </div>
+      <ArtistSectionSkeleton />
     );
   }
 

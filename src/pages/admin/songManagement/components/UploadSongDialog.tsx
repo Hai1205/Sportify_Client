@@ -86,12 +86,14 @@ const UploadSongDialog = ({
     setIsLoading(true);
     const song = await uploadSong(userAuth.id, formData);
 
-    if (song) {
-      onSongUploaded(song);
+    if (!song) {
+      setIsLoading(false);
+      
+      return;
     }
 
+    onSongUploaded(song);
     setIsLoading(false);
-
     handleClose();
   };
 

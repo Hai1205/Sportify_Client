@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useChatStore } from "@/stores/useChatStore";
 import { ChatRoom } from "@/utils/types";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,7 +9,7 @@ import { isChatMember, getOtherUserFromRoom } from "@/utils/chatHelpers";
 
 
 const RoomList = () => {
-  const { user } = useUserStore();
+  const { user: userAuth } = useAuthStore();
   const {
     chatRooms,
     getChatRooms,
@@ -21,33 +21,32 @@ const RoomList = () => {
   } = useChatStore();
 
   useEffect(() => {
-    if (user) {
+    if (userAuth) {
       getChatRooms();
     }
-  }, [user, getChatRooms]);
+  }, [userAuth, getChatRooms]);
 
   const getDirectChatName = (room: ChatRoom) => {
     if (room.display_name) {
       return room.display_name;
     }
     if ((room.roomType === 'direct' || room.conversation_type === 'direct') && room.members?.length === 2) {
-      const otherUser = getOtherUserFromRoom(room, user?.id || '');
+      const otherUser = getOtherUserFromRoom(room, userAuth?.id || '');
       if (otherUser) {
         
-        return otherUser.fullName || otherUser.username || 'Người dùng';
+        return otherUser.fullName || otherUser.username || 'Sportify User';
       }
     }
 
-    return room.name || 'Cuộc trò chuyện mới';
+      return room.name || 'New Chat';
   };
 
   const getDirectChatAvatar = (room: ChatRoom) => {
     if ((room.roomType === 'direct' || room.conversation_type === 'direct') && room.members?.length === 2) {
-      // const otherUser = getOtherUserFromRoom(room, user?.id || '');
-      // if (otherUser) {
-      //   return otherUser.avatarUrl || '';
-      // }
-      return user?.avatarUrl || '';
+      const otherUser = getOtherUserFromRoom(room, userAuth?.id || '');
+      if (otherUser) {
+        return otherUser.avatarUrl || '';
+      }
     }
     return '';
   };
@@ -66,9 +65,9 @@ const RoomList = () => {
       const otherMember = room.members.find(member => {
         if (isChatMember(member)) {
           const memberId = member.user_data?.id || member.user;
-          return memberId !== user?.id;
+          return memberId !== userAuth?.id;
         } else {
-          return member.id !== user?.id;
+          return member.id !== userAuth?.id;
         }
       });
 
@@ -114,10 +113,11 @@ const RoomList = () => {
   };
 
   const handleSelectRoom = (room: ChatRoom) => {
+    console.log("handleSelectRoom")
     setActiveRoom(room.id);
 
     if (room.roomType === 'direct' || room.conversation_type === 'direct') {
-      const otherUser = getOtherUserFromRoom(room, user?.id || '');
+      const otherUser = getOtherUserFromRoom(room, userAuth?.id || '');
       if (otherUser) {
         setSelectedUser(otherUser);
       }
@@ -145,9 +145,9 @@ const RoomList = () => {
   if (chatRooms.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-        <p className="text-muted-foreground mb-2">Không có cuộc trò chuyện nào</p>
+        <p className="text-muted-foreground mb-2">No conversation</p>
         <p className="text-sm text-muted-foreground">
-          Bắt đầu cuộc trò chuyện mới bằng cách tìm kiếm người dùng
+          Start a new conversation by searching for a user
         </p>
       </div>
     );
@@ -196,12 +196,12 @@ const RoomList = () => {
 
               {lastMessage ? (
                 <p className="text-sm text-muted-foreground truncate">
-                  {lastMessage.senderId === user?.id ? "Bạn: " : ""}
+                  {lastMessage.senderId === userAuth?.id ? "Bạn: " : ""}
                   {lastMessage.content}
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground italic">
-                  Chưa có tin nhắn
+                  No message
                 </p>
               )}
             </div>

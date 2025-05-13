@@ -89,14 +89,18 @@ const EditSongDialog = ({
     }
 
     setIsLoading(true);
-    const updatedSong = await updateSong(song?.id, formData);
-    setIsLoading(false);
+    try {
+      const updatedSong = await updateSong(song?.id, formData);
 
-    if (updatedSong && onSongUpdated) {
-      onSongUpdated(updatedSong);
+      if (updatedSong && onSongUpdated) {
+        onSongUpdated(updatedSong);
+      }
+    } catch (error) {
+      console.error("Error updating song:", error);
+    } finally {
+      setIsLoading(false);
+      handleClose();
     }
-
-    handleClose();
   };
 
   const handleClose = () => {

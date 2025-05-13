@@ -94,7 +94,9 @@ export default function SongManagementPage() {
       return;
     }
 
-    await deleteSong(song.id);
+    setSongs(songs.filter((s) => s.id !== song.id));
+    
+    await deleteSong(song.id, song?.user?.id as string, song.album?.id || "");
   };
 
   const handleSongUploaded = (newSong: Song) => {

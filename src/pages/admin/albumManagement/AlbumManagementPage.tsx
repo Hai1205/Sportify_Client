@@ -38,6 +38,8 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import EditAlbumDialog from "./components/EditAlbumDialog";
 
 export default function AlbumManagementPage() {
+  const { isLoading, getAllAlbum, searchAlbums, deleteAlbum } = useMusicStore();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
   const [searchQuery, setSearchQuery] = useState(query);
@@ -48,8 +50,6 @@ export default function AlbumManagementPage() {
 
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  const { isLoading, getAllAlbum, searchAlbums } = useMusicStore();
 
   useEffect(() => {
     const fetchAlbums = async () => {
@@ -91,6 +91,16 @@ export default function AlbumManagementPage() {
         album.id === updatedAlbum.id ? updatedAlbum : album
       )
     );
+  };
+
+  const handleDeleteAlbum = async (album: Album) => {
+    if (!album) {
+      return;
+    }
+
+    setAlbums(albums.filter((a) => a.id !== album.id));
+
+    await deleteAlbum(album.id, album?.user?.id || "");
   };
 
   return (
@@ -232,7 +242,12 @@ export default function AlbumManagementPage() {
 
                               <DropdownMenuSeparator />
 
-                              <DropdownMenuItem className="text-red-600">
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handleDeleteAlbum(album as Album)
+                                }
+                                className="text-red-600 cursor-pointer"
+                              >
                                 <Trash className="mr-2 h-4 w-4" />
                                 {" Delete"}
                               </DropdownMenuItem>

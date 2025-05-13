@@ -27,8 +27,8 @@ export const uploadSong = async (
     });
 };
 
-export const deleteSong = async (songId: string): Promise<any> => {
-    return await axiosInstance.delete(`/api/songs/delete-song/${songId}/`)
+export const deleteSong = async (songId: string, userId: string, albumId: string): Promise<any> => {
+    return await axiosInstance.delete(`/api/songs/delete-song/${songId}/${userId}/${albumId}/`)
 }
 
 export const getSong = async (songId: string): Promise<any> => {
@@ -60,8 +60,27 @@ export const addSongToAlbum = async (songId: string, albumId: string): Promise<a
 }
 
 export const downloadSong = async (songId: string): Promise<any> => {
-    return await axiosInstance.get(`/api/songs/download-song/${songId}/`);
-}
+    try {
+        const response = await axiosInstance.get(`/api/songs/download-song/${songId}/`, {
+            responseType: 'blob'
+        });
+
+        const filename = 'song.mp3';
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        return { status: 200, message: "Downloaded song successfully" };
+    } catch (error) {
+        console.error("Error downloading song:", error);
+        throw error;
+    }
+};
 
 export const searchSongs = async (queryString: string): Promise<any> => {
     return await axiosInstance.get(`api/songs/search-songs/${queryString}`);

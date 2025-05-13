@@ -61,7 +61,7 @@ const initialState = {
 export const useAuthStore = create<AuthStore>()(
 	persist(
 		(set, get) => ({
-				...initialState,
+			...initialState,
 
 			checkAdmin: async () => {
 				set({ isLoading: true, error: null });
@@ -89,9 +89,9 @@ export const useAuthStore = create<AuthStore>()(
 
 				try {
 					const response = await checkArtist();
-					const data: boolean = response.data.isArtist;
+					const { isArtist } = response.data;
 
-					set({ isArtist: data });
+					set({ isArtist: isArtist });
 					return true;
 				} catch (error: any) {
 					console.error(error)

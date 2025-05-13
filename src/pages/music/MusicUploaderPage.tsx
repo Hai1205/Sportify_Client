@@ -7,6 +7,9 @@ import UploadSongTab from "./components/UploadSongTab";
 import UploadAlbumTab from "./components/UploadAlbumTab";
 
 export default function MusicUploaderPage() {
+  const { uploadSong, uploadAlbum } = useMusicStore();
+  const { user: userAuth } = useAuthStore();
+
   const [songData, setSongData] = useState({
     title: "",
     lyrics: "",
@@ -19,25 +22,31 @@ export default function MusicUploaderPage() {
     title: "",
   });
   const [albumThumbnail, setAlbumThumbnail] = useState<File | null>(null);
-
-  const { isLoading, error, uploadSong, uploadAlbum } = useMusicStore();
-  const { user: userAuth } = useAuthStore();
+  const [isSongLoading, setIsSongLoading] = useState(false);
+  const [isAlbumLoading, setIsAlbumLoading] = useState(false);
 
   const handleUploadAlbum = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userAuth) {
       return;
     }
+
+    setIsAlbumLoading(true);
+
     const formData = new FormData();
     formData.append("title", albumData.title);
     if (albumThumbnail) {
       formData.append("thumbnail", albumThumbnail);
     }
-    await uploadAlbum(userAuth?.id, formData);
-    if (!error) {
+
+    const result = await uploadAlbum(userAuth?.id, formData);
+
+    if (result) {
       setAlbumData({ title: "" });
       setAlbumThumbnail(null);
     }
+
+    setIsAlbumLoading(false);
   };
 
   const handleUploadSong = async (e: React.FormEvent) => {
@@ -45,6 +54,9 @@ export default function MusicUploaderPage() {
     if (!userAuth) {
       return;
     }
+
+    setIsSongLoading(true);
+
     const formData = new FormData();
     formData.append("title", songData.title);
     if (songThumbnail) {
@@ -57,13 +69,17 @@ export default function MusicUploaderPage() {
       formData.append("audio", songAudio);
     }
     formData.append("lyrics", songData.lyrics);
-    await uploadSong(userAuth?.id, formData);
-    if (!error) {
+
+    const result = await uploadSong(userAuth?.id, formData);
+
+    if (result) {
       setSongData({ title: "", lyrics: "" });
       setSongThumbnail(null);
       setSongVideo(null);
       setSongAudio(null);
     }
+
+    setIsSongLoading(false);
   };
 
   return (
@@ -96,7 +112,7 @@ export default function MusicUploaderPage() {
             songAudio={songAudio}
             setSongAudio={setSongAudio}
             handleUploadSong={handleUploadSong}
-            isLoading={isLoading}
+            isLoading={isSongLoading}
           />
 
           <UploadAlbumTab
@@ -105,7 +121,7 @@ export default function MusicUploaderPage() {
             albumThumbnail={albumThumbnail}
             setAlbumThumbnail={setAlbumThumbnail}
             handleUploadAlbum={handleUploadAlbum}
-            isLoading={isLoading}
+            isLoading={isAlbumLoading}
           />
         </Tabs>
       </div>

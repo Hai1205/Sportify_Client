@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Clock, Disc, Music, Pause, Pencil, Play, Heart } from "lucide-react";
+import {
+  Clock,
+  Disc,
+  Music,
+  Pause,
+  Pencil,
+  Play,
+  Heart,
+  Trash,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMusicStore } from "@/stores/useMusicStore";
@@ -15,9 +24,11 @@ import { formatTime } from "@/lib/utils";
 
 export default function AlbumDetailsPage() {
   const { albumId } = useParams();
-  const { getAlbum, likeAlbum } = useMusicStore();
+
+  const { getAlbum, likeAlbum, deleteAlbum } = useMusicStore();
   const { currentSong, isPlaying, playAlbum, togglePlay } = usePlayerStore();
   const { user: userAuth } = useAuthStore();
+
   const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -96,16 +107,6 @@ export default function AlbumDetailsPage() {
     }
   };
 
-  // const handlePlaySong = (index: number) => {
-  //   if (!currentAlbum) return;
-
-  //   playAlbum(currentAlbum?.songs, index);
-  // };
-
-  // const handlePause = (e: React.MouseEvent) => {
-  //   e.stopPropagation();
-  //   togglePlay();
-  // };
   const handlePlayPauseSong = (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentAlbum?.songs) return;
@@ -122,6 +123,14 @@ export default function AlbumDetailsPage() {
     setCurrentAlbum((prevAlbum) =>
       prevAlbum?.id === updatedAlbum.id ? updatedAlbum : prevAlbum
     );
+  };
+
+  const handleDeleteAlbum = async (album: Album) => {
+    if (!album) {
+      return;
+    }
+
+    await deleteAlbum(album.id, album?.user?.id || "");
   };
 
   return (
@@ -183,6 +192,15 @@ export default function AlbumDetailsPage() {
                     className="gap-1 border-gray-700 text-white hover:bg-[#282828] h-10"
                   >
                     <Pencil className="h-4 w-4" /> Edit
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteAlbum(currentAlbum as Album)}
+                    className="text-red-600 gap-1 border-gray-700 hover:bg-[#282828] h-10"
+                  >
+                    <Trash className="h-4 w-4" /> Delete
                   </Button>
                 </div>
               )}

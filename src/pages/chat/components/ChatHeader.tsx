@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useChatStore } from "@/stores/useChatStore";
-import { useUserStore } from "@/stores/useUserStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { User } from "@/utils/types";
@@ -9,21 +9,18 @@ import { getOtherUserFromRoom } from "@/utils/chatHelpers";
 
 const ChatHeader = () => {
   const { selectedUser, activeRoomId, chatRooms, onlineUsers } = useChatStore();
-  const { user: currentUser } = useUserStore();
+  const { user: userAuth } = useAuthStore();
+  
   const [displayUser, setDisplayUser] = useState<User | null>(selectedUser);
+
   useEffect(() => {
-    if (activeRoomId && chatRooms.length > 0 && currentUser) {
+    if (activeRoomId && chatRooms.length > 0 && userAuth) {
       const currentRoom = chatRooms.find(room => room.id === activeRoomId);
       
       if (currentRoom) {
-        console.log("Current room:", currentRoom);
-        console.log("Current user ID:", currentUser.id);
-        
-        const otherUser = getOtherUserFromRoom(currentRoom, currentUser.id);
-        console.log("Other user:", otherUser);
-        
-        if (currentUser) {
-          setDisplayUser(currentUser); // <----
+        const otherUser = getOtherUserFromRoom(currentRoom, userAuth.id);
+        if (otherUser) {
+          setDisplayUser(otherUser);
         } else {
           console.error("Could not find other user in room");
         }
@@ -31,7 +28,7 @@ const ChatHeader = () => {
     } else if (selectedUser) {
       setDisplayUser(selectedUser);
     }
-  }, [activeRoomId, chatRooms, currentUser, selectedUser]);
+  }, [activeRoomId, chatRooms, userAuth, selectedUser]);
 
   if (!displayUser) return null;
 
