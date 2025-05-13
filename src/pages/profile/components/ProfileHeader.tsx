@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User } from "@/utils/types";
+import { createConversation } from "@/utils/api/chatApi";
 import { useState, useEffect, useMemo } from "react";
 import { UserListDialog } from "./UserListDialog";
 import { toast } from "react-toastify";
@@ -83,6 +84,23 @@ const ProfileHeader = ({
 
     setAmIFollowing(!amIFollowing);
     setFollowersCount(updatedFollowers.length);
+
+    if (!amIFollowing) {
+      const isMutual = currentUser.following.some(
+        (u) => typeof u !== "string" && u.id === userAuth.id
+      );
+      
+      if (isMutual) {
+        try {
+          await createConversation({
+            type: "direct",
+            recipientId: currentUser.id,
+          });
+          console.log("recipientId", currentUser.id, typeof currentUser.id);
+        } catch (err) {
+        }
+      }
+    }
   };
 
   return (
@@ -218,12 +236,15 @@ const ProfileHeader = ({
                   )}
                 </Button>
 
-                <Link
-                  to="/chat"
-                  className="bg-transparent border border-gray-400 hover:border-white text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors"
-                >
-                  <MessageSquare size={18} />
-                </Link>
+                {/* Ẩn nút nhắn tin nếu chưa là bạn bè */}
+                {amIFollowing && (
+                  <Link
+                    to={`/chat?userId=${currentUser.id}`}
+                    className="bg-transparent border border-gray-400 hover:border-white text-white px-4 py-2 rounded-full flex items-center gap-2 transition-colors"
+                  >
+                    <MessageSquare size={18} />
+                  </Link>
+                )}
               </div>
             )}
           </div>

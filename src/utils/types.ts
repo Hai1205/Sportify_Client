@@ -66,6 +66,7 @@ export interface GeneralStat {
 
 export interface Message {
 	id: string;
+	tempId?: string;
 	senderId: string;
 	receiverId?: string;
 	roomId?: string;
@@ -73,7 +74,7 @@ export interface Message {
 	createdAt: string;
 	updatedAt: string;
 	pending?: boolean;
-    tempId?: string;
+	error?: boolean;
 }
 
 export interface FileState {
@@ -81,10 +82,43 @@ export interface FileState {
 	audio: File | null;
 }
 
+// export interface UserData {
+//   id: string;
+//   username: string;
+//   email: string;
+//   fullName: string;
+//   avatarUrl: string;
+//   status: string;
+//   role: string;
+//   country: string;
+//   // Các trường khác
+// }
+
+export interface ChatMember {
+  id: string;
+  conversation: string;
+  user: string;
+  user_data?: User;
+  role: string;
+  joined_at: string;
+  last_read_at: string;
+  // Trường legacy
+  fullName?: string;
+  avatarUrl?: string;
+  username?: string;
+}
+
 export interface ChatRoom {
   id: string;
   name?: string;
-  roomType: 'direct' | 'group';
-  members: User[];
+  roomType?: 'direct' | 'group';  // Trường cũ
+  conversation_type?: 'direct' | 'group';  // Trường từ API
+  members: (User | ChatMember)[];
   lastMessage?: Message;
+  unreadCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  created_at?: string;  // Từ API
+  updated_at?: string;  // Từ API
+  display_name?: string;  // Tên hiển thị của người đối thoại
 }
