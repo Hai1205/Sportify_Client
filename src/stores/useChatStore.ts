@@ -1,10 +1,9 @@
 import { toast } from "react-toastify";
 import { Message, User, ChatRoom } from "@/utils/types";
 import { create } from "zustand";
-import { getMessages } from "@/utils/api/chatApi";
-import axiosInstance from "@/utils/service/axiosInstance";
+import { getChatRooms, getConversationMessages, sendMessage as apiSendMessage } from "@/utils/api/chatApi";
+import { useAuthStore } from "@/stores/useAuthStore";
 
-// Thêm helper function để sắp xếp tin nhắn
 const sortMessagesByDate = (messages: Message[]) => {
     return [...messages].sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -12,324 +11,54 @@ const sortMessagesByDate = (messages: Message[]) => {
 };
 
 interface ChatStore {
+    chatRooms: ChatRoom[];
+    messages: Message[];
+    activeRoomId: string | null;
+    selectedUser: User | null;
     isLoading: boolean;
-    isLoadingMore: boolean; // Thêm trạng thái loading khi tải thêm tin nhắn cũ
+    isLoadingMore: boolean;
     error: string | null;
-    status: number;
-    socket: any;
+    socket: WebSocket | null;
     isConnected: boolean;
     onlineUsers: Set<string>;
+    currentPage: number;
+    hasMoreMessages: boolean;
     userActivities: Map<string, string>;
-    messages: Message[];
-    selectedUser: User | null;
-    chatRooms: ChatRoom[];
-    activeRoomId: string | null;
-    currentPage: number; // Thêm trang hiện tại
-    hasMoreMessages: boolean; // Có thêm tin nhắn cũ không
+    isConnecting: boolean;
 
-    initSocket: (userId: string) => void;
-    disconnectSocket: () => void;
-    sendMessage: (receiverId: string, senderId: string, content: string) => void;
-    getMessages: (currentUserId: string, opponentId: string, page?: number, reset?: boolean) => Promise<any>;
-    loadMoreMessages: () => Promise<boolean>; // Hàm load thêm tin nhắn
-    setSelectedUser: (user: User | null) => void;
     getChatRooms: () => Promise<any>;
+    getMessages: (conversationId: string, page?: number, reset?: boolean) => Promise<any>;
+    loadMoreMessages: () => Promise<boolean>;
+    sendMessage: (conversationId: string, content: string) => void;
     setActiveRoom: (roomId: string) => void;
-    sendGroupMessage: (roomId: string, senderId: string, content: string) => void;
-    reset: () => void;
+    setSelectedUser: (user: User | null) => void;
+    initSocket: (userId: string, roomId?: string | null) => void;
+    disconnectSocket: () => void;
 }
 
 export const useChatStore = create<ChatStore>((set, get) => ({
-    users: [],
+    chatRooms: [],
+    messages: [],
+    activeRoomId: null,
+    selectedUser: null,
     isLoading: false,
     isLoadingMore: false,
     error: null,
     socket: null,
     isConnected: false,
     onlineUsers: new Set(),
+    currentPage: 1,
+    hasMoreMessages: false,
     userActivities: new Map(),
-    messages: [],
-    selectedUser: null,
-    status: 0,
-    message: null,
-    chatRooms: [],
-    activeRoomId: null,
-    currentPage: 1, 
-    hasMoreMessages: true,
-
-    setSelectedUser: (user) => {
-        // Reset pagination khi chọn user mới
-        set({ 
-            selectedUser: user, 
-            currentPage: 1, 
-            hasMoreMessages: true 
-        });
-
-        // Tự động load tin nhắn
-        if (user) {
-            const authStore = useAuthStore.getState();
-            if (authStore.user?.id) {
-                get().getMessages(authStore.user.id, user.id, 1, true);
-            }
-        }
-    },
-  
-    initSocket: (userId) => {
-        const store = get();
-        // Đóng kết nối cũ nếu có
-        if (store.socket && store.socket.readyState === WebSocket.OPEN) {
-            store.socket.close();
-        }
-        const baseURL = import.meta.env.MODE === "development" ? "ws://localhost:8001" : "wss://your-production-url";
-        const socket = new WebSocket(`${baseURL}/ws/chat/${userId}/`);
-        set({ socket });
-
-        socket.onopen = () => {
-            set({ isConnected: true });
-            console.log("WebSocket connected");
-        };
-
-        socket.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                console.log("📩 Received event:", data);
-
-                switch (data.type) {
-                    case "users_online":
-                        set({ onlineUsers: new Set(data.users) });
-                        console.log("🟢 Online users updated:", data.users);
-                        break;
-
-                    case "receive_message":
-                        if (data.message) {
-                            console.log("Received message:", data.message);
-
-                            // Cải thiện logic xử lý tin nhắn để tránh duplicate
-                            set((state) => {
-                                // Tạo bản sao của messages hiện tại
-                                let updatedMessages = [...state.messages];
-                                const receivedMsg = data.message;
-
-                                // 1. Xóa tin nhắn tạm (pending) có nội dung và người gửi/nhận giống nhau
-                                // Đây là thay đổi quan trọng: chúng ta dựa vào cả nội dung và các thông tin khác,
-                                // không chỉ dựa vào tempId, vì backend có thể không trả về tempId
-                                updatedMessages = updatedMessages.filter(msg => {
-                                    // Giữ lại nếu không phải tin nhắn pending
-                                    if (!msg.pending) return true;
-
-                                    // Hoặc nếu là pending nhưng không khớp với tin nhắn vừa nhận
-                                    const isSameContent = msg.content === receivedMsg.content;
-                                    const isSameSender = msg.senderId === receivedMsg.senderId;
-                                    const isSameReceiver =
-                                        (msg.receiverId === receivedMsg.receiverId) ||
-                                        (msg.receiverId === undefined && receivedMsg.receiverId === undefined);
-
-                                    // Loại bỏ nếu khớp tất cả điều kiện
-                                    return !(isSameContent && isSameSender && isSameReceiver);
-                                });
-
-                                // 2. Thêm tin nhắn mới chỉ khi không tồn tại tin nhắn có cùng id (tránh duplicate)
-                                const messageExists = updatedMessages.some(msg => msg.id === receivedMsg.id);
-                                if (!messageExists) {
-                                    updatedMessages.push({
-                                        ...receivedMsg,
-                                        pending: false,
-                                    });
-                                }
-
-                                // 3. Sắp xếp lại tin nhắn theo thời gian
-                                return { messages: sortMessagesByDate(updatedMessages) };
-                            });
-                        }
-                        break;
-
-                    case "user_connected":
-                        set((state) => ({
-                            onlineUsers: new Set([...state.onlineUsers, data.userId]),
-                        }));
-                        break;
-                    case "user_disconnected":
-                        set((state) => {
-                            const newOnlineUsers = new Set(state.onlineUsers);
-                            newOnlineUsers.delete(data.userId);
-                            return { onlineUsers: newOnlineUsers };
-                        });
-                        break;
-                    case "error":
-                        console.error("WebSocket error:", data.message);
-                        toast.error(`Lỗi chat: ${data.message}`);
-                        break;
-                    default:
-                        console.warn("⚠️ Không nhận diện được event type:", data.type);
-                }
-            } catch (error) {
-                console.error("Error parsing WebSocket message:", error);
-            }
-        };
-
-        socket.onclose = (event) => {
-            console.log(`WebSocket disconnected, code: ${event.code}, reason: ${event.reason || "No reason provided"}`);
-            set({ isConnected: false, socket: null });
-            // Tự động kết nối lại sau 3 giây nếu không phải đóng có chủ ý
-            if (event.code !== 1000) {
-                setTimeout(() => {
-                    console.log("Reconnecting WebSocket...");
-                    get().initSocket(userId);
-                }, 3000);
-            }
-        };
-        socket.onerror = (error) => {
-            console.error("WebSocket error:", error);
-        };
-    },
-
-    disconnectSocket: () => {
-        if (get().isConnected && get().socket) {
-            get().socket.close();
-            set({ isConnected: false, socket: null });
-        }
-    },
-
-    sendMessage: (receiverId, senderId, content) => {
-        const socket = get().socket;
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            toast.error("Kết nối chat bị gián đoạn. Đang thử kết nối lại...");
-            get().initSocket(senderId);
-            return;
-        }
-
-        if (!content.trim()) return;
-
-        const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-        const now = new Date().toISOString();
-
-        const tempMessage: Message = {
-            id: tempId,
-            senderId,
-            receiverId,
-            content,
-            createdAt: now,
-            updatedAt: now,
-            pending: true,
-            tempId,
-        };
-
-        // Thêm tin nhắn tạm vào state và sắp xếp lại
-        set(state => ({
-            messages: sortMessagesByDate([...state.messages, tempMessage])
-        }));
-
-        // Gửi tin nhắn qua WebSocket
-        socket.send(JSON.stringify({
-            type: "send_message",
-            senderId,
-            receiverId,
-            content,
-            tempId
-        }));
-    },
-
-    sendGroupMessage: (roomId, senderId, content) => {
-        const socket = get().socket;
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            toast.error("Không thể kết nối đến server chat");
-            return;
-        }
-        socket.send(JSON.stringify({
-            type: "send_message",
-            senderId,
-            roomId,
-            content
-        }));
-    },
-
-    loadMoreMessages: async () => {
-        const { currentPage, hasMoreMessages, selectedUser, isLoadingMore } = get();
-        const userAuth = useAuthStore.getState().user;
-        
-        // Không load thêm nếu không còn tin nhắn cũ hoặc đang load
-        if (!hasMoreMessages || isLoadingMore || !selectedUser || !userAuth?.id) {
-            return false;
-        }
-        
-        set({ isLoadingMore: true });
-        
-        try {
-            // Load tin nhắn với trang tiếp theo
-            const nextPage = currentPage + 1;
-            await get().getMessages(userAuth.id, selectedUser.id, nextPage);
-            return true;
-        } catch (error) {
-            console.error("Lỗi khi tải thêm tin nhắn cũ:", error);
-            return false;
-        } finally {
-            set({ isLoadingMore: false });
-        }
-    },
-
-    getMessages: async (currentUserId, opponentId, page = 1, reset = false) => {
-        if (reset) {
-            set({ isLoading: true, messages: [], currentPage: 1, hasMoreMessages: true });
-        } else {
-            set({ isLoading: page === 1 });
-        }
-        
-        try {
-            const response = await getMessages(currentUserId, opponentId, page);
-            const fetchedMessages = response.data?.messages || [];
-            const pagination = response.data?.pagination || { hasMore: false };
-            
-            set(state => {
-                let allMessages = reset ? [] : [...state.messages];
-                
-                // Khi load thêm tin nhắn cũ, thêm vào đầu danh sách
-                if (page > 1) {
-                    // Thêm tin nhắn mới load vào đầu mảng (tin nhắn cũ)
-                    allMessages = [...fetchedMessages, ...allMessages];
-                } else {
-                    // Trang đầu tiên thì ghi đè hoàn toàn
-                    allMessages = fetchedMessages;
-                }
-                
-                // Sử dụng Map để xóa duplicate
-                const uniqueMessages = new Map();
-                allMessages.forEach((msg: Message) => {
-                    uniqueMessages.set(msg.id, { ...msg, pending: false });
-                });
-                
-                // Thêm tin nhắn pending vào (nếu có)
-                state.messages.forEach((msg: Message) => {
-                    if (msg.pending) {
-                        uniqueMessages.set(msg.tempId || msg.id, msg);
-                    }
-                });
-                
-                // Cập nhật trạng thái phân trang
-                return {
-                    messages: sortMessagesByDate(Array.from(uniqueMessages.values())),
-                    isLoading: false,
-                    currentPage: page,
-                    hasMoreMessages: pagination.hasMore
-                };
-            });
-            
-            return fetchedMessages;
-        } catch (error: any) {
-            console.error("Lỗi khi lấy tin nhắn:", error);
-            const message = error.response?.data?.message || "Không thể lấy tin nhắn";
-            set({ error: message, isLoading: false });
-            return [];
-        }
-    },
+    isConnecting: false,
 
     getChatRooms: async () => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axiosInstance.get('/api/chats/rooms/');
-            set({ chatRooms: response.data.rooms });
-            return response.data.rooms;
+            const response = await getChatRooms();
+            set({ chatRooms: response.data.conversations || [] });
+            return response.data.conversations;
         } catch (error: any) {
-            console.error("Lỗi khi lấy danh sách phòng chat:", error);
             const message = error.response?.data?.message || "Không thể lấy danh sách phòng chat";
             set({ error: message });
             toast.error(message);
@@ -339,21 +68,282 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         }
     },
 
-    setActiveRoom: (roomId) => set({ activeRoomId: roomId }),
-
-    reset: () => {
-        set({
-            socket: null,
-            isConnected: false,
-            onlineUsers: new Set(),
-            userActivities: new Map(),
-            messages: [],
-            selectedUser: null,
-            isLoading: false,
-            error: null,
-            status: 0,
-            chatRooms: [],
-            activeRoomId: null,
-        });
+    getMessages: async (conversationId, page = 1, reset = false) => {
+        if (!conversationId) {
+            return [];
+        }
+        if (reset) {
+            set({ currentPage: 1 });
+        }
+        try {
+            set({
+                isLoading: page === 1,
+                isLoadingMore: page > 1
+            });
+            const response = await getConversationMessages(conversationId, page);
+            const fetchedMessages = (response.data?.results.messages || []).map((msg: any) => ({
+                ...msg,
+                senderId: msg.sender,
+                createdAt: msg.created_at,
+                updatedAt: msg.updated_at,
+                roomId: msg.conversation,
+            }));
+            const hasMore = !!response.data?.next;
+            set(state => {
+                let allMessages = reset ? [] : [...state.messages];
+                if (page > 1) {
+                    allMessages = [...fetchedMessages, ...allMessages];
+                } else {
+                    allMessages = fetchedMessages;
+                }
+                const uniqueMessages = new Map();
+                allMessages.forEach((msg: Message) => {
+                    uniqueMessages.set(msg.id, { ...msg, pending: false });
+                });
+                state.messages.forEach((msg: Message) => {
+                    if (msg.pending) {
+                        uniqueMessages.set(msg.tempId || msg.id, msg);
+                    }
+                });
+                return {
+                    messages: sortMessagesByDate(Array.from(uniqueMessages.values())),
+                    isLoading: false,
+                    isLoadingMore: false,
+                    currentPage: page,
+                    hasMoreMessages: hasMore
+                };
+            });
+            return fetchedMessages;
+        } catch (error: any) {
+            console.error("Lỗi khi lấy tin nhắn:", error);
+            const message = error.response?.data?.message || "Không thể lấy tin nhắn";
+            set({ error: message, isLoading: false, isLoadingMore: false });
+            toast.error(message);
+            return [];
+        }
     },
+
+    loadMoreMessages: async () => {
+        const { activeRoomId, currentPage, hasMoreMessages, isLoadingMore } = get();
+
+        if (!activeRoomId || !hasMoreMessages || isLoadingMore) {
+            return false;
+        }
+
+        const nextPage = currentPage + 1;
+        await get().getMessages(activeRoomId, nextPage, false);
+        return true;
+    },
+
+    sendMessage: (conversationId, content) => {
+        if (!content.trim()) return;
+
+        const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const currentUser = useAuthStore.getState().user;
+
+        if (!currentUser) {
+            toast.error("Chưa đăng nhập");
+            return;
+        }
+        const tempMessage: Message = {
+            id: tempId,
+            tempId,
+            content,
+            senderId: currentUser.id,
+            roomId: conversationId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            pending: true
+        };
+
+        set(state => ({
+            messages: sortMessagesByDate([...state.messages, tempMessage])
+        }));
+        const socket = get().socket;
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                type: "send_message",
+                senderId: currentUser.id,
+                content,
+                conversationId
+            }));
+        } else {
+            apiSendMessage(conversationId, content)
+                .then(response => {
+                    set(state => {
+                        const updatedMessages = state.messages.map(msg =>
+                            msg.tempId === tempId ? { ...response.data.message, pending: false } : msg
+                        );
+                        return { messages: updatedMessages };
+                    });
+                })
+                .catch(error => {
+                    set(state => {
+                        const updatedMessages = state.messages.map(msg =>
+                            msg.tempId === tempId ? { ...msg, pending: false, error: true } : msg
+                        );
+                        return { messages: updatedMessages };
+                    });
+
+                    const errorMessage = error.response?.data?.message || "Không thể gửi tin nhắn";
+                    toast.error(errorMessage);
+                });
+        }
+    },
+
+    setActiveRoom: (roomId) => {
+        const previousRoomId = get().activeRoomId;
+        if (previousRoomId && !roomId) {
+            get().disconnectSocket();
+        }
+        if (roomId) {
+            localStorage.setItem('activeRoomId', roomId);
+        } else {
+            localStorage.removeItem('activeRoomId');
+        }
+
+        set({
+            activeRoomId: roomId,
+            currentPage: 1,
+            messages: [],
+            hasMoreMessages: false
+        });
+
+        if (roomId) {
+            get().getMessages(roomId, 1, true);
+            const userId = useAuthStore.getState().user?.id;
+            if (userId && (!get().isConnected || !get().socket)) {
+                get().initSocket(userId, roomId);
+            }
+        }
+    },
+
+    setSelectedUser: (user) => {
+        set({ selectedUser: user });
+    },
+
+    initSocket: (userId, roomId = null) => {
+        if (!userId) return;
+        if (get().socket) {
+            console.log("Closing existing socket before creating a new one");
+            get().disconnectSocket();
+        }
+
+        if (get().isConnecting) return;
+        set({ isConnecting: true });
+
+        let wsBaseUrl = import.meta.env.VITE_SERVER_WS_URL || 'ws://localhost:8001';
+        if (wsBaseUrl.startsWith('http://')) {
+            wsBaseUrl = 'ws://' + wsBaseUrl.substring(7);
+        } else if (wsBaseUrl.startsWith('https://')) {
+            wsBaseUrl = 'wss://' + wsBaseUrl.substring(8);
+        }
+        const wsUrl = `${wsBaseUrl}/ws/chat/${userId}/`;
+        console.log("Connecting to WebSocket:", wsUrl);
+        const socket = new WebSocket(wsUrl);
+
+        socket.onopen = () => {
+            console.log("WebSocket connected");
+            set({ socket, isConnected: true, isConnecting: false });
+
+            if (roomId) {
+                socket.send(JSON.stringify({
+                    type: "join_room",
+                    roomId: roomId
+                }));
+            }
+        };
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log("WebSocket received message:", data);
+                if (data.type === "users_online") {
+                    set({ onlineUsers: new Set(data.users) });
+                }
+                else if (data.type === "new_message") {
+                    const { message } = data;
+
+                    const conversation = typeof message.conversation === 'object' ?
+                        String(message.conversation) : message.conversation;
+                    const sender = typeof message.sender === 'object' ?
+                        String(message.sender) : message.sender;
+
+                    const processedMessage = {
+                        ...message,
+                        roomId: message.roomId || conversation,
+                        senderId: message.senderId || sender,
+                        createdAt: message.createdAt || message.created_at,
+                        updatedAt: message.updatedAt || message.updated_at,
+                        conversation: conversation,
+                        sender: sender,
+                        id: String(message.id)
+                    };
+
+                    const activeRoomId = get().activeRoomId;
+                    if (processedMessage.roomId === activeRoomId || processedMessage.conversation === activeRoomId) {
+                        set(state => {
+                            const messageExists = state.messages.some(msg =>
+                                (msg.id === processedMessage.id) ||
+                                (msg.senderId === processedMessage.senderId &&
+                                    msg.content === processedMessage.content &&
+                                    Math.abs(new Date(msg.createdAt).getTime() - new Date(processedMessage.createdAt).getTime()) < 5000)
+                            );
+
+                            if (messageExists) {
+                                // If exists, update the temporary message
+                                return {
+                                    messages: state.messages.map(msg =>
+                                        (msg.pending && msg.senderId === processedMessage.senderId &&
+                                            msg.content === processedMessage.content) ?
+                                            { ...processedMessage, pending: false } : msg
+                                    )
+                                };
+                            } else {
+                                return {
+                                    messages: sortMessagesByDate([...state.messages, processedMessage])
+                                };
+                            }
+                        });
+                    }
+                    set(state => {
+                        const messageRoomId = processedMessage.roomId || processedMessage.conversation;
+                        const updatedRooms = state.chatRooms.map(room =>
+                            room.id === messageRoomId ? { ...room, lastMessage: processedMessage } : room
+                        );
+                        return { chatRooms: updatedRooms };
+                    });
+                }
+            } catch (error) {
+                console.error("Error parsing WebSocket message", error);
+            }
+        };
+
+        socket.onclose = (event) => {
+            console.log(`WebSocket disconnected, code: ${event.code}, reason: ${event.reason || "No reason provided"}`);
+            set({ isConnected: false, socket: null, isConnecting: false });
+
+            if (event.code !== 1000 && event.code !== 1011) {
+                setTimeout(() => {
+                    console.log("Reconnecting WebSocket...");
+                    get().initSocket(userId);
+                }, 5000);
+            } else if (event.code === 1011) {
+                console.warn("Server reported internal error (1011). Not reconnecting automatically.");
+                toast.error("Lỗi kết nối với server chat. Vui lòng tải lại trang.");
+            }
+        };
+
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+            set({ isConnecting: false });
+        };
+    },
+
+    disconnectSocket: () => {
+        if (get().isConnected && get().socket) {
+            get().socket?.close();
+            set({ isConnected: false, socket: null });
+        }
+    },
+
 }));

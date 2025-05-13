@@ -1,63 +1,61 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Loader2, Send } from "lucide-react";
 import { useChatStore } from "@/stores/useChatStore";
-import { useAuthStore } from "@/stores/useAuthStore";
 
-const MessageInput = () => {
+interface MessageInputProps {
+  disabled?: boolean;
+}
+
+const MessageInput = ({ disabled = false }: MessageInputProps) => {
   const [message, setMessage] = useState("");
-  const { user } = useAuthStore();
-  const { selectedUser, sendMessage, activeRoomId, sendGroupMessage } = useChatStore();
   const [sending, setSending] = useState(false);
+  const { activeRoomId, sendMessage } = useChatStore();
 
   const handleSend = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !activeRoomId) return;
+    
+    setSending(true);
     
     try {
-      setSending(true);
-      
-      if (activeRoomId && !selectedUser) {
-        // Group message
-        await sendGroupMessage(activeRoomId, user?.id!, message);
-      } else if (selectedUser) {
-        // Direct message
-        await sendMessage(selectedUser.id, user?.id!, message);
-      }
-      
-      // Clear input after sending
+      sendMessage(activeRoomId, message.trim());
       setMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
     } finally {
-      setSending(false);
+      setTimeout(() => setSending(false), 300); 
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey && !disabled && message.trim()) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  if (!selectedUser && !activeRoomId) return null;
-
   return (
     <div className="p-4 border-t border-zinc-700 mt-auto">
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <Input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder="Nhập tin nhắn..."
           className="bg-zinc-800"
-          disabled={sending}
+          disabled={sending || disabled || !activeRoomId}
+          autoComplete="off"
         />
         <Button 
           onClick={handleSend}
-          disabled={!message.trim() || sending}
+          disabled={!message.trim() || sending || disabled || !activeRoomId}
+          className="min-w-[70px] flex justify-center"
+          size="icon"
         >
-          Gửi
+          {sending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </Button>
       </div>
     </div>
